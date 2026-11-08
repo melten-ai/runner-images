@@ -1,0 +1,58 @@
+name: Hosted reference inventories
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 0 * * *"
+permissions:
+  contents: read
+jobs:
+  inventory:
+    strategy:
+      fail-fast: false
+      matrix:
+        # Fixed product labels bind snapshots to these actual hosted images.
+        os: [ubuntu-24.04, macos-26]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      # Capture the native image before setup actions can add their own tools.
+      - uses: ./
+        with:
+          output: inventory.json
+      - uses: ./compare
+        with:
+          reference: inventory.json
+          candidate: inventory.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: reference-${{ matrix.os }}
+          path: inventory.json
+          if-no-files-found: error
+          retention-days: 30
+  record:
+    needs: inventory
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: hosted-inventory-git
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: reference-*
+          path: ${{ runner.temp }}/observations
+      - name: Record changed inventories in Git
+        env:
+          OBSERVATIONS: ${{ runner.temp }}/observations
+        run: bash scripts/commit-snapshots.sh "$OBSERVATIONS" main
