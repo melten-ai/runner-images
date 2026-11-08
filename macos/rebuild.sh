@@ -22,7 +22,8 @@ fi
 cd "$state/source"
 # Load fixes from main even after a pre-publication failure. Keep immutable
 # uploaded candidates on their source until the hosted finalizer completes.
-if [[ ! -f artifacts/rebuild.json ]] || python3 - "$profile" <<'PYTHON'
+can_refresh_source() {
+	python3 - "$profile" <<'PYTHON'
 import json
 import sys
 from pathlib import Path
@@ -37,7 +38,8 @@ if not state.get("done") and not state.get("released_receipt"):
     temporary.write_text(json.dumps(state) + "\n")
     temporary.replace(journal)
 PYTHON
-then
+}
+if [[ ! -f artifacts/rebuild.json ]] || can_refresh_source; then
 	git fetch origin main
 	git merge --ff-only origin/main
 fi
