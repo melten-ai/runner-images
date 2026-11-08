@@ -333,7 +333,7 @@ def test_bootstrap_uses_own_factory_checkout_without_touching_other_factory(tmp_
     tools = tmp_path / "bin"
     tools.mkdir()
     state = tmp_path / "state"
-    other = state / "runner-images/circlesac/xcode/source"
+    other = state / "runner-images/example-owner/xcode/source"
     other.mkdir(parents=True)
     (other / "marker").write_text("other factory")
     scripts = {
@@ -381,7 +381,7 @@ if [[ $1 != -c ]]; then pwd >"$TEST_BOOTSTRAP_RESULT"; fi
 def test_other_factory_callback_is_never_invoked(local):
     root, state = local
     config = root / "local config"
-    other = config / "runner-images/circlesac/xcode/after-release.json"
+    other = config / "runner-images/example-owner/xcode/after-release.json"
     other.parent.mkdir(parents=True)
     other.write_text(json.dumps(["/example/other-consumer"]))
     env = {"XDG_CONFIG_HOME": str(config)}

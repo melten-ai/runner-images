@@ -1,8 +1,6 @@
 # Runner images
 
-Melten’s image factory covers macOS Tart and Linux images on GCP and Azure. Inventory, qualification, rebuild and release contracts retain the same form as the original public [Circles implementation](https://github.com/circlesac/runner-images); each factory owns its destinations, credentials and local state. Existing public source history and MIT attribution are preserved.
-
-Inspect and compare GitHub Actions runner images on local machines and cloud VMs. Collect hosted references, build local Apple Silicon Tart images, and compare actual capabilities on Linux and macOS. GCP/Azure Ubuntu base-image builds and releases run automatically in Actions after their OIDC identities and destinations are configured. Complete version/runtime equivalence remains outside the current qualification.
+GitHub Actions runner images for Melten.
 
 ## What is measured
 
