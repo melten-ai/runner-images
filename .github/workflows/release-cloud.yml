@@ -25,3 +25,5 @@ jobs:
     uses: ./.github/workflows/cloud-image.yml
     with:
       provider: ${{ matrix.provider }}
+    secrets:
+      RUNNER_IMAGES_WRITE_TOKEN: ${{ secrets.RUNNER_IMAGES_WRITE_TOKEN }}

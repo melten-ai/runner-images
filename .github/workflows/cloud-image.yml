@@ -5,6 +5,9 @@ on:
       provider:
         type: string
         required: true
+    secrets:
+      RUNNER_IMAGES_WRITE_TOKEN:
+        required: true
 permissions:
   contents: read
 jobs:
@@ -44,6 +47,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@v7
         with:
           python-version: "3.14"
@@ -108,7 +112,11 @@ jobs:
           python3 scripts/cloud-image.py publish "$PROVIDER"
       - name: Record released cloud image in Git
         if: steps.plan.outputs.record == 'true'
-        run: bash scripts/commit-cloud.sh
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_IMAGES_WRITE_TOKEN }}
+        run: |
+          gh auth setup-git --hostname github.com
+          bash scripts/commit-cloud.sh
       - name: Remove owned temporary resources and unpublished images
         if: always()
         run: python3 scripts/cloud-image.py cleanup "$PROVIDER"
