@@ -16,6 +16,9 @@ def example(tmp_path):
     image.mkdir()
     for name in ("config.json", "disk.img", "nvram.bin"):
         (image / name).write_bytes(b"synthetic VM content")
+    (image / "config.json").write_text(
+        json.dumps({"cpuCount": 4, "macAddress": "02:00:00:00:00:01"})
+    )
     reference = {
         "schema_version": 1,
         "os": "darwin",

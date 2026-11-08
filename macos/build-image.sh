@@ -157,6 +157,7 @@ python3 "$root/scripts/qualify-image.py" "$bundle" "$tart_home/vms/$temporary" \
 	--image "$image" --profile "$profile" --base "$base" \
 	--source-commit "$source_revision" --reference-commit "$reference_revision" \
 	--runner-version "$version" \
+	--runner-dir "$runner_dir" \
 	--run-url "${GITHUB_SERVER_URL:+$GITHUB_SERVER_URL/${GITHUB_REPOSITORY:?}/actions/runs/${GITHUB_RUN_ID:?}}"
 # Recheck in case another process created the destination while we built.
 if image_exists "$image"; then

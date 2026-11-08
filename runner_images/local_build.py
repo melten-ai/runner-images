@@ -30,6 +30,24 @@ def invoke(
     return result.stdout.strip() if output else ""
 
 
+def consume_release(
+    root: Path, profile: str, receipt: Path, env: dict[str, str]
+) -> None:
+    """Run an explicitly registered, host-local consumer after publication."""
+    config = Path(env.get("XDG_CONFIG_HOME") or str(Path.home() / ".config"))
+    hook = config / "runner-images" / profile / "after-release.json"
+    if not hook.exists():
+        return
+    command: object = json.loads(hook.read_text())
+    if (
+        not isinstance(command, list)
+        or not command
+        or not all(isinstance(arg, str) and arg for arg in cast(list[object], command))
+    ):
+        raise ValueError("after-release.json must contain a nonempty command array")
+    invoke([*cast(list[str], command), str(receipt.parent.resolve())], root, env)
+
+
 def rebuild(root: Path, profile: str) -> None:
     if profile not in ("xcode", "xcode-android"):
         raise ValueError("unknown image profile")
@@ -56,7 +74,7 @@ def perform(root: Path, profile: str) -> None:
         temporary.write_text(json.dumps(state) + "\n")
         temporary.replace(journal)
 
-    if not state or state.get("done"):
+    if not state or state.get("done") or state.get("released_receipt"):
         if invoke(["git", "status", "--porcelain"], root, env, output=True):
             raise ValueError("isolated build checkout has uncommitted source changes")
         invoke(["git", "fetch", "origin", "main", "--tags"], root, env)
@@ -68,6 +86,15 @@ def perform(root: Path, profile: str) -> None:
                 released.get("status") == "released"
                 and released.get("input_id") == desired
             ):
+                if released.get("qualification_sha256") != digest(
+                    path.parent / "qualification.json"
+                ):
+                    raise ValueError("released qualification receipt is mismatched")
+                state = {"done": False, "released_receipt": str(path.relative_to(root))}
+                save()
+                consume_release(root, profile, path, env)
+                state["done"] = True
+                save()
                 print(f"Already released: {released['url']}")
                 return
         # Fail before the expensive VM build if the finalizer is not activated.
@@ -256,6 +283,17 @@ def perform(root: Path, profile: str) -> None:
         root,
         env,
     )
+    # A successful Actions run alone is insufficient: read its durable receipt.
+    invoke(["git", "fetch", "origin", "main"], root, env)
+    invoke(["git", "checkout", "-B", "main", "origin/main"], root, env)
+    receipt = root / qualification / "release.json"
+    released = read_object(receipt)
+    if (
+        released.get("status") != "released"
+        or released.get("qualification_sha256") != identity
+    ):
+        raise ValueError("published release receipt is missing or mismatched")
+    consume_release(root, profile, receipt, env)
     state["done"] = True
     save()
     print(

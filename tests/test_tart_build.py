@@ -33,6 +33,7 @@ if command=="clone":
     directory=home/a[2]; directory.mkdir(parents=True)
     for name in ["config.json","disk.img","nvram.bin"]:
         (directory/name).write_bytes(b"synthetic-image-bytes")
+    (directory/"config.json").write_text(json.dumps({"cpuCount":4,"macAddress":"02:00:00:00:00:01"}))
 if command=="delete":
     images.remove(a[1]); shutil.rmtree(home/a[1])
 if command=="rename":

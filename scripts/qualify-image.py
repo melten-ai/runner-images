@@ -16,6 +16,7 @@ parser.add_argument("--base", required=True)
 parser.add_argument("--source-commit", required=True)
 parser.add_argument("--reference-commit", required=True)
 parser.add_argument("--runner-version", required=True)
+parser.add_argument("--runner-dir", default="/Users/admin/actions-runner")
 parser.add_argument("--run-url", default="")
 args = parser.parse_args()
 try:
@@ -29,6 +30,7 @@ try:
             "source_commit": args.source_commit,
             "reference_commit": args.reference_commit,
             "runner_version": args.runner_version,
+            "runner_dir": args.runner_dir,
             "run_url": args.run_url,
         },
     )

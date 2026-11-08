@@ -107,7 +107,11 @@ def reconcile(root: Path) -> None:
             "uploads it, records evidence and waits for GitHub to publish the "
             "release and close this issue. Existing gh authentication is reused; "
             "required Homebrew tools are installed automatically. "
-            "Run the same command again after an interruption to resume.\n\n"
+            "Run the same command again after an interruption to resume. "
+            "If this Mac has a registered local consumer, it is called after "
+            "publication and on replay; its failure fails the command. "
+            "This public issue tracks publication, while consumer adoption is "
+            "recorded locally.\n\n"
             "Failures keep this issue open. A newer reference/recipe remains "
             "outstanding even if an older build finishes.\n"
         )

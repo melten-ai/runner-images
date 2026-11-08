@@ -66,6 +66,19 @@ def qualify(bundle: Path, image_directory: Path, metadata: dict[str, str]) -> No
         "build": metadata,
         "base_files": checked_fingerprint(bundle / "base-fingerprint.json"),
         "image_files": fingerprint(image_directory),
+        # Tart clone assigns a new MAC. Bind every other configuration field
+        # so a consumer can verify the clone without requiring that MAC.
+        "clone_config_sha256": hashlib.sha256(
+            json.dumps(
+                {
+                    k: v
+                    for k, v in read_object(image_directory / "config.json").items()
+                    if k != "macAddress"
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode()
+        ).hexdigest(),
         "inventory_sha256": digest(bundle / "inventory.json"),
         "reference_sha256": digest(bundle / "reference.json"),
         "allowlist_sha256": digest(bundle / "accepted-missing.txt"),

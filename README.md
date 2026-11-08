@@ -154,3 +154,9 @@ Install ShellCheck and shfmt with your system package manager. The gate runs for
 ## Related projects
 
 [actions/runner-images](https://github.com/actions/runner-images) is the official upstream source for toolsets, provisioning, software reports and runtime tests. [runner-drift](https://github.com/Booyaka101/runner-drift) monitors selected tool-version changes and migrations. [Mactions](https://github.com/Kyter-com/Mactions) manages ephemeral runners and documents hosted differences. This repository compares observations from both machines rather than treating a published manifest as proof of a candidate’s contents.
+
+### Local consumers after macOS publication
+
+The issue command can notify a host-local image consumer after it reads a published release receipt from `origin/main`. Register a JSON command array at `${XDG_CONFIG_HOME:-~/.config}/runner-images/<profile>/after-release.json`, for example `["/absolute/path/to/example-consumer"]`. The command receives the absolute qualification-bundle directory as its last argument. Arguments are passed directly, without a shell. No consumer configuration or credentials are committed here.
+
+This callback also runs for an already published matching image, so registering later or repeating a failed adoption does not require another build. A callback failure fails the local command and leaves its journal unfinished. The public rebuild issue tracks image publication and closes after verified release publication; private consumer adoption is recorded by that consumer. Without a registered callback the command only publishes the image and never changes a fleet.
