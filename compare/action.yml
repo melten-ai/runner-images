@@ -1,0 +1,24 @@
+name: Compare runner image inventories
+description: Fail on unexpected missing capabilities or stale allowlist entries
+inputs:
+  reference:
+    description: Reference inventory JSON path
+    required: true
+  candidate:
+    description: Candidate inventory JSON path
+    required: true
+  allowlist:
+    description: Optional reviewed text file listing accepted missing records
+    default: ""
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        REFERENCE: ${{ inputs.reference }}
+        CANDIDATE: ${{ inputs.candidate }}
+        ALLOWLIST: ${{ inputs.allowlist }}
+      run: |
+        args=("$REFERENCE" "$CANDIDATE")
+        if [ -n "$ALLOWLIST" ]; then args+=(--allowlist "$ALLOWLIST"); fi
+        python3 "$GITHUB_ACTION_PATH/../scripts/compare.py" "${args[@]}"
