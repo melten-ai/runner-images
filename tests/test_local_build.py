@@ -61,6 +61,11 @@ def local(example, monkeypatch):
                 bundle, image_directory, {**metadata, "image": image, "run_url": ""}
             )
             finalize(bundle, image_directory)
+        if command[0] == "grype" and state["fail"] == "scan":
+            raise subprocess.CalledProcessError(1, command)
+        if command[:3] == ["git", "checkout", "-B"] and command[-1] == "origin/main":
+            if state.get("new_inputs"):
+                workflow.write_text("updated synthetic finalizer")
         if command[:2] == ["python3", "scripts/publish-candidate.py"]:
             if state["fail"] == "upload":
                 raise subprocess.CalledProcessError(1, command)
@@ -336,6 +341,9 @@ def test_bootstrap_uses_own_factory_checkout_without_touching_other_factory(tmp_
 if [[ $1 == -s ]]; then echo Darwin; else echo arm64; fi
 """,
         "gh": """#!/bin/bash
+if [[ $1 == auth && $2 == status ]]; then
+  [[ $3 == --hostname && $4 == github.com ]] || exit 1
+fi
 if [[ $1 == repo ]]; then
   [[ $3 == https://github.com/melten-ai/runner-images.git ]] || exit 9
   mkdir -p "$4/.git"
@@ -384,3 +392,168 @@ def test_other_factory_callback_is_never_invoked(local):
     own.write_text(json.dumps(["/example/own-consumer"]))
     local_build.consume_release(root, "xcode", root / "release.json", env)
     assert state["calls"] == [["/example/own-consumer", str(root.resolve())]]
+
+
+def test_fixed_inputs_replace_failed_unpublished_build(local):
+    root, state = local
+    state["fail"] = "scan"
+    with pytest.raises(subprocess.CalledProcessError):
+        local_build.rebuild(root, "xcode")
+    journal = root / "artifacts/rebuild.json"
+    previous = json.loads(journal.read_text())
+    state["new_inputs"] = True
+    state["fail"] = ""
+    local_build.rebuild(root, "xcode")
+    current = json.loads(journal.read_text())
+    assert current["done"]
+    assert current["image"] != previous["image"]
+    assert (root / "artifacts/tart" / previous["image"] / "qualification.json").exists()
+    assert any(
+        json.loads(p.read_text()) == previous
+        for p in (root / "artifacts/recovery").rglob("rebuild.json")
+    )
+    assert count(state, ["bash", "macos/build-image.sh"]) == 2
+
+
+def test_pending_published_consumer_finishes_original_receipt_before_new_inputs(
+    local, monkeypatch
+):
+    root, state = local
+    local_build.rebuild(root, "xcode")
+    calls = []
+    fail = True
+
+    def consume(root, profile, receipt, env):
+        calls.append(str(receipt))
+        if fail:
+            raise ValueError("consumer failed")
+
+    monkeypatch.setattr(local_build, "consume_release", consume)
+    with pytest.raises(ValueError, match="consumer failed"):
+        local_build.rebuild(root, "xcode")
+    receipt = json.loads((root / "artifacts/rebuild.json").read_text())[
+        "released_receipt"
+    ]
+    state["new_inputs"] = True
+    fail = False
+    before = len(state["calls"])
+    local_build.rebuild(root, "xcode")
+    assert calls == [str(root / receipt)] * 2
+    assert not any(c[:2] == ["git", "fetch"] for c in state["calls"][before:])
+    assert count(state, ["bash", "macos/build-image.sh"]) == 1
+    assert json.loads((root / "artifacts/rebuild.json").read_text())["done"]
+
+
+def test_invoke_interrupt_allows_child_cleanup(tmp_path):
+    import signal
+    import sys
+    import time
+
+    parent = tmp_path / "parent.py"
+    child = tmp_path / "child.py"
+    ready = tmp_path / "ready"
+    cleaned = tmp_path / "cleaned"
+    child.write_text(
+        "import signal,time\nfrom pathlib import Path\n"
+        "def stop(*_):\n time.sleep(.8)\n"
+        f" Path({str(cleaned)!r}).touch()\n raise SystemExit(130)\n"
+        "signal.signal(signal.SIGINT,stop)\n"
+        f"Path({str(ready)!r}).touch()\n"
+        "while True: time.sleep(.05)\n"
+    )
+    parent.write_text(
+        "from pathlib import Path\nfrom runner_images.local_build import invoke\n"
+        "try:\n"
+        f" invoke([{sys.executable!r},{str(child)!r}],Path({str(tmp_path)!r}),{{}})\n"
+        "except KeyboardInterrupt: pass\n"
+    )
+    env = dict(os.environ, PYTHONPATH=str(Path(__file__).resolve().parents[1]))
+    process = subprocess.Popen(
+        [sys.executable, str(parent)], env=env, start_new_session=True
+    )
+    try:
+        deadline = time.monotonic() + 10
+        while (
+            not ready.exists()
+            and process.poll() is None
+            and time.monotonic() < deadline
+        ):
+            time.sleep(0.01)
+        assert ready.exists()
+        os.killpg(process.pid, signal.SIGINT)
+        assert process.wait(timeout=10) == 0
+        assert cleaned.exists()
+    finally:
+        if process.poll() is None:
+            os.killpg(process.pid, signal.SIGKILL)
+            process.wait()
+
+
+@pytest.mark.parametrize("phase", ["failed", "released", "recorded", "uploaded"])
+def test_bootstrap_refreshes_recoverable_source_and_preserves_publication(
+    local, tmp_path, phase
+):
+    import sys
+
+    root, _ = local
+    tools = tmp_path / "bootstrap-bin"
+    tools.mkdir()
+    state = tmp_path / "bootstrap-state"
+    checkout = state / "runner-images/melten-ai/xcode/source"
+    checkout.parent.mkdir(parents=True)
+    checkout.symlink_to(root, target_is_directory=True)
+    (root / ".git").mkdir()
+    journal = root / "artifacts/rebuild.json"
+    journal.parent.mkdir(exist_ok=True)
+    value = {"image": "example-image", "source": "a" * 40, "done": False}
+    if phase == "released":
+        value["released_receipt"] = "qualifications/tart/xcode/example/release.json"
+    if phase == "recorded":
+        value["recorded"] = True
+    if phase == "uploaded":
+        publication = root / "artifacts/tart/example-image/publication.json"
+        publication.parent.mkdir(parents=True)
+        publication.write_text("{}")
+    journal.write_text(json.dumps(value))
+    before = input_id(root, "xcode")
+    log = tmp_path / "git-commands"
+    scripts = {
+        "uname": (
+            "#!/bin/bash\nif [[ $1 == -s ]]; then echo Darwin; else echo arm64; fi\n"
+        ),
+        "gh": '#!/bin/bash\n[[ $* == "auth status --hostname github.com" ]]\n',
+        "git": '#!/bin/bash\necho "$*" >>"$TEST_GIT_LOG"\n',
+        "python3": (
+            "#!/bin/bash\n"
+            "if [[ $1 == scripts/rebuild-macos.py ]]; then exit 0; fi\n"
+            'exec "$TEST_PYTHON" "$@"\n'
+        ),
+    }
+    for tool in ("tart", "jq", "grype"):
+        scripts[tool] = "#!/bin/bash\nexit 0\n"
+    for name, content in scripts.items():
+        path = tools / name
+        path.write_text(content)
+        path.chmod(0o755)
+    subprocess.run(
+        [
+            "bash",
+            str(Path(__file__).resolve().parents[1] / "macos/rebuild.sh"),
+            "xcode",
+        ],
+        env=dict(
+            os.environ,
+            PATH=str(tools) + os.pathsep + os.environ["PATH"],
+            PYTHONPATH=str(Path(__file__).resolve().parents[1]),
+            XDG_STATE_HOME=str(state),
+            TEST_PYTHON=sys.executable,
+            TEST_GIT_LOG=str(log),
+        ),
+        check=True,
+        capture_output=True,
+    )
+    saved = json.loads(journal.read_text())
+    assert all(saved[key] == item for key, item in value.items())
+    assert log.exists() == (phase in ("failed", "released"))
+    if phase == "failed":
+        assert saved["input_id"] == before

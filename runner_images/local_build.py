@@ -18,16 +18,32 @@ from runner_images.rebuild import input_id
 def invoke(
     command: list[str], root: Path, env: dict[str, str], *, output: bool = False
 ) -> str:
-    result = subprocess.run(
+    process = subprocess.Popen(
         command,
         cwd=root,
         env=env,
-        check=True,
         text=True,
         stdout=subprocess.PIPE if output else None,
-        timeout=None,
     )
-    return result.stdout.strip() if output else ""
+    try:
+        stdout, _ = process.communicate()
+    except KeyboardInterrupt:
+        # The terminal already signals the foreground process group. Do not
+        # send a second signal or kill a child running its cleanup/finally.
+        while True:
+            try:
+                process.communicate()
+                break
+            except KeyboardInterrupt:
+                continue
+        raise
+    except BaseException:
+        process.kill()
+        process.wait()
+        raise
+    if process.returncode:
+        raise subprocess.CalledProcessError(process.returncode, command, stdout)
+    return stdout.strip() if output else ""
 
 
 def consume_release(
@@ -61,7 +77,9 @@ def rebuild(root: Path, profile: str) -> None:
 
 def perform(root: Path, profile: str) -> None:
     env = dict(os.environ)
-    env["GH_TOKEN"] = invoke(["gh", "auth", "token"], root, env, output=True)
+    env["GH_TOKEN"] = invoke(
+        ["gh", "auth", "token", "--hostname", "github.com"], root, env, output=True
+    )
     env["TART_REGISTRY_PASSWORD"] = env["GH_TOKEN"]
     env["TART_REGISTRY_USERNAME"] = invoke(
         ["gh", "api", "user", "--jq", ".login"], root, env, output=True
@@ -74,12 +92,41 @@ def perform(root: Path, profile: str) -> None:
         temporary.write_text(json.dumps(state) + "\n")
         temporary.replace(journal)
 
-    if not state or state.get("done") or state.get("released_receipt"):
+    if state.get("released_receipt") and not state.get("done"):
+        receipt = root / str(state["released_receipt"])
+        released = read_object(receipt)
+        if released.get("status") != "released" or released.get(
+            "qualification_sha256"
+        ) != digest(receipt.parent / "qualification.json"):
+            raise ValueError("released qualification receipt is mismatched")
+        consume_release(root, profile, receipt, env)
+        state["done"] = True
+        save()
+        print(f"Release adoption completed: {released['url']}")
+        return
+
+    # Refresh only before uploading/recording a candidate. Once publication has
+    # started, finish that immutable candidate before considering newer inputs.
+    unpublished = (
+        bool(state)
+        and not state.get("recorded")
+        and not (
+            root / "artifacts/tart" / str(state.get("image")) / "publication.json"
+        ).exists()
+    )
+    if not state or state.get("done") or unpublished:
         if invoke(["git", "status", "--porcelain"], root, env, output=True):
             raise ValueError("isolated build checkout has uncommitted source changes")
+        previous_inputs = state.get("input_id") or input_id(root, profile)
         invoke(["git", "fetch", "origin", "main", "--tags"], root, env)
         invoke(["git", "checkout", "-B", "main", "origin/main"], root, env)
         desired = input_id(root, profile)
+        if not (unpublished and not state.get("done") and previous_inputs == desired):
+            if unpublished and not state.get("done"):
+                recovery = root / "artifacts/recovery" / uuid.uuid4().hex
+                recovery.mkdir(parents=True)
+                shutil.copy2(journal, recovery / "rebuild.json")
+            state = {}
         for path in (root / f"qualifications/tart/{profile}").glob("*/release.json"):
             released = read_object(path)
             if (
@@ -97,30 +144,34 @@ def perform(root: Path, profile: str) -> None:
                 save()
                 print(f"Already released: {released['url']}")
                 return
-        # Fail before the expensive VM build if the finalizer is not activated.
-        invoke(
-            [
-                "gh",
-                "workflow",
-                "view",
-                "release-tart.yml",
-                "--repo",
-                "melten-ai/runner-images",
-                "--ref",
-                "main",
-            ],
-            root,
-            env,
-            output=True,
-        )
-        state = cast(
-            dict[str, object],
-            {
-                "image": f"macos-26-{profile}-local-{uuid.uuid4().hex}",
-                "source": invoke(["git", "rev-parse", "HEAD"], root, env, output=True),
-            },
-        )
-        save()
+        if not state:
+            # Fail before the expensive VM build if the finalizer is not activated.
+            invoke(
+                [
+                    "gh",
+                    "workflow",
+                    "view",
+                    "release-tart.yml",
+                    "--repo",
+                    "melten-ai/runner-images",
+                    "--ref",
+                    "main",
+                ],
+                root,
+                env,
+                output=True,
+            )
+            state = cast(
+                dict[str, object],
+                {
+                    "input_id": desired,
+                    "image": f"macos-26-{profile}-local-{uuid.uuid4().hex}",
+                    "source": invoke(
+                        ["git", "rev-parse", "HEAD"], root, env, output=True
+                    ),
+                },
+            )
+            save()
     source = str(state["source"])
     image = str(state["image"])
     bundle = root / "artifacts/tart" / image
@@ -293,6 +344,8 @@ def perform(root: Path, profile: str) -> None:
         or released.get("qualification_sha256") != identity
     ):
         raise ValueError("published release receipt is missing or mismatched")
+    state["released_receipt"] = str(receipt.relative_to(root))
+    save()
     consume_release(root, profile, receipt, env)
     state["done"] = True
     save()

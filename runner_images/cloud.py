@@ -365,6 +365,7 @@ def build(root: Path, provider: str) -> None:
     ):
         raise ValueError("Packer manifest does not identify the expected cloud image")
     state["observed_image_id"] = observed.get("id")
+    path.write_text(json.dumps(state, indent=2) + "\n")
     inventory = load(path.parent / "inventory.json")
     if inventory["os"] != "linux" or inventory["arch"] != "x86_64":
         raise ValueError("unexpected cloud image platform")

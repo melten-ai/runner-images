@@ -65,7 +65,11 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-if ! image_exists "$base"; then tart pull "$base"; fi
+# OCI tags are mutable. Refresh them even when Tart has a cached image;
+# local names and immutable digest references retain their normal cache.
+if [[ "$base" == */* && "$base" != *@sha256:* ]] || ! image_exists "$base"; then
+	tart pull "$base"
+fi
 mkdir -p "$bundle"
 cp "$reference" "$bundle/reference.json"
 cp "$allowlist" "$bundle/accepted-missing.txt"

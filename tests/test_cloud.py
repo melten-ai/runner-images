@@ -536,3 +536,26 @@ def test_build_rejects_a_guest_that_changed_planned_tool_versions(fixture):
         with pytest.raises(ValueError, match="differ from the planned"):
             cloud.build(root, provider)
     assert not (cloud.state_path(root, provider).parent / "image.json").exists()
+
+
+def test_publication_rechecks_qualified_cloud_identity(fixture, monkeypatch):
+    root, provider, external = fixture
+    cloud.plan(root, provider)
+    cloud.build(root, provider)
+    signed(root, provider)
+    original = cloud.command
+
+    def command(args, root, *, output=False):
+        result = original(args, root, output=output)
+        if args[0] in ("gcloud", "az") and (
+            "describe" in args or ("show" in args and "image-version" in args)
+        ):
+            image = json.loads(result)
+            image["id"] = "changed-resource-identity"
+            return json.dumps(image)
+        return result
+
+    monkeypatch.setattr(cloud, "command", command)
+    with pytest.raises(ValueError, match="identity changed"):
+        cloud.publish(root, provider)
+    assert not external["releases"]

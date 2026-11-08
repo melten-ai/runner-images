@@ -194,3 +194,74 @@ def test_runner_installer_rejects_unsafe_directory(tmp_path):
     )
     assert result.returncode != 0
     assert b"below the guest home" in result.stderr
+
+
+@pytest.mark.parametrize(
+    "base,refresh",
+    [
+        ("ghcr.io/example-org/runner:latest", True),
+        ("ghcr.io/example-org/runner:26.11", True),
+        ("ghcr.io/example-org/runner@sha256:" + "a" * 64, False),
+        ("local-base", False),
+    ],
+)
+def test_mutable_base_refreshes_before_clone(tmp_path, base, refresh):
+    source = Path(__file__).resolve().parents[1]
+    root = tmp_path / "source"
+    (root / "macos").mkdir(parents=True)
+    for name in ("build-image.sh", "network.sh"):
+        shutil.copyfile(source / "macos" / name, root / "macos" / name)
+    tools = tmp_path / "bin"
+    tools.mkdir()
+    cache = tmp_path / "cache"
+    cache.write_text("cached-old")
+    observed = tmp_path / "observed"
+    (tools / "tart").write_text("""#!/usr/bin/env python3
+import json,os,sys
+from pathlib import Path
+args=sys.argv[1:]
+if args[0]=='list':
+    result=json.dumps([{'State':'stopped'}])
+    print(result if '--format' in args else os.environ['TEST_BASE'])
+elif args[0]=='pull':
+    Path(os.environ['TEST_CACHE']).write_text('remote-new')
+elif args[0]=='clone':
+    Path(os.environ['TEST_OBSERVED']).write_text(Path(os.environ['TEST_CACHE']).read_text())
+    sys.exit(73)  # Stop before creating or booting any VM.
+""")
+    (tools / "git").write_text(
+        '#!/bin/bash\ncase "$*" in *rev-parse*) echo synthetic-commit;; esac\n'
+    )
+    (tools / "uname").write_text(
+        "#!/bin/bash\nif [[ $1 == -s ]]; then echo Darwin; else echo arm64; fi\n"
+    )
+    for tool in tools.iterdir():
+        tool.chmod(0o755)
+    reference = tmp_path / "reference.json"
+    reference.write_text("{}")
+    allowlist = tmp_path / "allowlist.txt"
+    allowlist.write_text("")
+    result = subprocess.run(
+        [
+            "bash",
+            str(root / "macos/build-image.sh"),
+            "example-image",
+            base,
+            "xcode",
+            "/Users/admin/actions-runner",
+            str(reference),
+            str(allowlist),
+        ],
+        env=dict(
+            os.environ,
+            PATH=str(tools) + os.pathsep + os.environ["PATH"],
+            TEST_BASE=base,
+            TEST_CACHE=str(cache),
+            TEST_OBSERVED=str(observed),
+        ),
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 73, result.stderr
+    assert observed.read_text() == ("remote-new" if refresh else "cached-old")
