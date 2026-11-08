@@ -1,0 +1,13 @@
+name: Collect runner image inventory
+description: Record commands, completed tool caches and image environment names without environment values
+inputs:
+  output:
+    description: Inventory JSON output path
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        INVENTORY_OUTPUT: ${{ inputs.output }}
+      run: python3 "$GITHUB_ACTION_PATH/scripts/inventory.py" > "$INVENTORY_OUTPUT"

@@ -1,0 +1,39 @@
+name: Reconcile image rebuild issues
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "45 0 * * *"
+  # GITHUB_TOKEN snapshot/evidence commits do not trigger push workflows.
+  workflow_run:
+    workflows: [Hosted reference inventories, Release verified Tart image]
+    types: [completed]
+permissions:
+  contents: read
+concurrency:
+  # Every issue writer uses this single queue; never cancel a mutation in flight.
+  group: image-rebuild-issues
+  cancel-in-progress: false
+jobs:
+  reconcile:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.event != 'pull_request' &&
+       github.event.workflow_run.conclusion == 'success'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      # Always reconcile latest main, never workflow_run artifacts or PR source.
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Update one issue per profile from current inputs and uploaded evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/reconcile-rebuilds.py
