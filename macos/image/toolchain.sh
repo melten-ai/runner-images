@@ -96,6 +96,30 @@ retire_unsupported_go() {
 	done
 }
 
+# These inherited extras are absent from the hosted toolset and job PATH contract.
+retire_unused_inherited_tools() {
+	local formula users candidate version
+	for formula in otel-cli gitlab-runner; do
+		if brew list --versions "$formula" </dev/null >/dev/null 2>&1; then
+			users=$(brew uses --installed "$formula" </dev/null) || return 1
+			if [ -n "$users" ]; then
+				echo "Retaining $formula: installed formula dependents exist" >&2
+				continue
+			fi
+			brew uninstall --formula "$formula" </dev/null >&2 || return 1
+		fi
+	done
+	# Ruby jobs use patched Homebrew Ruby. Preserve links and unrelated versions.
+	for candidate in "$HOME"/.rbenv/versions/2.7.*; do
+		version=${candidate##*/}
+		[[ $version =~ ^2\.7\.[0-9]+$ ]] || continue
+		if [ -L "$HOME/.rbenv" ] || [ -L "$HOME/.rbenv/versions" ] || [ -L "$candidate" ]; then continue; fi
+		[ -d "$candidate" ] || continue
+		rm -rf "$candidate" || return 1
+		echo "Retired unused EOL Ruby $version with its private OpenSSL" >&2
+	done
+}
+
 main() {
 	eval "$(/opt/homebrew/bin/brew shellenv)"
 	export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_ENV_HINTS=1
@@ -226,8 +250,21 @@ main() {
 	retire_unsupported_go "$toolset"
 
 	# The inherited base can retain outdated Cellar kegs after installations.
+	retire_unused_inherited_tools
 	upgrade_core_formulas
 	brew cleanup --prune=all </dev/null >&2
+
+	# npm's patched dependencies can advance independently of Node archives.
+	local node_prefix node_version
+	while IFS= read -r formula; do
+		node_prefix=$(brew --prefix "$formula")
+		node_version=$("$node_prefix/bin/node" -p 'process.versions.node.split(".")[0]')
+		refresh_image_npm "$node_prefix" "node$node_version"
+	done < <(brew list --formula | /usr/bin/grep -E '^node(@[0-9]+)?$')
+	while IFS= read -r node_prefix; do
+		node_version=$("$node_prefix/bin/node" -p 'process.versions.node.split(".")[0]')
+		refresh_image_npm "$node_prefix" "node$node_version"
+	done < <(find "$RUNNER_TOOL_CACHE/node" -mindepth 2 -maxdepth 2 -type d -name arm64 | sort)
 
 	# Python 3.13+ removed lib2to3; retain the hosted command on patched 3.12.
 	prefix=$(brew --prefix python@3.12)

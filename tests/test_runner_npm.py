@@ -88,9 +88,11 @@ def runner_archive(*, node_mark: bytes = NODE_MARK) -> tuple[bytes, str]:
 
 
 def patched_install_script(tmp_path: Path, archive_path: Path) -> Path:
-    text = INSTALL_RUNNER.read_text().replace(
-        "/tmp/actions-runner.tar.gz", str(archive_path)
-    )
+    text = (
+        (ROOT / "macos/image/refresh-npm.sh").read_text()
+        + "\n"
+        + INSTALL_RUNNER.read_text()
+    ).replace("/tmp/actions-runner.tar.gz", str(archive_path))
     script = tmp_path / "install-runner-test.sh"
     script.write_text(text)
     script.chmod(0o755)
@@ -368,3 +370,40 @@ def test_runtime_npm_failure_stops_before_runner_wrapper(
     assert error in result.stderr
     assert not (runner / "run-runner.sh").exists()
     assert (runner / "externals/node20/bin/node").read_bytes() == node_mark
+
+
+@pytest.mark.parametrize("runtime", ["node22", "node24"])
+def test_shared_refresh_updates_non_runner_prefix_without_changing_node(
+    guest_layout, runtime
+):
+    home, _, tools, _ = guest_layout
+    prefix = home / "hostedtoolcache/node/example/arm64"
+    (prefix / "bin").mkdir(parents=True)
+    (prefix / "bin/node").write_bytes(NODE_MARK)
+    (prefix / "bin/node").chmod(0o755)
+    old = prefix / "lib/node_modules/npm/node_modules/obsolete"
+    old.mkdir(parents=True)
+    (old / "keep-until-verified").touch()
+    metadata, tarballs = default_npm_catalog()
+    write_curl_stub(tools, runner_archive=b"", metadata=metadata, tarballs=tarballs)
+    script = (ROOT / "macos/image/refresh-npm.sh").read_bytes()
+    result = subprocess.run(
+        ["/bin/bash", "-s", "--", str(prefix), runtime],
+        input=script + b'\nrefresh_image_npm "$1" "$2"\n',
+        capture_output=True,
+        env={
+            **os.environ,
+            "PATH": str(tools) + os.pathsep + os.environ["PATH"],
+            "TEST_NODE_CHECK_LOG": str(tools / "node-check.log"),
+        },
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert (prefix / "bin/node").read_bytes() == NODE_MARK
+    assert not old.exists()
+    assert (
+        json.loads((prefix / "lib/node_modules/npm/package.json").read_text())[
+            "version"
+        ]
+        == "12.55.1"
+    )

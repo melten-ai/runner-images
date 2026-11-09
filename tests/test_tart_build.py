@@ -97,6 +97,7 @@ if command=="exec":
     body=sys.stdin.read() if "-i" in a else ""
     if "brew update" in body:
         assert "refresh_python_cache()" in body, "missing Python cache helper"
+        assert "refresh_image_npm()" in body, "missing npm helper"
         if os.environ.get("TEST_FAIL_STAGE")=="provision": sys.exit(5)
         path="/example/bin:/usr/bin:/bin"
         print("invalid" if os.environ.get("TEST_FAIL_STAGE")=="job-path" else path)

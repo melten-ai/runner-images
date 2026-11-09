@@ -26,18 +26,25 @@ assert stat.S_ISCHR(os.fstat(0).st_mode), "brew must not consume the script"
 args=sys.argv[1:]
 with Path(os.environ["TEST_BREW_LOG"]).open("a") as f: f.write(json.dumps(args)+"\\n")
 if args[0]==os.environ.get("TEST_FAIL"): raise SystemExit(7)
-if args[0]=="list": print(os.environ.get("TEST_INSTALLED", ""))
+if args[0]=="list":
+    installed=os.environ.get("TEST_INSTALLED", "")
+    if "--versions" in args:
+        raise SystemExit(0 if args[-1] in installed.splitlines() else 1)
+    print(installed)
+if args[0]=="uses": print(os.environ.get("TEST_USERS", ""))
 """
     )
     brew.chmod(0o755)
 
-    def run(command, installed="", fail=""):
+    def run(command, installed="", fail="", users=""):
         env = {
             **os.environ,
             "PATH": f"{tools}:/usr/bin:/bin",
             "TEST_BREW_LOG": str(log),
             "TEST_INSTALLED": installed,
             "TEST_FAIL": fail,
+            "TEST_USERS": users,
+            "HOME": str(tmp_path / "home"),
         }
         result = subprocess.run(
             ["/bin/bash", "-s"],
@@ -122,3 +129,29 @@ def test_rejected_trust_does_not_fall_back_to_whole_tap_trust(shell):
     result, calls = shell("install_image_formula packer", fail="trust")
     assert result.returncode != 0
     assert calls == [["trust", "--formula", "hashicorp/tap/packer"]]
+
+
+def test_unused_extras_removed_and_unrelated_ruby_preserved(shell, tmp_path):
+    versions = tmp_path / "home/.rbenv/versions"
+    for version in ("2.7.8", "3.4.12"):
+        (versions / version / "openssl").mkdir(parents=True)
+    outside = tmp_path / "external-ruby"
+    outside.mkdir()
+    (outside / "keep").touch()
+    (versions / "2.7.7").symlink_to(outside, target_is_directory=True)
+    result, calls = shell("retire_unused_inherited_tools", "otel-cli\ngitlab-runner")
+    assert result.returncode == 0, result.stderr
+    assert ["uninstall", "--formula", "otel-cli"] in calls
+    assert ["uninstall", "--formula", "gitlab-runner"] in calls
+    assert not (versions / "2.7.8").exists()
+    assert (versions / "3.4.12/openssl").exists()
+    assert (versions / "2.7.7").is_symlink() and (outside / "keep").exists()
+
+
+def test_formula_dependents_prevent_removing_inherited_tool(shell):
+    result, calls = shell(
+        "retire_unused_inherited_tools", "otel-cli", users="example-dependent"
+    )
+    assert result.returncode == 0, result.stderr
+    assert ["uses", "--installed", "otel-cli"] in calls
+    assert not any(call[0] == "uninstall" for call in calls)

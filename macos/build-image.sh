@@ -118,6 +118,8 @@ python3 "$root/scripts/prepare-macos-cask.py" "$temporary"
 echo '==> Installing the official macOS toolset and runtime caches'
 job_path=$(
 	{
+		cat "$root/macos/image/refresh-npm.sh"
+		printf '\n'
 		cat "$root/macos/image/refresh-python-cache.sh"
 		printf '\n'
 		cat "$root/macos/image/toolchain.sh"
@@ -141,8 +143,11 @@ if [[ "$profile" == xcode-android ]]; then
 	job_path+=":/Users/admin/android-sdk/platform-tools:/Users/admin/android-sdk/cmdline-tools/latest/bin"
 fi
 
-tart exec -i "$temporary" /bin/bash -s -- "$version" "$runner_dir" "$checksum" \
-	<"$root/macos/image/install-runner.sh"
+{
+	cat "$root/macos/image/refresh-npm.sh"
+	printf '\n'
+	cat "$root/macos/image/install-runner.sh"
+} | tart exec -i "$temporary" /bin/bash -s -- "$version" "$runner_dir" "$checksum"
 # shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
 printf 'PATH=%s\n' "$job_path" | tart exec -i "$temporary" /bin/bash -c 'cat >"$1/.env"' -- "$runner_dir"
 # No registration token, organization, or host identity is baked into the image.
