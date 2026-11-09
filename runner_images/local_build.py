@@ -208,7 +208,7 @@ def perform(root: Path, profile: str) -> None:
     if not (bundle / "publication.json").exists():
         invoke(["git", "checkout", "-B", "main", source], root, env)
         invoke(
-            ["grype", f"sbom:{bundle / 'sbom.spdx.json'}", "--fail-on", "high"],
+            ["grype", f"sbom:{bundle / 'sbom.syft.json'}", "--fail-on", "high"],
             root,
             env,
         )

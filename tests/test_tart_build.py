@@ -7,6 +7,48 @@ from pathlib import Path
 import pytest
 
 
+def test_collector_emits_both_formats_from_one_guest_scan(tmp_path):
+    root = Path(__file__).resolve().parents[1]
+    tools = tmp_path / "bin"
+    tools.mkdir()
+    (tools / "brew").write_text("#!/bin/sh\nexit 0\n")
+    (tools / "syft").write_text("""#!/usr/bin/env python3
+import json, os, sys
+from pathlib import Path
+assert os.environ["SYFT_GOLANG_CAPTURE_SYMBOLS"] == "all"
+with Path(os.environ["TEST_SCAN_CALLS"]).open("a") as stream:
+    stream.write(json.dumps(sys.argv[1:]) + "\\n")
+for index, arg in enumerate(sys.argv[1:], 1):
+    if arg == "-o":
+        format, path = sys.argv[index + 1].split("=", 1)
+        Path(path).write_text(json.dumps({"format": format}))
+""")
+    for tool in tools.iterdir():
+        tool.chmod(0o755)
+    evidence = tmp_path / "evidence"
+    script = tmp_path / "collect.sh"
+    script.write_text(
+        (root / "macos/image/collect-sbom.sh")
+        .read_text()
+        .replace("/private/tmp/runner-image-sbom", str(evidence))
+    )
+    calls = tmp_path / "calls.jsonl"
+    subprocess.run(
+        ["bash", str(script)],
+        env=dict(
+            os.environ,
+            PATH=str(tools) + os.pathsep + os.environ["PATH"],
+            TEST_SCAN_CALLS=str(calls),
+        ),
+        check=True,
+    )
+    assert len(calls.read_text().splitlines()) == 1
+    for format in ("syft", "spdx"):
+        assert json.loads((evidence / f"sbom.{format}.json").read_text()) == {
+            "format": f"{format}-json"
+        }
+
+
 def test_build_lifecycle_and_failure_cleanup(tmp_path):
     root = Path(__file__).resolve().parents[1]
     tools = tmp_path / "bin"
@@ -57,8 +99,12 @@ if command=="exec":
         if os.environ.get("TEST_FAIL_STAGE")=="provision": sys.exit(5)
         print("/example/bin:/usr/bin:/bin")
     if "syft scan dir:/" in body:
-        print(json.dumps({"spdxVersion":"SPDX-2.3", "packages":[{"name":"synthetic"}]}))
         if os.environ.get("TEST_FAIL_STAGE")=="sbom": sys.exit(8)
+    if "/bin/cat" in a and "/private/tmp/runner-image-sbom/sbom.syft.json" in a:
+        print(json.dumps({"artifacts":[{"name":"synthetic"}]}))
+    if "/bin/cat" in a and "/private/tmp/runner-image-sbom/sbom.spdx.json" in a:
+        if os.environ.get("TEST_FAIL_STAGE")=="sbom-read": sys.exit(9)
+        print(json.dumps({"spdxVersion":"SPDX-2.3","packages":[{"name":"synthetic"}]}))
     if "Missing hosted tool cache entry" in body:
         print("synthetic native checks passed")
         if os.environ.get("TEST_FAIL_STAGE")=="verify": sys.exit(6)
@@ -69,6 +115,7 @@ if command=="exec":
 state.write_text(json.dumps(images))
 """)
     commands = {
+        "syft": "exit 99",
         "uname": 'if [ "$1" = -s ]; then echo Darwin; else echo arm64; fi',
         "networksetup": "echo 'Device: en0'",
         "route": "echo 'interface: en0'",
@@ -99,6 +146,7 @@ esac
         "provision",
         "verify",
         "sbom",
+        "sbom-read",
         "parity",
         "rename",
         "image-changed",
@@ -119,7 +167,9 @@ esac
                 }
             )
         )
-        image = f"test-image-{tmp_path.name}-{failure or 'success'}"
+        image = (
+            f"test-image-{tmp_path.parent.name}-{tmp_path.name}-{failure or 'success'}"
+        )
         env = {
             **os.environ,
             "PATH": str(tools) + os.pathsep + os.environ["PATH"],

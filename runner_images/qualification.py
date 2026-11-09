@@ -3,6 +3,7 @@
 import hashlib
 import json
 import re
+from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import cast
@@ -31,6 +32,49 @@ def read_object(path: Path) -> dict[str, object]:
     if not isinstance(value, dict):
         raise ValueError("expected a JSON object")
     return cast(dict[str, object], value)
+
+
+def verify_sbom_packages(native: dict[str, object], spdx: dict[str, object]) -> None:
+    def packages(value: object, version_key: str) -> Counter[tuple[str, str]]:
+        if not isinstance(value, list) or not value:
+            raise ValueError("empty or invalid SBOM package inventory")
+        result: Counter[tuple[str, str]] = Counter()
+        for item in cast(list[object], value):
+            if not isinstance(item, dict):
+                raise ValueError("invalid SBOM package")
+            package = cast(dict[str, object], item)
+            name, version = package.get("name"), package.get(version_key, "")
+            if not isinstance(name, str) or not name or not isinstance(version, str):
+                raise ValueError("invalid SBOM package identity")
+            result[name, version] += 1
+        return result
+
+    expected = packages(native.get("artifacts"), "version")
+    actual = packages(spdx.get("packages"), "versionInfo")
+    # Syft's SPDX adds a DESCRIBES entry for the scanned directory itself.
+    # It is source metadata, not one of the installed packages in native JSON.
+    source_value = native.get("source")
+    source = (
+        cast(dict[str, object], source_value) if isinstance(source_value, dict) else {}
+    )
+    if source.get("type") == "directory":
+        described = {
+            r.get("relatedSpdxElement")
+            for r in cast(list[dict[str, object]], spdx.get("relationships", []))
+            if r.get("spdxElementId") == "SPDXRef-DOCUMENT"
+            and r.get("relationshipType") == "DESCRIBES"
+            and isinstance(r.get("relatedSpdxElement"), str)
+        }
+        for package in cast(list[dict[str, object]], spdx["packages"]):
+            if (
+                package.get("SPDXID") in described
+                and package.get("name") == source.get("name")
+                and package.get("versionInfo", "") == source.get("version", "")
+            ):
+                actual[str(package["name"]), str(package.get("versionInfo", ""))] -= 1
+                break
+    if expected != actual:
+        raise ValueError("native and SPDX SBOM package inventories differ")
 
 
 def checked_fingerprint(path: Path) -> dict[str, object]:
@@ -91,6 +135,12 @@ def qualify(bundle: Path, image_directory: Path, metadata: dict[str, str]) -> No
         if sbom.get("spdxVersion") != "SPDX-2.3" or not sbom.get("packages"):
             raise ValueError("empty or invalid image SBOM")
         receipt["sbom_sha256"] = digest(bundle / "sbom.spdx.json")
+    if (bundle / "sbom.syft.json").exists():
+        native = read_object(bundle / "sbom.syft.json")
+        if not native.get("artifacts"):
+            raise ValueError("empty native image SBOM")
+        verify_sbom_packages(native, read_object(bundle / "sbom.spdx.json"))
+        receipt["native_sbom_sha256"] = digest(bundle / "sbom.syft.json")
     target = bundle / "comparison-passed.json"
     if target.exists():
         raise ValueError("qualification receipt already exists")
@@ -207,6 +257,11 @@ def record(bundle: Path, repository: Path, source_commit: str) -> Path:
         and digest(bundle / "sbom.spdx.json") != receipt["sbom_sha256"]
     ):
         raise ValueError("image SBOM was changed")
+    if (
+        "native_sbom_sha256" in receipt
+        and digest(bundle / "sbom.syft.json") != receipt["native_sbom_sha256"]
+    ):
+        raise ValueError("native image SBOM was changed")
     # A content-addressed directory preserves every verified build without overwriting.
     identity = digest(bundle / "qualification.json")
     destination = repository / f"qualifications/tart/{profile}/{identity}"
@@ -218,6 +273,8 @@ def record(bundle: Path, repository: Path, source_commit: str) -> Path:
     )
     if "sbom_sha256" in receipt:
         files += ("sbom.spdx.json",)
+    if "native_sbom_sha256" in receipt:
+        files += ("sbom.syft.json",)
     for name in files:
         target = destination / name
         content = (bundle / name).read_bytes()
