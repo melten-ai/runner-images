@@ -29,7 +29,7 @@ reference_revision=$(git -C "$(dirname "$reference")" rev-parse HEAD)
 	echo 'Apple Silicon macOS is required.' >&2
 	exit 1
 }
-for command in tart curl jq python3; do command -v "$command" >/dev/null; done
+for command in tart curl jq python3 syft; do command -v "$command" >/dev/null; done
 image_exists() { tart list --quiet | grep -Fxq -- "$1"; }
 active=$(tart list --format json | python3 -c 'import json,sys; print(sum(v["State"] == "running" for v in json.load(sys.stdin)))')
 if ((active >= 2)); then
@@ -132,7 +132,9 @@ guest_job() {
     exec "$@"
   ' -- "$runner_dir" "$@"
 }
-guest_job /bin/bash -s <"$root/macos/image/collect-sbom.sh" >"$bundle/sbom.spdx.json"
+guest_job /bin/bash -s <"$root/macos/image/collect-sbom.sh" >"$bundle/sbom.syft.json"
+# Preserve native metadata for scanning; SPDX is the attestation format.
+syft convert "$bundle/sbom.syft.json" -o spdx-json >"$bundle/sbom.spdx.json"
 guest_job /bin/bash -s <"$root/macos/image/verify-toolchain.sh" 2>&1 | tee "$bundle/toolchain-check.txt"
 if [[ "$profile" == xcode-android ]]; then
 	# shellcheck disable=SC2016 # The quoted paths are evaluated inside the guest.

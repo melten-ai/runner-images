@@ -61,6 +61,10 @@ def prepare(root: Path, key: str) -> dict[str, str]:
         or read_object(bundle / "sbom.spdx.json").get("spdxVersion") != "SPDX-2.3"
     ):
         raise ValueError("release requires a qualification-bound guest SBOM")
+    if receipt.get("native_sbom_sha256") != digest(
+        bundle / "sbom.syft.json"
+    ) or not read_object(bundle / "sbom.syft.json").get("artifacts"):
+        raise ValueError("release requires a qualification-bound native guest SBOM")
     destination = record(bundle, trusted, source)
     record_publication(bundle, trusted, destination)
     publication = read_object(bundle / "publication.json")
@@ -123,6 +127,7 @@ def publish_release(root: Path) -> dict[str, str]:
             "toolset.json",
             "toolchain-check.txt",
             "sbom.spdx.json",
+            "sbom.syft.json",
         )
     ]
     workspace = root / "artifacts/release"

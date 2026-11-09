@@ -32,6 +32,9 @@ def uploaded(example, monkeypatch):
         run_url="",
         image="macos-26-xcode-local-" + "b" * 32,
     )
+    (bundle / "sbom.syft.json").write_text(
+        json.dumps({"artifacts": [{"name": "example-tool"}]})
+    )
     (bundle / "sbom.spdx.json").write_text(
         json.dumps({"spdxVersion": "SPDX-2.3", "packages": [{"name": "example-tool"}]})
     )
@@ -196,6 +199,25 @@ def test_preparation_refuses_untrusted_paths_sources_and_sbom(uploaded):
     (root / key / "sbom.spdx.json").write_text("{}")
     with pytest.raises(ValueError, match="SBOM"):
         release.prepare(root, key)
+
+
+@pytest.mark.parametrize("damage", ["changed", "missing", "empty"])
+def test_release_refuses_invalid_native_sbom(uploaded, damage):
+    root, key, _, _ = uploaded
+    native = root / key / "sbom.syft.json"
+    if damage == "missing":
+        native.unlink()
+    else:
+        native.write_text(
+            json.dumps(
+                {"artifacts": [] if damage == "empty" else [{"name": "changed"}]}
+            )
+        )
+    error = FileNotFoundError if damage == "missing" else ValueError
+    message = None if damage == "missing" else "qualification-bound native guest SBOM"
+    with pytest.raises(error, match=message):
+        release.prepare(root, key)
+    assert not (root / "artifacts/release/prepared.json").exists()
 
 
 def test_release_pagination_and_prerelease_refusal(monkeypatch):

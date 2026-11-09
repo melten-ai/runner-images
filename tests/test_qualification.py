@@ -257,3 +257,26 @@ def test_empty_guest_sbom_cannot_receive_qualification(example):
     with pytest.raises(ValueError, match="SBOM"):
         qualify(bundle, image, metadata)
     assert not (bundle / "comparison-passed.json").exists()
+
+
+def test_native_sbom_identity_is_preserved_and_tampering_rejected(example):
+    repo, bundle, image, metadata = example
+    native = bundle / "sbom.syft.json"
+    native.write_text(json.dumps({"artifacts": [{"name": "example-tool"}]}))
+    qualify(bundle, image, metadata)
+    finalize(bundle, image)
+    receipt = read_object(bundle / "qualification.json")
+    assert receipt["native_sbom_sha256"] == digest(native)
+    destination = record(bundle, repo, metadata["source_commit"])
+    assert (destination / "sbom.syft.json").read_bytes() == native.read_bytes()
+    native.write_text(json.dumps({"artifacts": [{"name": "changed-tool"}]}))
+    with pytest.raises(ValueError, match="native image SBOM was changed"):
+        record(bundle, repo, metadata["source_commit"])
+
+
+def test_empty_native_sbom_cannot_qualify(example):
+    _, bundle, image, metadata = example
+    (bundle / "sbom.syft.json").write_text('{"artifacts": []}')
+    with pytest.raises(ValueError, match="empty native image SBOM"):
+        qualify(bundle, image, metadata)
+    assert not (bundle / "comparison-passed.json").exists()

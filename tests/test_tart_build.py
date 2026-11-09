@@ -57,7 +57,7 @@ if command=="exec":
         if os.environ.get("TEST_FAIL_STAGE")=="provision": sys.exit(5)
         print("/example/bin:/usr/bin:/bin")
     if "syft scan dir:/" in body:
-        print(json.dumps({"spdxVersion":"SPDX-2.3", "packages":[{"name":"synthetic"}]}))
+        print(json.dumps({"artifacts":[{"name":"synthetic"}]}))
         if os.environ.get("TEST_FAIL_STAGE")=="sbom": sys.exit(8)
     if "Missing hosted tool cache entry" in body:
         print("synthetic native checks passed")
@@ -69,6 +69,7 @@ if command=="exec":
 state.write_text(json.dumps(images))
 """)
     commands = {
+        "syft": 'echo \'{"spdxVersion":"SPDX-2.3","packages":[{"name":"synthetic"}]}\'',
         "uname": 'if [ "$1" = -s ]; then echo Darwin; else echo arm64; fi',
         "networksetup": "echo 'Device: en0'",
         "route": "echo 'interface: en0'",
@@ -119,7 +120,9 @@ esac
                 }
             )
         )
-        image = f"test-image-{tmp_path.name}-{failure or 'success'}"
+        image = (
+            f"test-image-{tmp_path.parent.name}-{tmp_path.name}-{failure or 'success'}"
+        )
         env = {
             **os.environ,
             "PATH": str(tools) + os.pathsep + os.environ["PATH"],

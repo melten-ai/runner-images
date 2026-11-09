@@ -40,7 +40,7 @@ jobs:
         run: python3 scripts/release-tart.py prepare "$QUALIFICATION"
       - uses: anchore/scan-action@v7
         with:
-          sbom: ${{ steps.evidence.outputs.bundle }}/sbom.spdx.json
+          sbom: ${{ steps.evidence.outputs.bundle }}/sbom.syft.json
           severity-cutoff: high
           fail-build: true
           output-format: json

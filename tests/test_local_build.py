@@ -19,6 +19,9 @@ def local(example, monkeypatch):
     workflow = root / ".github/workflows/release-tart.yml"
     workflow.parent.mkdir(parents=True)
     workflow.write_text("synthetic finalizer")
+    (seed / "sbom.syft.json").write_text(
+        json.dumps({"artifacts": [{"name": "example-tool"}]})
+    )
     (seed / "sbom.spdx.json").write_text(
         json.dumps({"spdxVersion": "SPDX-2.3", "packages": [{"name": "example-tool"}]})
     )
@@ -128,6 +131,8 @@ def test_one_invocation_finishes_and_duplicate_invocation_is_noop(local, capsys)
     assert journal["done"] and journal["recorded"]
     assert count(state, ["bash", "macos/build-image.sh"]) == 1
     assert count(state, ["gh", "workflow", "run"]) == 1
+    scan = next(command for command in state["calls"] if command[0] == "grype")
+    assert "sbom.syft.json" in " ".join(scan)
     local_build.rebuild(root, "xcode")
     assert count(state, ["bash", "macos/build-image.sh"]) == 1
     assert count(state, ["gh", "workflow", "run"]) == 1

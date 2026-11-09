@@ -2,7 +2,8 @@
 # Catalogue installed guest software before the stopped-image qualification hash.
 set -euo pipefail
 brew install syft >&2
-syft scan dir:/ --scope all-layers \
+export SYFT_GOLANG_CAPTURE_SYMBOLS=all
+syft scan dir:/ --override-default-catalogers image --scope all-layers \
 	--exclude './dev/**' --exclude './System/**' --exclude './private/**' \
 	--exclude './Volumes/**' --exclude './Users/admin/Library/**' \
-	-o spdx-json
+	-o syft-json

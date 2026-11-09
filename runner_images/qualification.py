@@ -91,6 +91,10 @@ def qualify(bundle: Path, image_directory: Path, metadata: dict[str, str]) -> No
         if sbom.get("spdxVersion") != "SPDX-2.3" or not sbom.get("packages"):
             raise ValueError("empty or invalid image SBOM")
         receipt["sbom_sha256"] = digest(bundle / "sbom.spdx.json")
+    if (bundle / "sbom.syft.json").exists():
+        if not read_object(bundle / "sbom.syft.json").get("artifacts"):
+            raise ValueError("empty native image SBOM")
+        receipt["native_sbom_sha256"] = digest(bundle / "sbom.syft.json")
     target = bundle / "comparison-passed.json"
     if target.exists():
         raise ValueError("qualification receipt already exists")
@@ -207,6 +211,11 @@ def record(bundle: Path, repository: Path, source_commit: str) -> Path:
         and digest(bundle / "sbom.spdx.json") != receipt["sbom_sha256"]
     ):
         raise ValueError("image SBOM was changed")
+    if (
+        "native_sbom_sha256" in receipt
+        and digest(bundle / "sbom.syft.json") != receipt["native_sbom_sha256"]
+    ):
+        raise ValueError("native image SBOM was changed")
     # A content-addressed directory preserves every verified build without overwriting.
     identity = digest(bundle / "qualification.json")
     destination = repository / f"qualifications/tart/{profile}/{identity}"
@@ -218,6 +227,8 @@ def record(bundle: Path, repository: Path, source_commit: str) -> Path:
     )
     if "sbom_sha256" in receipt:
         files += ("sbom.spdx.json",)
+    if "native_sbom_sha256" in receipt:
+        files += ("sbom.syft.json",)
     for name in files:
         target = destination / name
         content = (bundle / name).read_bytes()

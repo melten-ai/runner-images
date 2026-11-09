@@ -62,9 +62,8 @@ for recipe, excluded in (
         assert distro["locations"]
         assert "kept-example" in packages, packages
         assert "blocked-example" not in packages, packages
-        if recipe.startswith("cloud/"):
-            assert "declared-only-example" not in packages, packages
-            assert "example.org/declared-only" not in packages, packages
+        assert "declared-only-example" not in packages, packages
+        assert "example.org/declared-only" not in packages, packages
     print(
         f"{recipe}: actual Syft scan retains installed software "
         "and excludes transient data"
