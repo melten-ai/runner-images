@@ -41,5 +41,6 @@ mkdir -p /private/tmp/runner-image-sbom
 sudo -n /usr/bin/env SYFT_GOLANG_CAPTURE_SYMBOLS=all "$scanner" scan dir:/ --override-default-catalogers image --scope all-layers \
 	--exclude './dev/**' --exclude './System/**' --exclude './private/**' \
 	--exclude './Volumes/**' --exclude './Users/admin/Library/**' \
+	--exclude './opt/homebrew/Library/Taps/*/*/Formula/**' \
 	-o syft-json=/private/tmp/runner-image-sbom/sbom.syft.json \
 	-o spdx-json=/private/tmp/runner-image-sbom/sbom.spdx.json
