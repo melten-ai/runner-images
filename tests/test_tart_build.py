@@ -238,6 +238,7 @@ elif args[0]=='clone':
     (tools / "uname").write_text(
         "#!/bin/bash\nif [[ $1 == -s ]]; then echo Darwin; else echo arm64; fi\n"
     )
+    (tools / "syft").write_text("#!/bin/sh\nexit 0\n")
     for tool in tools.iterdir():
         tool.chmod(0o755)
     reference = tmp_path / "reference.json"
