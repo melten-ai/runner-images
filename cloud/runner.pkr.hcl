@@ -126,6 +126,11 @@ build {
     source      = "/tmp/runner-evidence/toolchains.json"
     destination = "${var.output_directory}toolchains.json"
   }
+  provisioner "file" {
+    direction   = "download"
+    source      = "/tmp/runner-evidence/git-lfs-build.json"
+    destination = "${var.output_directory}git-lfs-build.json"
+  }
   provisioner "shell" {
     inline = ["sudo rm -rf /tmp/runner-source /tmp/runner-evidence /tmp/runner-tools /tmp/actions-runner.tar.gz /tmp/syft.tar.gz /tmp/runner-release.json /tmp/syft-release.json /tmp/runner-docker.asc", "sudo rm -f /home/runnerbuilder/.ssh/authorized_keys", "sudo apt-get clean", "sudo cloud-init clean --logs --seed", "sudo truncate -s 0 /etc/machine-id"]
   }

@@ -59,7 +59,14 @@ def fixture(tmp_path, monkeypatch, request):
         "fail": "",
         "version": "26.11.0",
         "base": "ubuntu-example-20261108",
-        "toolchains": {"node": {"version": "v24.0.0", "sha256": "a" * 64}},
+        "toolchains": {
+            "node": {"version": "v24.0.0", "sha256": "a" * 64},
+            "git-lfs": {
+                "version": "v3.8.1",
+                "net_version": "v0.62.0",
+                "compress_version": "v1.20.4",
+            },
+        },
     }
 
     def current():
@@ -140,6 +147,15 @@ def fixture(tmp_path, monkeypatch, request):
                     {}
                     if external["fail"] == "receipts"
                     else json.loads((folder / "toolchains-plan.json").read_text())
+                )
+            )
+            (folder / "git-lfs-build.json").write_text(
+                json.dumps(
+                    {
+                        "inputs": {}
+                        if external["fail"] == "lfs-receipt"
+                        else external["toolchains"]["git-lfs"]
+                    }
                 )
             )
             artifact = state["build_id"] if provider == "gcp" else state["image_id"]
@@ -268,6 +284,7 @@ def test_plan_build_publish_noop_and_new_inputs(fixture):
         "sbom",
         "native-sbom",
         "receipts",
+        "lfs-receipt",
         "manifest",
     ],
 )
@@ -297,14 +314,15 @@ def test_partial_release_replay_never_duplicates_or_records_early(fixture, failu
     assert (root / f"qualifications/cloud/{provider}").exists()
 
 
-def test_missing_attestations_and_tampered_evidence_cannot_release(fixture):
+@pytest.mark.parametrize("artifact", ["inventory.json", "git-lfs-build.json"])
+def test_missing_attestations_and_tampered_evidence_cannot_release(fixture, artifact):
     root, provider, state = fixture
     cloud.plan(root, provider)
     cloud.build(root, provider)
     with pytest.raises(ValueError, match="incomplete"):
         cloud.publish(root, provider)
     signed(root, provider)
-    (cloud.state_path(root, provider).parent / "inventory.json").write_text("tampered")
+    (cloud.state_path(root, provider).parent / artifact).write_text("tampered")
     with pytest.raises(ValueError, match="changed"):
         cloud.publish(root, provider)
     assert not state["releases"]
@@ -487,16 +505,30 @@ def test_cleanup_reports_stalled_deletion_and_attempts_other_resources(fixture):
         assert sum(c[:3] == ["az", "resource", "list"] for c in state["commands"]) == 2
 
 
-def test_new_tool_release_rebuilds_without_a_new_base_or_recipe(fixture):
+@pytest.mark.parametrize(
+    "component,field,version",
+    [
+        ("node", "version", "v24.0.1"),
+        ("git-lfs", "net_version", "v0.63.0"),
+        ("git-lfs", "compress_version", "v1.20.5"),
+    ],
+)
+def test_new_tool_release_rebuilds_without_a_new_base_or_recipe(
+    fixture, component, field, version
+):
     root, provider, state = fixture
+    state["toolchains"]["git-lfs"] = {
+        "version": "v3.8.1",
+        "net_version": "v0.62.0",
+        "compress_version": "v1.20.4",
+    }
     cloud.plan(root, provider)
     cloud.build(root, provider)
     signed(root, provider)
     cloud.publish(root, provider)
     assert cloud.plan(root, provider)["needed"] == "false"
     previous = json.loads(cloud.state_path(root, provider).read_text())["input_id"]
-    state["toolchains"]["node"]["version"] = "v24.0.1"
-    state["toolchains"]["node"]["sha256"] = "b" * 64
+    state["toolchains"][component][field] = version
     assert cloud.plan(root, provider)["needed"] == "true"
     assert (
         json.loads(cloud.state_path(root, provider).read_text())["input_id"] != previous

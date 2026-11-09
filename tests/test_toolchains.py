@@ -57,6 +57,10 @@ def installer():
 
 def test_resolve_chooses_official_stable_linux_archives(installer, monkeypatch):
     documents = {
+        "https://proxy.golang.org/golang.org/x/net/@latest": '{"Version":"v0.62.0"}',
+        "https://proxy.golang.org/github.com/klauspost/compress/@latest": json.dumps(
+            {"Version": "v1.20.4"}
+        ),
         "https://nodejs.org/dist/index.json": json.dumps(
             [
                 {"version": "v99.0.0-rc.1", "lts": "Example"},
@@ -161,6 +165,8 @@ def test_resolve_chooses_official_stable_linux_archives(installer, monkeypatch):
     assert result["node"]["version"] == "v24.1.0"
     assert result["go"]["url"].endswith("linux-amd64.tar.gz")
     assert result["git-lfs"]["sha256"] == "d" * 64
+    assert result["git-lfs"]["net_version"] == "v0.62.0"
+    assert result["git-lfs"]["compress_version"] == "v1.20.4"
     assert result["npm"]["sha512"] == (b"n" * 64).hex()
     assert result["buildx"]["sha256"] == "e" * 64
     assert set(result) == {
@@ -578,3 +584,108 @@ def test_guest_asset_download_uses_public_url_without_host_identity(
         tmp_path / "archive",
     )
     assert calls == ["https://example.com/public.tgz"]
+
+
+@pytest.mark.parametrize("failure", ["", "compiler", "source", "tests", "smoke"])
+def test_git_lfs_build_uses_pinned_modules_and_installs_only_after_validation(
+    installer, tmp_path, monkeypatch, failure
+):
+    prefix = tmp_path / "tools"
+    (prefix / "bin").mkdir(parents=True)
+    target = prefix / "bin/git-lfs"
+    target.write_bytes(b"previous executable")
+    work = tmp_path / "build"
+    work.mkdir()
+    spec = {
+        "version": "v3.8.1",
+        "net_version": "v0.62.0",
+        "compress_version": "v1.20.4",
+    }
+    description = []
+    calls = []
+
+    def output(args, **kwargs):
+        if args[1:] == ["version"] and args[0].endswith("go/bin/go"):
+            return "go version go1.27.3 " + (
+                "darwin/arm64" if failure == "compiler" else "linux/amd64"
+            )
+        if args[1:4] == ["mod", "download", "-json"]:
+            assert args[-1] == "github.com/git-lfs/git-lfs/v3@v3.8.1"
+            origin = work / "modules/source"
+            origin.mkdir(parents=True)
+            (origin / "go.mod").write_text("module github.com/git-lfs/git-lfs/v3\n")
+            (origin / "go.sum").write_text("synthetic checksums\n")
+            return json.dumps(
+                {
+                    "Dir": str(origin),
+                    "Path": "wrong"
+                    if failure == "source"
+                    else "github.com/git-lfs/git-lfs/v3",
+                    "Version": "v3.8.1",
+                    "Sum": "h1:example",
+                    "GoModSum": "h1:example-mod",
+                }
+            )
+        assert args == [str(work / "git-lfs"), "version"]
+        return description[0]
+
+    def run(args, **kwargs):
+        calls.append(args)
+        assert kwargs["env"]["GOSUMDB"] == "sum.golang.org"
+        assert kwargs["env"]["CGO_ENABLED"] == "0"
+        assert "GH_TOKEN" not in kwargs["env"]
+        if args[1] == "get":
+            assert args[2:] == [
+                "golang.org/x/net@v0.62.0",
+                "github.com/klauspost/compress@v1.20.4",
+            ]
+        if args[1] == "test" and failure == "tests":
+            raise subprocess.CalledProcessError(1, args)
+        if args[1] == "build":
+            assert target.read_bytes() == b"previous executable"
+            (work / "git-lfs").write_bytes(b"verified new executable")
+            commit = args[args.index("-ldflags") + 1].split("GitCommit=", 1)[1]
+            description.append(
+                "git-lfs/3.8.1 (Melten; linux amd64; go 1.27.3; git " + commit + ")"
+            )
+
+    def probe(binary, directory, env):
+        assert binary.read_bytes() == b"verified new executable"
+        assert target.read_bytes() == b"previous executable"
+        if failure == "smoke":
+            raise ValueError("injected materialization failure")
+
+    monkeypatch.setenv("GH_TOKEN", "synthetic-host-token")
+    monkeypatch.setattr(installer["subprocess"], "check_output", output)
+    monkeypatch.setattr(installer["subprocess"], "run", run)
+    monkeypatch.setitem(installer["build_git_lfs"].__globals__, "probe_git_lfs", probe)
+    if failure:
+        with pytest.raises((ValueError, subprocess.CalledProcessError)):
+            installer["build_git_lfs"](prefix, spec, "go1.27.3", work)
+        assert target.read_bytes() == b"previous executable"
+        assert not (prefix / "share/runner-images/git-lfs-build.json").exists()
+    else:
+        installer["build_git_lfs"](prefix, spec, "go1.27.3", work)
+        assert target.read_bytes() == b"verified new executable"
+        receipt = json.loads(
+            (prefix / "share/runner-images/git-lfs-build.json").read_text()
+        )
+        assert receipt["inputs"] == spec
+        assert (
+            receipt["binary_sha256"] == hashlib.sha256(target.read_bytes()).hexdigest()
+        )
+        assert receipt["compiler"] == "go1.27.3"
+        assert len(calls) == 4
+
+
+@pytest.mark.parametrize("value", ["v1.2.3-rc1", "latest", "../unsafe"])
+def test_source_module_resolution_rejects_unstable_versions(
+    installer, monkeypatch, value
+):
+    monkeypatch.setitem(
+        installer["resolve_go_module"].__globals__,
+        "read",
+        lambda url: json.dumps({"Version": value}),
+    )
+    with pytest.raises(ValueError, match="stable"):
+        installer["resolve_go_module"]("example.org/module")

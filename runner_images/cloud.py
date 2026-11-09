@@ -385,6 +385,12 @@ def build(root: Path, provider: str) -> None:
         path.parent / "toolchains-plan.json"
     ):
         raise ValueError("installed toolchains differ from the planned build inputs")
+    lfs = read_object(path.parent / "git-lfs-build.json")
+    planned_tools = read_object(path.parent / "toolchains-plan.json")
+    if not planned_tools.get("git-lfs") or lfs.get("inputs") != planned_tools.get(
+        "git-lfs"
+    ):
+        raise ValueError("Git LFS source build differs from its planned inputs")
     # Basic profile smoke is the release gate; hosted parity is an honest report.
     comparison = compare(
         load(root / "snapshots/github-hosted/ubuntu-24.04.json"), inventory, None
@@ -402,6 +408,7 @@ def build(root: Path, provider: str) -> None:
                 "sbom.spdx.json",
                 "sbom.syft.json",
                 "toolchains.json",
+                "git-lfs-build.json",
                 "comparison.json",
                 "packer-manifest.json",
             )

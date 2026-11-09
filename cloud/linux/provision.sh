@@ -22,6 +22,7 @@ sudo -E apt-get install -y --no-install-recommends docker-ce docker-ce-cli conta
 # older package completely before installing the verified upstream plugin.
 sudo apt-get remove -y docker-buildx-plugin
 sudo python3 /tmp/runner-source/install-toolchains.py /usr/local /tmp/runner-evidence/toolchains.json --specifications /tmp/runner-source/toolchains-plan.json
+sudo cp /usr/local/share/runner-images/git-lfs-build.json /tmp/runner-evidence/git-lfs-build.json
 sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
 sudo ln -s /usr/local/go/bin/gofmt /usr/local/bin/gofmt
 # Refresh mounted Snap packages as well as apt packages before measuring the image.
