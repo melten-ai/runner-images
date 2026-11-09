@@ -85,6 +85,11 @@ syft_asset=$(gh api repos/anchore/syft/releases/latest --jq '
   .assets[] | select(.name | test("^syft_.*_darwin_arm64\\.tar\\.gz$"))
 ')
 
+android_manifest=''
+if [[ "$profile" == xcode-android ]]; then
+	android_manifest=$(python3 "$root/scripts/resolve-android-tools.py")
+fi
+
 # OCI tags are mutable. Refresh them even when Tart has a cached image;
 # local names and immutable digest references retain their normal cache.
 if [[ "$base" == */* && "$base" != *@sha256:* ]] || ! image_exists "$base"; then
@@ -133,11 +138,11 @@ if [[ "$profile" == xcode-android ]]; then
 	# shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
 	android_config=$( # shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
 		tart exec "$temporary" /bin/bash -c '
-    jq -r "[.java.arm64.default, (.android[\"cmdline-tools\"] | capture(\"mac-(?<version>[0-9]+)_\").version), .android.platform_min_version, .android.build_tools_min_version] | join(\" \")" "$HOME/.runner-image/github-macos-toolset.json"
+    jq -r "[.java.arm64.default, .android.platform_min_version, .android.build_tools_min_version] | join(\" \")" "$HOME/.runner-image/github-macos-toolset.json"
   '
 	)
-	read -r java sdk platform_version build_tools <<<"$android_config"
-	tart exec -i "$temporary" /bin/bash -s -- "$java" "$sdk" \
+	read -r java platform_version build_tools <<<"$android_config"
+	tart exec -i "$temporary" /bin/bash -s -- "$java" "$android_manifest" \
 		platform-tools "platforms;android-$platform_version" "build-tools;$build_tools" \
 		<"$root/macos/image/install-android.sh"
 	job_path+=":/Users/admin/android-sdk/platform-tools:/Users/admin/android-sdk/cmdline-tools/latest/bin"

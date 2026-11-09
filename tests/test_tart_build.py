@@ -91,7 +91,7 @@ if command=="exec":
             print("/Users/admin/Library/Caches/Homebrew/downloads/example.tgz")
     if "/usr/bin/shasum" in a: print(os.environ["TEST_CASK_SHA"]+"  example.tgz")
     if os.environ.get("TEST_FAIL_STAGE")=="boot" and "/usr/bin/true" in a: sys.exit(1)
-    if "cmdline-tools" in " ".join(a): print("21 12266719 35 35.0.0")
+    if "android.platform_min_version" in " ".join(a): print("21 35 35.0.0")
     if "github-macos-toolset.json" in " ".join(a) and "cat " in " ".join(a):
         print('{"example":"toolset"}')
     body=sys.stdin.read() if "-i" in a else ""
@@ -130,6 +130,26 @@ state.write_text(json.dumps(images))
         + "\"}]}'",
     }
     install_gh_cli(tools)
+    commands["curl"] = """
+if [ "$1" = -fsSL ]; then :; fi
+case "$*" in
+ *repository2-1.xml*)
+  while [ "$#" -gt 0 ]; do
+   if [ "$1" = -o ]; then shift; output=$1; break; fi
+   shift
+  done
+  cat >"$output" <<'XML'
+<repository><remotePackage path="cmdline-tools;latest">
+<revision><major>23</major><minor>0</minor></revision>
+<channelRef ref="channel-0"/><archives><archive><host-os>macosx</host-os>
+<complete><url>commandlinetools-mac_x86_64-123_latest.zip</url>
+<checksum>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</checksum>
+</complete></archive></archives></remotePackage></repository>
+XML
+ ;;
+ *) exit 22 ;;
+esac
+"""
     commands["git"] = """
 case "$*" in
  *rev-parse*) echo aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ;;

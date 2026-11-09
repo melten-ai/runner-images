@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path, PurePosixPath
 from typing import cast
 from urllib.parse import quote
@@ -104,3 +105,77 @@ def prepare_azure_cli(vm: str) -> None:
     if not actual or actual[0] != checksum:
         raise ValueError("Azure CLI archive changed during guest transfer")
     print(f"Prepared verified Azure CLI {version} in the build guest cache", flush=True)
+
+
+def parse_android_tools(document: str) -> dict[str, str]:
+    root = ET.fromstring(document)
+    packages = [
+        p
+        for p in root.findall("remotePackage")
+        if p.get("path") == "cmdline-tools;latest"
+        and p.find("channelRef") is not None
+        and any(c.get("ref") == "channel-0" for c in p.findall("channelRef"))
+        and p.findtext("revision/preview", "0") == "0"
+    ]
+    if len(packages) != 1:
+        raise ValueError("Expected one stable Google command-line tools release")
+    package = packages[0]
+    major = package.findtext("revision/major", "")
+    minor = package.findtext("revision/minor", "0")
+    micro = package.findtext("revision/micro", "0")
+    if not all(re.fullmatch(r"[0-9]+", value) for value in (major, minor, micro)):
+        raise ValueError("Invalid Android tools revision")
+    version = major + "." + minor + ("." + micro if micro != "0" else "")
+    archives = [
+        a
+        for a in package.findall("archives/archive")
+        if a.findtext("host-os") == "macosx"
+    ]
+    if len(archives) != 1:
+        raise ValueError("Expected one official macOS command-line tools archive")
+    archive = archives[0]
+    filename = archive.findtext("complete/url", "")
+    if not re.fullmatch(
+        r"commandlinetools-mac(?:_x86_64|_aarch64)?-[0-9]+_latest\.zip", filename
+    ):
+        raise ValueError("Invalid official Android archive filename")
+    checksum = archive.find("complete/checksum")
+    algorithm = checksum.get("type", "sha1") if checksum is not None else ""
+    digest = checksum.text if checksum is not None else ""
+    length = {"sha1": 40, "sha256": 64}.get(algorithm)
+    if (
+        not length
+        or not digest
+        or not re.fullmatch(r"[a-f0-9]{" + str(length) + "}", digest)
+    ):
+        raise ValueError("Missing or invalid official Android archive checksum")
+    return {
+        "version": version,
+        "url": "https://dl.google.com/android/repository/" + filename,
+        "checksum_algorithm": algorithm,
+        "checksum": digest,
+        "source": "https://dl.google.com/android/repository/repository2-1.xml",
+    }
+
+
+def resolve_android_tools() -> dict[str, str]:
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "repository.xml"
+        subprocess.run(
+            [
+                "curl",
+                "-fsSL",
+                "--retry",
+                "5",
+                "--retry-all-errors",
+                "--retry-delay",
+                "2",
+                "https://dl.google.com/android/repository/repository2-1.xml",
+                "-o",
+                str(path),
+            ],
+            check=True,
+            stdin=subprocess.DEVNULL,
+            timeout=180,
+        )
+        return parse_android_tools(path.read_text())
