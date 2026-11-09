@@ -2,6 +2,7 @@
 # Run in a job or after provisioning, using exactly the PATH jobs receive.
 set -euo pipefail
 
+sw_vers
 toolset="$HOME/.runner-image/github-macos-toolset.json"
 test -s "$toolset"
 for tool in git gh jq curl wget python python3 pip pipx node npm ruby gem bundle fastlane pod java javac go rustup rustc cargo rustfmt cargo-clippy cmake ninja clang swift xcodebuild codesign security tar gzip unzip shasum; do
