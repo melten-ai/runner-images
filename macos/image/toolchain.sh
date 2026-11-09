@@ -181,6 +181,12 @@ main() {
 	upgrade_core_formulas
 	brew cleanup --prune=all </dev/null >&2
 
+	# Python 3.13+ removed lib2to3; retain the hosted command on patched 3.12.
+	prefix=$(brew --prefix python@3.12)
+	test -x "$prefix/bin/2to3-3.12"
+	mkdir -p "$HOME/.local/bin"
+	ln -sfn "$prefix/bin/2to3-3.12" "$HOME/.local/bin/2to3"
+
 	# Expose the newest cached Go compiler for scripts that invoke Go directly.
 	local go_version go_variable cache_version
 	go_version=$(find "$RUNNER_TOOL_CACHE/go" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)

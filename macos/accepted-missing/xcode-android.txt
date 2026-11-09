@@ -78,6 +78,11 @@ cmd mvnDebug
 cmd mvnyjp
 cmd powershell
 cmd pwsh
+cmd python3-intel64
+cmd python3.11-intel64
+cmd python3.12-intel64
+cmd python3.13-intel64
+cmd python3.14-intel64
 cmd python314
 cmd sam
 cmd scalar

@@ -5,10 +5,16 @@ set -euo pipefail
 sw_vers
 toolset="$HOME/.runner-image/github-macos-toolset.json"
 test -s "$toolset"
-for tool in git gh jq curl wget python python3 pip pipx node npm ruby gem bundle fastlane pod java javac go rustup rustc cargo rustfmt cargo-clippy cmake ninja clang swift xcodebuild codesign security tar gzip unzip shasum; do
+for tool in git gh jq curl wget python python3 pip pipx 2to3 node npm ruby gem bundle fastlane pod java javac go rustup rustc cargo rustfmt cargo-clippy cmake ninja clang swift xcodebuild codesign security tar gzip unzip shasum; do
 	command -v "$tool"
 done
 python3 --version
+
+conversion=$(mktemp -d /tmp/runner-image-conversion.XXXXXX)
+trap 'rm -rf "$conversion"' EXIT
+printf 'print "runner-image"\n' >"$conversion/legacy.py"
+2to3 -w -n "$conversion/legacy.py" >/dev/null
+[[ $(python3 "$conversion/legacy.py") == runner-image ]]
 node --version
 ruby --version
 go version
