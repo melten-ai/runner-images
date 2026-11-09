@@ -155,3 +155,16 @@ def test_formula_dependents_prevent_removing_inherited_tool(shell):
     assert result.returncode == 0, result.stderr
     assert ["uses", "--installed", "otel-cli"] in calls
     assert not any(call[0] == "uninstall" for call in calls)
+
+
+def test_guest_build_tool_omissions_preserve_runtime_formulas(shell, tmp_path):
+    toolset = tmp_path / "toolset.json"
+    toolset.write_text(
+        json.dumps({"brew": {"common_packages": ["git", "packer", "syft", "node@24"]}})
+    )
+    result, calls = shell('omit_guest_build_tools "' + str(toolset) + '"')
+    assert result.returncode == 0, result.stderr
+    value = json.loads(toolset.read_text())
+    assert value["brew"]["common_packages"] == ["git", "node@24"]
+    assert value["runner_image_omissions"] == ["packer", "syft"]
+    assert calls == []

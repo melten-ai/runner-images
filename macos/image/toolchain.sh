@@ -96,10 +96,21 @@ retire_unsupported_go() {
 	done
 }
 
-# These inherited extras are absent from the hosted toolset and job PATH contract.
+# Image-building tools run on the builder or as verified temporary scanners.
+omit_guest_build_tools() {
+	local toolset=$1
+	jq -e '
+    if (.brew.common_packages | type) != "array" then error("Missing hosted formulas")
+    else .brew.common_packages |= map(select(. != "packer" and . != "hashicorp/tap/packer" and . != "syft")) |
+      .runner_image_omissions = ["packer", "syft"] end
+  ' "$toolset" >"$toolset.without-build-tools" || return 1
+	mv "$toolset.without-build-tools" "$toolset" || return 1
+}
+
+# These extras are not part of this image's job tool contract.
 retire_unused_inherited_tools() {
 	local formula users candidate version
-	for formula in otel-cli gitlab-runner; do
+	for formula in otel-cli gitlab-runner syft hashicorp/tap/packer; do
 		if brew list --versions "$formula" </dev/null >/dev/null 2>&1; then
 			users=$(brew uses --installed "$formula" </dev/null) || return 1
 			if [ -n "$users" ]; then
@@ -135,6 +146,9 @@ main() {
     ([.toolcache[] | select(.url)] | length > 0) and
     all(.toolcache[] | select(.url); (.arch.arm64.versions | type == "array" and length > 0))
   ' "$toolset" >/dev/null
+	mkdir -p "$HOME/.runner-image"
+	cp "$toolset" "$HOME/.runner-image/upstream-github-macos-toolset.json"
+	omit_guest_build_tools "$toolset"
 	ruby_minor=$(jq -er '.ruby.default' "$toolset")
 	python_minor=$(jq -er '.toolcache[] | select(.name == "Python") | .arch.arm64.versions | map(split(".")[0:2] | map(tonumber)) | sort | last | map(tostring) | join(".")' "$toolset")
 	node_major=$(jq -er '.node.default' "$toolset")
@@ -177,7 +191,6 @@ main() {
 	export AGENT_TOOLSDIRECTORY="$RUNNER_TOOL_CACHE"
 	mkdir -p "$RUNNER_TOOL_CACHE"
 	mkdir -p "$HOME/.runner-image"
-	cp "$toolset" "$HOME/.runner-image/upstream-github-macos-toolset.json"
 	curl -fsSL --retry 5 'https://go.dev/dl/?mode=json' -o "$work/supported-go.json"
 	configure_supported_go "$toolset" "$work/supported-go.json"
 	printf 'LANG=en_US.UTF-8\nPIPX_HOME=%s/.local/pipx\nPIPX_BIN_DIR=%s/.local/bin\n' "$HOME" "$HOME" >"$HOME/.runner-image/environment"

@@ -83,6 +83,7 @@ cmd msedgedriver
 cmd mvn
 cmd mvnDebug
 cmd mvnyjp
+cmd packer
 cmd powershell
 cmd pwsh
 cmd python3-intel64
