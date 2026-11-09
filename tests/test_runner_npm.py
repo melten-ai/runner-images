@@ -20,8 +20,11 @@ RUNNER_TARBALL_URL = (
     f"actions-runner-osx-arm64-{RUNNER_VERSION}.tar.gz"
 )
 NODE_MARK = b"""#!/usr/bin/env python3
-import json, sys
+import json, os, stat, sys
 from pathlib import Path
+assert stat.S_ISCHR(os.fstat(0).st_mode)
+with Path(os.environ["TEST_NODE_CHECK_LOG"]).open("a") as stream:
+    stream.write("checked\\n")
 package = Path(sys.argv[1]).parents[1] / "package.json"
 print(json.loads(package.read_text())["version"])
 """
@@ -198,8 +201,10 @@ def run_install(
     env = os.environ.copy()
     env["HOME"] = str(home)
     env["PATH"] = f"{tools}:{env['PATH']}"
+    env["TEST_NODE_CHECK_LOG"] = str(tools / "node-check.log")
     return subprocess.run(
-        ["bash", str(script), RUNNER_VERSION, str(runner), runner_sha],
+        ["/bin/bash", "-s", "--", RUNNER_VERSION, str(runner), runner_sha],
+        input=script.read_bytes(),
         capture_output=True,
         env=env,
     )
@@ -225,6 +230,7 @@ def test_full_install_refreshes_npm_preserves_work_and_wraps_signals(
     )
     assert result.returncode == 0, result.stdout.decode() + result.stderr.decode()
     assert (runner / "_work/job-output.txt").read_text() == "preserved"
+    assert (tools / "node-check.log").read_text().splitlines() == ["checked", "checked"]
     assert not (runner / "old-top-level").exists()
     assert (runner / "run-runner.sh").read_bytes().startswith(b"#!/bin/bash")
     assert "/usr/bin/perl" in (runner / "run.sh").read_text()
@@ -332,3 +338,33 @@ def test_install_failures_leave_affected_npm_intact(
             )["version"]
             == "11.55.1"
         )
+
+
+@pytest.mark.parametrize(
+    "node_mark,error",
+    [
+        (b"#!/bin/sh\necho wrong-version\n", b"npm reports wrong-version"),
+        (b"#!/bin/sh\nexit 17\n", b"npm runtime failed"),
+    ],
+)
+def test_runtime_npm_failure_stops_before_runner_wrapper(
+    guest_layout, node_mark, error
+):
+    home, runner, tools, archive_path = guest_layout
+    runner_bytes, runner_sha = runner_archive(node_mark=node_mark)
+    metadata, tarballs = default_npm_catalog()
+    script = patched_install_script(home.parent, archive_path)
+    result = run_install(
+        home,
+        runner,
+        tools,
+        script,
+        runner_sha,
+        metadata=metadata,
+        tarballs=tarballs,
+        runner_bytes=runner_bytes,
+    )
+    assert result.returncode != 0
+    assert error in result.stderr
+    assert not (runner / "run-runner.sh").exists()
+    assert (runner / "externals/node20/bin/node").read_bytes() == node_mark

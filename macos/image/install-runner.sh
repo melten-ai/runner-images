@@ -87,7 +87,14 @@ for runtime in node20 node24; do
 	mkdir -p "${prefix}/bin"
 	ln -sf ../lib/node_modules/npm/bin/npm-cli.js "${prefix}/bin/npm"
 	ln -sf ../lib/node_modules/npm/bin/npx-cli.js "${prefix}/bin/npx"
-	[[ "$("${prefix}/bin/node" "${prefix}/lib/node_modules/npm/bin/npm-cli.js" --version)" == "$version" ]]
+	npm_runtime="$("${prefix}/bin/node" "${prefix}/lib/node_modules/npm/bin/npm-cli.js" --version </dev/null)" || {
+		echo "runner ${runtime} npm runtime failed" >&2
+		exit 1
+	}
+	[[ "$npm_runtime" == "$version" ]] || {
+		echo "runner ${runtime} npm reports ${npm_runtime}, expected ${version}" >&2
+		exit 1
+	}
 	rm -rf "${npm_workspace}/extracted" "$archive"
 	echo "==> Installed runner ${runtime} npm ${version}"
 done
