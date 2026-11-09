@@ -94,7 +94,13 @@ class Guest:
         return ok(code=255, stderr="Error: connection to the guest agent was lost\n")
 
     def run(self, argv, **kwargs):
-        assert kwargs["stdin"] is subprocess.DEVNULL and 0 < kwargs["timeout"] <= 14400
+        assert 0 < kwargs["timeout"] <= 14400
+        interactive = argv[:3] == ["tart", "exec", "-i"]
+        if interactive:
+            assert kwargs["input"] == "admin\n" and kwargs["stdin"] is None
+            argv = argv[:2] + argv[3:]
+        else:
+            assert kwargs["stdin"] is subprocess.DEVNULL and kwargs.get("input") is None
         self.calls.append(argv)
         assert argv[0] == "tart", "host must only invoke tart"
         if argv[1:] == ["list", "--format", "json"]:
@@ -112,6 +118,8 @@ class Guest:
             return ok(code=1, stderr=f"synthetic failure: {self.fail}\n")
         if self.state != "running":
             return ok(code=1, stderr="Error: VM is not running\n")
+        if command == "/usr/bin/dscl . -authonly admin admin":
+            return ok()
         if command == "/usr/sbin/sysctl -n hw.model":
             return ok(self.model + "\n")
         if command == "/usr/sbin/sysctl -n kern.boottime":
@@ -127,7 +135,15 @@ class Guest:
         assert argv[3:5] == ["/usr/bin/sudo", "-n"], f"unprivileged write {argv}"
         args = argv[5:]
         if args[0] == "/usr/sbin/softwareupdate":
-            assert args[1:] == ["--install", LABEL, "--restart"]
+            assert args[1:] == [
+                "--install",
+                LABEL,
+                "--restart",
+                "--user",
+                "admin",
+                "--stdinpass",
+            ]
+            assert interactive
             return self.installer()
         if args[0] == "/opt/homebrew/bin/sgdisk":
             assert args[1:] == ["-t", "3:AF0C", "-c", "3:Recovery", "/dev/disk0"]
@@ -259,7 +275,7 @@ def test_existing_recovery_updates_without_partition_changes(guest, tmp_path):
     log = tmp_path / "log"
     assert update_os(VM, "en0", log) == "26.7.2"
     assert [" ".join(c[5:]) for c in guest.mutations()] == [
-        f"/usr/sbin/softwareupdate --install {LABEL} --restart"
+        f"/usr/sbin/softwareupdate --install {LABEL} --restart --user admin --stdinpass"
     ]
     assert len(guest.popens) == 1
     assert "exited 255" in log.read_text()
@@ -276,7 +292,8 @@ def test_repairs_missing_recovery_then_updates(guest, tmp_path):
         f"{disk} apfs createContainer disk0s3",
         f"{disk} apfs addVolume disk4 APFS Recovery -role R -nomount",
         "/usr/bin/sudo -n /opt/homebrew/bin/sgdisk -t 3:AF0C -c 3:Recovery /dev/disk0",
-        f"/usr/bin/sudo -n /usr/sbin/softwareupdate --install {LABEL} --restart",
+        f"/usr/bin/sudo -n /usr/sbin/softwareupdate --install {LABEL} --restart "
+        "--user admin --stdinpass",
     ]
     commands = [" ".join(c[3:]) for c in guest.calls]
     assert "/opt/homebrew/bin/brew uninstall --formula gptfdisk" in commands
@@ -485,3 +502,19 @@ def test_diskutil_generated_boot_helper_is_preserved(guest, tmp_path):
         "Content": "Apple_Boot",
         "Size": 134217728,
     }
+
+
+def test_custom_guest_credentials_fail_before_disk_writes(guest, tmp_path):
+    guest.fail = "dscl"
+    with pytest.raises(UpdateError, match="default guest owner"):
+        update_os(VM, "en0", tmp_path / "log")
+    assert not guest.mutations() and not guest.popens
+    assert not any("diskutil" in " ".join(c) for c in guest.calls)
+
+
+def test_staged_update_volume_resumes_without_partition_writes(guest, tmp_path):
+    recovered = Guest(recovery=True)
+    guest.parts, guest.containers = recovered.parts, recovered.containers
+    guest.containers[-1]["Volumes"].append({"Roles": ["Update"]})
+    assert update_os(VM, "en0", tmp_path / "log") == "26.7.2"
+    assert not any("resizeContainer" in c or "addPartition" in c for c in guest.calls)

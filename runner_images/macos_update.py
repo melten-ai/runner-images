@@ -47,13 +47,14 @@ def select(current: Version, listing: str) -> tuple[str, Version] | None:
 
 
 def guest(
-    vm: str, *argv: str, timeout: float = 120
+    vm: str, *argv: str, timeout: float = 120, input_text: str | None = None
 ) -> subprocess.CompletedProcess[str]:
-    command = ["tart", "exec", vm, *argv]
+    command = ["tart", "exec", *(["-i"] if input_text is not None else []), vm, *argv]
     try:
         return subprocess.run(
             command,
-            stdin=subprocess.DEVNULL,
+            stdin=None if input_text is not None else subprocess.DEVNULL,
+            input=input_text,
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -139,7 +140,11 @@ def layout(vm: str) -> tuple[bool, int]:
     if len(parts) == 2:
         return False, size
     roles = [v.get("Roles") for v in container(vm, "disk0s3").get("Volumes", [])]
-    if parts[2][:2] != ("disk0s3", "Apple_APFS_Recovery") or roles != [["Recovery"]]:
+    if parts[2][:2] != ("disk0s3", "Apple_APFS_Recovery") or roles not in (
+        [["Recovery"]],
+        [["Recovery"], ["Update"]],
+        [["Update"], ["Recovery"]],
+    ):
         raise UpdateError(f"partial or unknown recovery layout {parts} {roles}")
     return True, size
 
@@ -301,6 +306,11 @@ def update_os(vm: str, bridge: str, log: Path) -> str:
     if not selected:
         return text
     label, target = selected
+    # Cirrus publishes this disposable guest's default account in its image
+    # templates. Verify it before disk writes; never request host credentials.
+    owner = guest(vm, "/usr/bin/dscl", ".", "-authonly", "admin", "admin")
+    if owner.returncode:
+        raise UpdateError("OS updates require the Cirrus default guest owner account")
     has_recovery, size = layout(vm)
     if not has_recovery:
         repair(vm, size)
@@ -316,7 +326,11 @@ def update_os(vm: str, bridge: str, log: Path) -> str:
             "--install",
             label,
             "--restart",
+            "--user",
+            "admin",
+            "--stdinpass",
             timeout=4 * 3600,
+            input_text="admin\n",
         )
         code, output = installer.returncode, installer.stdout + installer.stderr
     except UpdateError as error:
