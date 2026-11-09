@@ -4,8 +4,12 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from runner_images.qualification import verify_sbom_packages  # noqa: E402
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("syft", nargs="?", default="syft")
@@ -42,7 +46,17 @@ for recipe, excluded in (
             "module example.org/test\n\ngo 1.25\n\n"
             "require example.org/declared-only v1.2.3\n"
         )
-        command = [args.syft, "scan", f"dir:{root}", "-o", "syft-json"]
+        native_path = root / "sbom.syft.json"
+        spdx_path = root / "sbom.spdx.json"
+        command = [
+            args.syft,
+            "scan",
+            f"dir:{root}",
+            "-o",
+            f"syft-json={native_path}",
+            "-o",
+            f"spdx-json={spdx_path}",
+        ]
         selection = re.search(r"--override-default-catalogers\s+(\S+)", source)
         if selection:
             command += ["--override-default-catalogers", selection.group(1)]
@@ -51,10 +65,9 @@ for recipe, excluded in (
         scope = re.search(r"--scope\s+(\S+)", source)
         if scope:
             command += ["--scope", scope.group(1)]
-        result = subprocess.run(
-            command, check=True, capture_output=True, text=True, timeout=120
-        )
-        sbom = json.loads(result.stdout)
+        subprocess.run(command, check=True, capture_output=True, text=True, timeout=120)
+        sbom = json.loads(native_path.read_text())
+        verify_sbom_packages(sbom, json.loads(spdx_path.read_text()))
         packages = {package["name"] for package in sbom["artifacts"]}
         distro = next(p for p in sbom["artifacts"] if p["name"] == "example-runtime")
         assert distro["metadata"]["source"] == "example-source"

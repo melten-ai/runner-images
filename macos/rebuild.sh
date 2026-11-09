@@ -6,7 +6,7 @@ profile=${1:?Image profile is required}
 [[ $(uname -s) == Darwin && $(uname -m) == arm64 ]]
 command -v gh >/dev/null
 gh auth status --hostname github.com >/dev/null 2>&1
-for tool in tart jq grype syft; do
+for tool in tart jq grype; do
 	if ! command -v "$tool" >/dev/null; then brew install "$tool"; fi
 done
 if ! python3 -c 'import sys; assert sys.version_info >= (3, 11)' 2>/dev/null; then

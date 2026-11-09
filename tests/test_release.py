@@ -280,3 +280,23 @@ def test_prepare_rejects_non_main_source_and_invalid_local_identity(uploaded):
     git("checkout", "main")
     with pytest.raises(subprocess.CalledProcessError):
         release.prepare(root, changed_receipt(source_commit=side_commit))
+
+
+def test_release_refuses_mismatched_inventories_even_with_matching_hashes(uploaded):
+    root, key, _, _ = uploaded
+    original = root / key
+    spdx = original / "sbom.spdx.json"
+    spdx.write_text(
+        json.dumps(
+            {"spdxVersion": "SPDX-2.3", "packages": [{"name": "different-tool"}]}
+        )
+    )
+    receipt = original / "qualification.json"
+    value = json.loads(receipt.read_text())
+    value["sbom_sha256"] = digest(spdx)
+    receipt.write_text(json.dumps(value))
+    updated = original.with_name(digest(receipt))
+    original.rename(updated)
+    with pytest.raises(ValueError, match="inventories differ"):
+        release.prepare(root, str(updated.relative_to(root)))
+    assert not (root / "artifacts/release/prepared.json").exists()

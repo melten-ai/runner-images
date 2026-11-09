@@ -8,7 +8,12 @@ import subprocess
 from pathlib import Path
 from typing import cast
 
-from runner_images.qualification import digest, read_object, record
+from runner_images.qualification import (
+    digest,
+    read_object,
+    record,
+    verify_sbom_packages,
+)
 from runner_images.rebuild import gh
 from runner_images.registry import record_publication
 
@@ -65,6 +70,9 @@ def prepare(root: Path, key: str) -> dict[str, str]:
         bundle / "sbom.syft.json"
     ) or not read_object(bundle / "sbom.syft.json").get("artifacts"):
         raise ValueError("release requires a qualification-bound native guest SBOM")
+    verify_sbom_packages(
+        read_object(bundle / "sbom.syft.json"), read_object(bundle / "sbom.spdx.json")
+    )
     destination = record(bundle, trusted, source)
     record_publication(bundle, trusted, destination)
     publication = read_object(bundle / "publication.json")

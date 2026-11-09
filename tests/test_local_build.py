@@ -359,7 +359,7 @@ fi
 if [[ $1 != -c ]]; then pwd >"$TEST_BOOTSTRAP_RESULT"; fi
 """,
     }
-    for name in ("tart", "jq", "grype", "syft"):
+    for name in ("tart", "jq", "grype"):
         scripts[name] = "#!/bin/bash\nexit 0\n"
     for name, content in scripts.items():
         path = tools / name
@@ -534,7 +534,7 @@ def test_bootstrap_refreshes_recoverable_source_and_preserves_publication(
             'exec "$TEST_PYTHON" "$@"\n'
         ),
     }
-    for tool in ("tart", "jq", "grype", "syft"):
+    for tool in ("tart", "jq", "grype"):
         scripts[tool] = "#!/bin/bash\nexit 0\n"
     for name, content in scripts.items():
         path = tools / name

@@ -263,6 +263,9 @@ def test_native_sbom_identity_is_preserved_and_tampering_rejected(example):
     repo, bundle, image, metadata = example
     native = bundle / "sbom.syft.json"
     native.write_text(json.dumps({"artifacts": [{"name": "example-tool"}]}))
+    (bundle / "sbom.spdx.json").write_text(
+        json.dumps({"spdxVersion": "SPDX-2.3", "packages": [{"name": "example-tool"}]})
+    )
     qualify(bundle, image, metadata)
     finalize(bundle, image)
     receipt = read_object(bundle / "qualification.json")
@@ -278,5 +281,23 @@ def test_empty_native_sbom_cannot_qualify(example):
     _, bundle, image, metadata = example
     (bundle / "sbom.syft.json").write_text('{"artifacts": []}')
     with pytest.raises(ValueError, match="empty native image SBOM"):
+        qualify(bundle, image, metadata)
+    assert not (bundle / "comparison-passed.json").exists()
+
+
+def test_mismatched_sbom_cannot_receive_qualification(example):
+    _, bundle, image, metadata = example
+    (bundle / "sbom.syft.json").write_text(
+        json.dumps({"artifacts": [{"name": "scanned", "version": "1"}]})
+    )
+    (bundle / "sbom.spdx.json").write_text(
+        json.dumps(
+            {
+                "spdxVersion": "SPDX-2.3",
+                "packages": [{"name": "attested", "versionInfo": "1"}],
+            }
+        )
+    )
+    with pytest.raises(ValueError, match="inventories differ"):
         qualify(bundle, image, metadata)
     assert not (bundle / "comparison-passed.json").exists()
