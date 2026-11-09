@@ -145,6 +145,8 @@ wait "$build_pid" || true
 running=false
 start_build_vm
 tart exec -i "$temporary" /bin/bash -s -- verify <"$root/macos/image/refresh-guest-agent.sh" | tee "$bundle/guest-agent-reboot.txt"
+echo '==> Rebuilding Git LFS with maintained Go dependencies'
+tart exec -i "$temporary" /bin/bash -s -- refresh <"$root/macos/image/refresh-git-lfs.sh" | tee "$bundle/git-lfs-build.txt"
 echo '==> Refreshing Azure CLI dependencies within official package constraints'
 tart exec -i "$temporary" /opt/homebrew/bin/python3 - <"$root/macos/image/refresh-azure-cli.py"
 if [[ "$profile" == xcode-android ]]; then

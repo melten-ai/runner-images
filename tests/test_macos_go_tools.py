@@ -7,20 +7,26 @@ from pathlib import Path
 import pytest
 
 
+@pytest.mark.parametrize("tool", ["guest-agent", "git-lfs"])
 @pytest.mark.parametrize(
     "failure", ["", "checksum", "version", "signature", "linked", "path"]
 )
 def test_agent_verification_rejects_changed_bytes_identity_and_linked_paths(
-    tmp_path, failure
+    tmp_path, failure, tool
 ):
     root = Path(__file__).resolve().parents[1]
     cellar = tmp_path / "cellar"
-    binary = cellar / "tart-guest-agent/0.15.0/bin/tart-guest-agent"
+    program = "tart-guest-agent" if tool == "guest-agent" else "git-lfs"
+    version = "0.15.0+melten.example" if tool == "guest-agent" else "3.8.1"
+    description = (
+        "tart-guest-agent version 0.15.0+melten.example-patched"
+        if tool == "guest-agent"
+        else "git-lfs/3.8.1 (Melten; darwin arm64; go 1.27.3; git patched.example)"
+    )
+    binary = cellar / program / version.split("+")[0] / "bin" / program
     binary.parent.mkdir(parents=True)
     binary.write_text(
-        "#!/bin/sh\necho 'tart-guest-agent version "
-        + ("wrong" if failure == "version" else "0.15.0+melten.example-patched")
-        + "'\n"
+        "#!/bin/sh\necho '" + ("wrong" if failure == "version" else description) + "'\n"
     )
     binary.chmod(0o755)
     digest = hashlib.sha256(binary.read_bytes()).hexdigest()
@@ -30,14 +36,15 @@ def test_agent_verification_rejects_changed_bytes_identity_and_linked_paths(
         binary.symlink_to(original)
     evidence = tmp_path / ".runner-image"
     evidence.mkdir()
-    (evidence / "guest-agent-build.json").write_text(
+    (evidence / f"{tool}-build.json").write_text(
         json.dumps(
             {
                 "binary": str(binary)
                 if failure != "path"
                 else str(tmp_path / "outside"),
                 "binary_sha256": "0" * 64 if failure == "checksum" else digest,
-                "version": "0.15.0+melten.example",
+                "version": version,
+                "description": description,
             }
         )
     )
@@ -49,14 +56,14 @@ def test_agent_verification_rejects_changed_bytes_identity_and_linked_paths(
     (tools / "codesign").chmod(0o755)
     # Map the external Homebrew root and codesign boundary to portable fixtures;
     # execute the original verification function, including byte/version checks.
-    source = (root / "macos/image/refresh-guest-agent.sh").read_text()
-    source = source.split("refresh_guest_agent() {", 1)[0]
+    source = (root / f"macos/image/refresh-{tool}.sh").read_text()
+    source = source.split("refresh_" + tool.replace("-", "_") + "() {", 1)[0]
     source = source.replace("/opt/homebrew/Cellar", str(cellar)).replace(
         "/usr/bin/codesign", "codesign"
     )
     result = subprocess.run(
         ["/bin/bash", "-s"],
-        input=source + "\nverify_guest_agent\n",
+        input=source + "\nverify_" + tool.replace("-", "_") + "\n",
         text=True,
         capture_output=True,
         env={
@@ -67,15 +74,16 @@ def test_agent_verification_rejects_changed_bytes_identity_and_linked_paths(
         timeout=10,
     )
     assert (result.returncode == 0) == (not failure), result.stdout + result.stderr
-    assert ("guest_agent_sha256=" in result.stdout) == (not failure)
+    assert ("_sha256=" in result.stdout) == (not failure)
 
 
+@pytest.mark.parametrize("tool", ["guest-agent", "git-lfs"])
 @pytest.mark.parametrize("status", [0, 27])
 def test_module_cache_cleanup_handles_read_only_directories_and_keeps_exit_status(
-    tmp_path, status
+    tmp_path, status, tool
 ):
     root = Path(__file__).resolve().parents[1]
-    source = (root / "macos/image/refresh-guest-agent.sh").read_text()
+    source = (root / f"macos/image/refresh-{tool}.sh").read_text()
     trap = next(
         line.strip() for line in source.splitlines() if line.strip().startswith("trap ")
     )
@@ -89,7 +97,7 @@ def test_module_cache_cleanup_handles_read_only_directories_and_keeps_exit_statu
         [
             "/bin/bash",
             "-c",
-            "set -eu; guest_agent_work=$1; " + trap + '; exit "$2"',
+            "set -eu; " + tool.replace("-", "_") + "_work=$1; " + trap + '; exit "$2"',
             "--",
             str(work),
             str(status),

@@ -106,6 +106,9 @@ if command=="exec":
         stage="agent-refresh" if a[-1]=="refresh" else "agent-verify"
         if os.environ.get("TEST_FAIL_STAGE")==stage: sys.exit(27)
         print("guest_agent_identity=verified")
+    if "verify_git_lfs()" in body:
+        if os.environ.get("TEST_FAIL_STAGE")=="lfs-refresh": sys.exit(28)
+        print("git_lfs_identity=verified")
     if "SYFT_GOLANG_CAPTURE_SYMBOLS=all" in body:
         if os.environ.get("TEST_FAIL_STAGE")=="sbom": sys.exit(8)
     if "/bin/cat" in a and "/private/tmp/runner-image-sbom/sbom.syft.json" in a:
@@ -178,6 +181,7 @@ esac
         "job-path",
         "agent-refresh",
         "agent-verify",
+        "lfs-refresh",
         "verify",
         "sbom",
         "sbom-read",
