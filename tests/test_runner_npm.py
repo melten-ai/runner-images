@@ -407,3 +407,44 @@ def test_shared_refresh_updates_non_runner_prefix_without_changing_node(
         ]
         == "12.55.1"
     )
+
+
+@pytest.mark.parametrize("result", ["correct", "wrong", "failed"])
+def test_global_pnpm_refresh_checks_actual_runtime(tmp_path, result):
+    tools = tmp_path / "tools"
+    tools.mkdir()
+    prefix = tmp_path / "prefix"
+    (prefix / "bin").mkdir(parents=True)
+    (tools / "curl").write_text("""#!/bin/sh
+echo '{"version":"12.18.0"}'
+""")
+    marker = tmp_path / "npm-args.json"
+    (tools / "npm").write_text(
+        "#!/usr/bin/env python3\nimport json,sys\nfrom pathlib import Path\n"
+        + f"Path({str(marker)!r}).write_text(json.dumps(sys.argv[1:]))\n"
+    )
+    (prefix / "bin/pnpm").write_text(
+        "#!/bin/sh\n"
+        + (
+            "exit 17"
+            if result == "failed"
+            else "echo " + ("12.18.0" if result == "correct" else "wrong-version")
+        )
+        + "\n"
+    )
+    for p in [tools / "curl", tools / "npm", prefix / "bin/pnpm"]:
+        p.chmod(0o755)
+    source = (ROOT / "macos/image/refresh-npm.sh").read_bytes()
+    r = subprocess.run(
+        ["/bin/bash", "-s", "--", str(prefix)],
+        input=source + b'\nrefresh_global_pnpm "$1"\n',
+        capture_output=True,
+        env={**os.environ, "PATH": str(tools) + os.pathsep + os.environ["PATH"]},
+        timeout=10,
+    )
+    assert (r.returncode == 0) == (result == "correct"), r.stdout + r.stderr
+    args = json.loads(marker.read_text())
+    assert "--ignore-scripts" in args and "--global" in args
+    assert args[-1] == "pnpm@12.18.0" and args[args.index("--prefix") + 1] == str(
+        prefix
+    )

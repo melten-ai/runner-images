@@ -265,6 +265,7 @@ main() {
 		node_version=$("$node_prefix/bin/node" -p 'process.versions.node.split(".")[0]')
 		refresh_image_npm "$node_prefix" "node$node_version"
 	done < <(find "$RUNNER_TOOL_CACHE/node" -mindepth 2 -maxdepth 2 -type d -name arm64 | sort)
+	refresh_global_pnpm "$(brew --prefix)"
 
 	# Python 3.13+ removed lib2to3; retain the hosted command on patched 3.12.
 	prefix=$(brew --prefix python@3.12)

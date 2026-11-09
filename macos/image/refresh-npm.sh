@@ -78,3 +78,26 @@ refresh_image_npm() (
 	rm -rf "${npm_workspace}/extracted" "$archive"
 	echo "==> Installed ${runtime} npm ${version}" >&2
 )
+
+# pnpm's bundled dependencies also advance independently of the Node installer.
+refresh_global_pnpm() (
+	set -euo pipefail
+	prefix=${1:?Global package prefix required}
+	metadata=$(curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 https://registry.npmjs.org/pnpm/latest)
+	version=$(jq -er '.version | select(type == "string")' <<<"$metadata")
+	[[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+		echo 'pnpm must be a stable release' >&2
+		exit 1
+	}
+	# npm verifies the official registry archive integrity and replaces its tree.
+	npm install --global --ignore-scripts --no-audit --no-fund --prefix "$prefix" "pnpm@$version" </dev/null >&2
+	actual=$("$prefix/bin/pnpm" --version </dev/null) || {
+		echo 'pnpm runtime failed' >&2
+		exit 1
+	}
+	[[ $actual == "$version" ]] || {
+		echo 'pnpm runtime version mismatch' >&2
+		exit 1
+	}
+	echo "==> Installed pnpm $version" >&2
+)
