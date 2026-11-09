@@ -1,4 +1,4 @@
-# Source-verified Mac dispositions
+# Mac vulnerability dispositions
 
 High/Critical findings block publication. The scanner retains each accepted disposition and its reason in `ignoredMatches`; a disposition does not remove a package from the SBOM. The qualified source revision supplies the release scan policy.
 
@@ -16,3 +16,12 @@ The GraphicsMagick archive was downloaded from the [official release distributio
 Rules require the exact package name, version, `homebrew` package type and Cellar formula-record location. A new version requires a new assessment. Other findings on the same packages remain blocking, including findings without a known fix. No runtime feature or exploitability assumption is used to waive a broader package range.
 
 Run `uv run python scripts/check-macos-security.py` with Grype installed. The actual scanner must first report all disposition fixtures, then move only the accepted identities to `ignoredMatches`. Adjacent names, versions, package types and locations must retain their original findings, and High/Critical must still return exit 2.
+
+## Apple Python runtime predicates
+
+Seven additional rules apply only to Python 3.9.6 at the two exact Apple app-bundle locations already named in the policy. A version string alone does not establish these dispositions. Before SBOM collection, `verify-toolchain.sh` executes each bundle's own interpreter in isolated mode, checks its standard-library module locations and enforces these predicates:
+
+- [CVE-2025-4517](https://www.cve.org/CVERecord?id=CVE-2025-4517), [CVE-2025-4138](https://www.cve.org/CVERecord?id=CVE-2025-4138), [CVE-2025-4330](https://www.cve.org/CVERecord?id=CVE-2025-4330), [CVE-2025-4435](https://www.cve.org/CVERecord?id=CVE-2025-4435), [CVE-2026-11940](https://www.cve.org/CVERecord?id=CVE-2026-11940) and [CVE-2026-82049](https://www.cve.org/CVERecord?id=CVE-2026-82049) concern tarfile extraction filters. These two Apple runtimes have neither the filter functions/registry nor the `extract`/`extractall` filter arguments or class extraction-filter hook. The verifier rejects the image if any appears. This does not make unfiltered extraction of untrusted archives safe; other archive-extraction findings remain blocking.
+- [CVE-2019-12900](https://www.cve.org/CVERecord?id=CVE-2019-12900) affects bzip2 through 1.0.6. Each runtime's actual `_bz2` extension must link `/usr/lib/libbz2.1.0.dylib`; the library must report 1.0.8. The verifier also performs a real compression/decompression roundtrip. A changed link, version or failed roundtrip rejects the image.
+
+The runtime observations are written into `toolchain-check.txt`, whose hash is bound into qualification and rechecked for release. Missing interpreters, changed Python versions and invalidated predicates fail the build before qualification. The hosted release scans with that qualified build's original source policy. The runtime probes do not alter the Apple bundles or add extraction-filter functionality.

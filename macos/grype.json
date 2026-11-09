@@ -131,6 +131,160 @@
         "type": "apple-app-bundle",
         "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
       }
+    },
+    {
+      "vulnerability": "CVE-2025-4517",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4517",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4517",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4517",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4138",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4138",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4138",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4138",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4330",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4330",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4330",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4330",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4435",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4435",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4435",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4435",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-11940",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2026-11940",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-11940",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2026-11940",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-82049",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2026-82049",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-82049",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2026-82049",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2019-12900",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python _bz2 links system bzip2 1.0.8, beyond the affected <=1.0.6 range; verify-toolchain.sh enforces linkage, version and a compression roundtrip on every qualified build. https://www.cve.org/CVERecord?id=CVE-2019-12900",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2019-12900",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python _bz2 links system bzip2 1.0.8, beyond the affected <=1.0.6 range; verify-toolchain.sh enforces linkage, version and a compression roundtrip on every qualified build. https://www.cve.org/CVERecord?id=CVE-2019-12900",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
     }
   ]
 }

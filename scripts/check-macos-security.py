@@ -13,12 +13,19 @@ paths = [
     "Library/Developer/CommandLineTools/Library/Frameworks/"
     "Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist",
 ]
-platform_only = {
+python_dispositions = {
     "CVE-2022-26488",
     "CVE-2022-42919",
     "CVE-2026-3087",
     "CVE-2026-3298",
     "CVE-2024-4030",
+    "CVE-2025-4517",
+    "CVE-2025-4138",
+    "CVE-2025-4330",
+    "CVE-2025-4435",
+    "CVE-2026-11940",
+    "CVE-2026-82049",
+    "CVE-2019-12900",
 }
 root = Path(__file__).resolve().parents[1]
 scanner = sys.argv[1] if len(sys.argv) == 2 else "grype"
@@ -83,7 +90,7 @@ with tempfile.TemporaryDirectory() as d:
         },
     ]
     expected_dispositions = {
-        **{str(index): platform_only for index in (0, 1)},
+        **{str(index): python_dispositions for index in (0, 1)},
         "2": {"CVE-2017-5506"},
         "3": {"CVE-2025-32460"},
     }

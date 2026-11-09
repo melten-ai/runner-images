@@ -90,4 +90,52 @@ check_output runner-smoke java -cp "$conversion" RunnerSmoke || exit 1
 printf 'print("runner-smoke")\n' >"$conversion/hello.swift"
 swiftc -module-cache-path "$conversion/swift-cache" "$conversion/hello.swift" -o "$conversion/hello-swift"
 check_output runner-smoke "$conversion/hello-swift" || exit 1
+
+# These exact Apple bundles have narrowly scoped scanner dispositions. Stop
+# qualification when their runtime predicates change, even without a version bump.
+for apple_python in \
+	/Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3 \
+	/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3; do
+	"$apple_python" -I -B - <<'APPLE_PYTHON'
+import _bz2
+import bz2
+import ctypes
+import inspect
+import json
+import pathlib
+import subprocess
+import sys
+import tarfile
+
+if sys.version_info[:3] != (3, 9, 6):
+    raise RuntimeError("Reassess Apple Python dispositions for the changed runtime")
+for module in (_bz2, tarfile):
+    pathlib.Path(module.__file__).resolve().relative_to(pathlib.Path(sys.base_prefix).resolve())
+if (
+    any(hasattr(tarfile, name) for name in ("data_filter", "tar_filter", "_NAMED_FILTERS"))
+    or hasattr(tarfile.TarFile, "extraction_filter")
+    or any("filter" in inspect.signature(method).parameters
+           for method in (tarfile.TarFile.extract, tarfile.TarFile.extractall))
+):
+    raise RuntimeError("Reassess tarfile dispositions: extraction filters are present")
+linked = subprocess.check_output(["/usr/bin/otool", "-L", _bz2.__file__], text=True)
+libraries = [line.strip().split(" (", 1)[0] for line in linked.splitlines() if line.startswith("\t")]
+if libraries.count("/usr/lib/libbz2.1.0.dylib") < 1 or any(
+    "bz2" in name and name != "/usr/lib/libbz2.1.0.dylib" for name in libraries
+):
+    raise RuntimeError("Reassess bzip2 disposition: _bz2 library identity changed")
+library = ctypes.CDLL("/usr/lib/libbz2.1.0.dylib")
+library.BZ2_bzlibVersion.restype = ctypes.c_char_p
+version = library.BZ2_bzlibVersion().decode().split(",", 1)[0]
+if version != "1.0.8":
+    raise RuntimeError("Reassess bzip2 disposition: linked library version changed")
+payload = b"runner-image-bzip2" * 64
+if bz2.decompress(bz2.compress(payload)) != payload:
+    raise RuntimeError("Apple Python bzip2 roundtrip failed")
+print(json.dumps({"apple_python_dispositions": "verified", "executable": sys.executable,
+                  "python": "3.9.6", "tarfile_extraction_filters": False,
+                  "bz2_module": _bz2.__file__, "linked_libraries": libraries,
+                  "bzip2_version": version, "bzip2_roundtrip": "passed"}, sort_keys=True))
+APPLE_PYTHON
+done
 echo 'native_build_smoke=passed'
