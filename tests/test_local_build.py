@@ -133,6 +133,8 @@ def test_one_invocation_finishes_and_duplicate_invocation_is_noop(local, capsys)
     assert count(state, ["gh", "workflow", "run"]) == 1
     scan = next(command for command in state["calls"] if command[0] == "grype")
     assert "sbom.syft.json" in " ".join(scan)
+    assert scan[scan.index("--config") + 1] == "macos/grype.json"
+    assert scan[scan.index("--file") + 1].endswith("/vulnerabilities.json")
     local_build.rebuild(root, "xcode")
     assert count(state, ["bash", "macos/build-image.sh"]) == 1
     assert count(state, ["gh", "workflow", "run"]) == 1

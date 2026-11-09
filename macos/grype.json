@@ -1,0 +1,114 @@
+{
+  "ignore": [
+    {
+      "vulnerability": "CVE-2022-26488",
+      "namespace": "nvd:cpe",
+      "reason": "Windows installer PATH repair privilege escalation; this is a macOS Apple app bundle. https://github.com/advisories/GHSA-3f7p-x3g9-9grh",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-26488",
+      "namespace": "nvd:cpe",
+      "reason": "Windows installer PATH repair privilege escalation; this is a macOS Apple app bundle. https://github.com/advisories/GHSA-3f7p-x3g9-9grh",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-42919",
+      "namespace": "nvd:cpe",
+      "reason": "Linux abstract-namespace forkserver sockets; this is a macOS Apple app bundle. https://github.com/python/cpython/issues/97514",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-42919",
+      "namespace": "nvd:cpe",
+      "reason": "Linux abstract-namespace forkserver sockets; this is a macOS Apple app bundle. https://github.com/python/cpython/issues/97514",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-3087",
+      "namespace": "nvd:cpe",
+      "reason": "Windows drive-letter ZIP extraction paths; the advisory explicitly limits impact to Windows. https://www.cve.org/CVERecord?id=CVE-2026-3087",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-3087",
+      "namespace": "nvd:cpe",
+      "reason": "Windows drive-letter ZIP extraction paths; the advisory explicitly limits impact to Windows. https://www.cve.org/CVERecord?id=CVE-2026-3087",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-3298",
+      "namespace": "nvd:cpe",
+      "reason": "Windows ProactorEventLoop buffer handling; non-Windows platforms are explicitly unaffected. https://www.cve.org/CVERecord?id=CVE-2026-3298",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-3298",
+      "namespace": "nvd:cpe",
+      "reason": "Windows ProactorEventLoop buffer handling; non-Windows platforms are explicitly unaffected. https://www.cve.org/CVERecord?id=CVE-2026-3298",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-4030",
+      "namespace": "nvd:cpe",
+      "reason": "Windows temporary-directory permissions; non-Windows platforms are explicitly unaffected. https://www.cve.org/CVERecord?id=CVE-2024-4030",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-4030",
+      "namespace": "nvd:cpe",
+      "reason": "Windows temporary-directory permissions; non-Windows platforms are explicitly unaffected. https://www.cve.org/CVERecord?id=CVE-2024-4030",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    }
+  ]
+}

@@ -69,6 +69,7 @@ jobs:
           printf 'package image\nconst Version = "0.0.0"\n' > "$RUNNER_TEMP/version.go"
           "$RUNNER_TEMP/runner-image-tools/bin/oneup" version --source git --tag-prefix 'cloud-gcp@' --target "$RUNNER_TEMP/version.go"
           "$RUNNER_TEMP/runner-image-tools/bin/grype" version
+          python3 scripts/check-macos-security.py "$RUNNER_TEMP/runner-image-tools/bin/grype"
       - name: Validate both cloud recipes without authentication or resources
         env:
           PACKER_GITHUB_API_TOKEN: ${{ github.token }}
