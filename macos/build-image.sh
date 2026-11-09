@@ -134,6 +134,8 @@ job_path=$(
 	echo 'Guest toolchain did not return a usable job PATH.' >&2
 	exit 1
 }
+echo '==> Refreshing Azure CLI dependencies within official package constraints'
+tart exec -i "$temporary" /opt/homebrew/bin/python3 - <"$root/macos/image/refresh-azure-cli.py"
 if [[ "$profile" == xcode-android ]]; then
 	# shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
 	android_config=$( # shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
