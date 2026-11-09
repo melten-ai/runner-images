@@ -53,6 +53,49 @@ upgrade_core_formulas() {
 	fi
 }
 
+# go.dev/dl's default response contains the currently supported release lines.
+# Retain that resolved policy in the effective toolset used by verification.
+configure_supported_go() {
+	local toolset=$1 releases=$2
+	jq -e --slurpfile releases "$releases" '
+    ([$releases[0][] | select(.stable == true) | .version |
+      select(test("^go1\\.[0-9]+\\.[0-9]+$")) | ltrimstr("go")] | unique) as $versions |
+    if ($versions | length) == 0 or ([.toolcache[] | select(.name == "Go")] | length) != 1
+    then error("Supported Go releases or hosted Go cache are missing")
+    else .toolcache |= map(if .name == "Go" then .arch.arm64.versions = $versions else . end) |
+      .runner_image_go_policy = {source: "https://go.dev/dl/?mode=json", versions: $versions}
+    end
+  ' "$toolset" >"$toolset.supported" || return 1
+	mv "$toolset.supported" "$toolset" || return 1
+}
+
+retire_unsupported_go() {
+	local toolset=$1 family="$RUNNER_TOOL_CACHE/go" versions version candidate report
+	versions=$(jq -er '.runner_image_go_policy.versions[]' "$toolset") || return 1
+	for candidate in "$RUNNER_TOOL_CACHE" "$family"; do
+		[ ! -L "$candidate" ] || return 1
+	done
+	# No retirement until every replacement is present and actually executes.
+	while IFS= read -r version; do
+		candidate="$family/$version"
+		[ ! -L "$candidate" ] && [ ! -L "$candidate/arm64" ] || return 1
+		test -f "$candidate/arm64.complete" || return 1
+		report=$("$candidate/arm64/bin/go" version) || return 1
+		[ "$report" = "go version go$version darwin/arm64" ] || return 1
+	done <<<"$versions"
+	for candidate in "$family"/*; do
+		version=${candidate##*/}
+		[[ $version =~ ^1\.[0-9]+\.[0-9]+$ ]] || continue
+		if jq -e --arg version "$version" '.runner_image_go_policy.versions | index($version) != null' "$toolset" >/dev/null; then continue; fi
+		# Never follow inherited links or remove another architecture.
+		if [ -L "$candidate" ] || [ -L "$candidate/arm64" ]; then continue; fi
+		[ -d "$candidate" ] || continue
+		rm -rf "$candidate/arm64" "$candidate/arm64.complete" || return 1
+		rmdir "$candidate" 2>/dev/null || true
+		echo "Retired unsupported/superseded Go $version arm64 cache" >&2
+	done
+}
+
 main() {
 	eval "$(/opt/homebrew/bin/brew shellenv)"
 	export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_ENV_HINTS=1
@@ -110,6 +153,9 @@ main() {
 	export AGENT_TOOLSDIRECTORY="$RUNNER_TOOL_CACHE"
 	mkdir -p "$RUNNER_TOOL_CACHE"
 	mkdir -p "$HOME/.runner-image"
+	cp "$toolset" "$HOME/.runner-image/upstream-github-macos-toolset.json"
+	curl -fsSL --retry 5 'https://go.dev/dl/?mode=json' -o "$work/supported-go.json"
+	configure_supported_go "$toolset" "$work/supported-go.json"
 	printf 'LANG=en_US.UTF-8\nPIPX_HOME=%s/.local/pipx\nPIPX_BIN_DIR=%s/.local/bin\n' "$HOME" "$HOME" >"$HOME/.runner-image/environment"
 	job_path="$HOME/.local/bin:$job_path"
 	local java_major metadata java_version java_cache java_work java_root java_url java_sha
@@ -176,6 +222,8 @@ main() {
 			rm -rf "$tool_work"
 		done < <(jq -er --arg name "$name" '.toolcache[] | select(.name == $name) | .arch.arm64.versions[]' "$toolset")
 	done < <(jq -er '.toolcache[] | select(.url) | .name + "|" + .url' "$toolset")
+
+	retire_unsupported_go "$toolset"
 
 	# The inherited base can retain outdated Cellar kegs after installations.
 	upgrade_core_formulas
