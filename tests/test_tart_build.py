@@ -51,6 +51,7 @@ if command=="run":
     while not (state.parent/(a[1]+".stopped")).exists(): time.sleep(.01)
     sys.exit(0)
 if command=="exec":
+    if "/usr/bin/sync" in a: sys.exit(125)
     if "hw.model" in a: print("VirtualMac2,1")
     if "-productVersion" in a: print("26.7.2")
     if "/usr/sbin/softwareupdate" in a:

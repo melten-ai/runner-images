@@ -179,7 +179,7 @@ fi
 # Preserve the exact upstream toolset used by this build with the comparison inputs.
 # shellcheck disable=SC2016 # HOME is evaluated inside the guest.
 guest_job /bin/bash -c 'cat "$HOME/.runner-image/github-macos-toolset.json"' </dev/null >"$bundle/toolset.json"
-tart exec "$temporary" /usr/bin/sync
+tart exec "$temporary" /bin/sync
 tart stop "$temporary" --timeout 120
 wait "$build_pid" || true
 running=false

@@ -27,8 +27,9 @@ scanner="$work/syft"
 test -x "$scanner"
 
 mkdir -p /private/tmp/runner-image-sbom
-export SYFT_GOLANG_CAPTURE_SYMBOLS=all
-"$scanner" scan dir:/ --override-default-catalogers image --scope all-layers \
+# Installed system tools include root-readable directories such as authserver.
+# Elevate only the verified scanner inside this disposable build guest.
+sudo -n /usr/bin/env SYFT_GOLANG_CAPTURE_SYMBOLS=all "$scanner" scan dir:/ --override-default-catalogers image --scope all-layers \
 	--exclude './dev/**' --exclude './System/**' --exclude './private/**' \
 	--exclude './Volumes/**' --exclude './Users/admin/Library/**' \
 	-o syft-json=/private/tmp/runner-image-sbom/sbom.syft.json \
