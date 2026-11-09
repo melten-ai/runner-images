@@ -285,6 +285,83 @@
         "type": "apple-app-bundle",
         "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
       }
+    },
+    {
+      "vulnerability": "CVE-2026-87866",
+      "namespace": "nvd:cpe",
+      "reason": "wolfSSL-only pinned-key defect; every selectable TLS backend is verified to be OpenSSL or Secure Transport. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-87866.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-107928",
+      "namespace": "nvd:cpe",
+      "reason": "GnuTLS-only WebSocket defect; every selectable TLS backend is verified to be OpenSSL or Secure Transport. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-107928.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-0725",
+      "namespace": "nvd:cpe",
+      "reason": "Requires runtime zlib <=1.2.0.3; linked libcurl runtime information must report zlib >=1.2.0.4. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2025-0725.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-87865",
+      "namespace": "nvd:cpe",
+      "reason": "Requires libssh2 SFTP/SCP transfers; linked libcurl is verified to expose neither SSH protocol. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-87865.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-9547",
+      "namespace": "nvd:cpe",
+      "reason": "Requires libssh SFTP/SCP transfers; linked libcurl is verified to expose neither SSH protocol. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-9547.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-86410",
+      "namespace": "nvd:cpe",
+      "reason": "Requires following redirects to SFTP/SCP; linked libcurl is verified to expose neither SSH protocol. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-86410.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-12064",
+      "namespace": "nvd:cpe",
+      "reason": "Requires SFTP/SCP default-protocol transfers; linked libcurl is verified to expose neither SSH protocol. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-12064.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
     }
   ]
 }

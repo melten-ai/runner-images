@@ -27,6 +27,15 @@ python_dispositions = {
     "CVE-2026-82049",
     "CVE-2019-12900",
 }
+curl_dispositions = {
+    "CVE-2026-12064",
+    "CVE-2026-86410",
+    "CVE-2026-9547",
+    "CVE-2026-87865",
+    "CVE-2026-87866",
+    "CVE-2025-0725",
+    "CVE-2026-107928",
+}
 root = Path(__file__).resolve().parents[1]
 scanner = sys.argv[1] if len(sys.argv) == 2 else "grype"
 
@@ -89,10 +98,22 @@ with tempfile.TemporaryDirectory() as d:
             ],
         },
     ]
+    artifacts.append(
+        {
+            "id": "4",
+            "name": "curl",
+            "version": "8.7.1",
+            "type": "binary",
+            "foundBy": "binary-classifier-cataloger",
+            "locations": [{"path": "usr/bin/curl"}],
+            "cpes": [{"cpe": "cpe:2.3:a:haxx:curl:8.7.1:*:*:*:*:*:*:*"}],
+        }
+    )
     expected_dispositions = {
         **{str(index): python_dispositions for index in (0, 1)},
         "2": {"CVE-2017-5506"},
         "3": {"CVE-2025-32460"},
+        "4": curl_dispositions,
     }
     required_matches = dict(expected_dispositions)
     # Each adjacent case must still be reported by the real scanner. Keeping
@@ -101,7 +122,7 @@ with tempfile.TemporaryDirectory() as d:
         for field, value in (
             ("name", "OtherPackage"),
             ("version", "0.0.1"),
-            ("type", "binary"),
+            ("type", "binary" if original["type"] != "binary" else "homebrew"),
             ("locations", [{"path": "Applications/Other.app/Contents/Info.plist"}]),
         ):
             nearby = copy.deepcopy(original)

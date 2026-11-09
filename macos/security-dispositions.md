@@ -25,3 +25,18 @@ Seven additional rules apply only to Python 3.9.6 at the two exact Apple app-bun
 - [CVE-2019-12900](https://www.cve.org/CVERecord?id=CVE-2019-12900) affects bzip2 through 1.0.6. Each runtime's actual `_bz2` extension must link `/usr/lib/libbz2.1.0.dylib`; the library must report 1.0.8. The verifier also performs a real compression/decompression roundtrip. A changed link, version or failed roundtrip rejects the image.
 
 The runtime observations are written into `toolchain-check.txt`, whose hash is bound into qualification and rechecked for release. Missing interpreters, changed Python versions and invalidated predicates fail the build before qualification. The hosted release scans with that qualified build's original source policy. The runtime probes do not alter the Apple bundles or add extraction-filter functionality.
+
+## Apple curl runtime predicates
+
+Seven rules apply only to the `binary` package `curl` 8.7.1 at `usr/bin/curl`. Before qualification, the verifier executes an isolated Apple Python probe under both ARM and Intel architectures, checks the executable's system-libcurl linkage and queries the actual loaded `/usr/lib/libcurl.4.dylib` through its public API. Rosetta execution must work for the Intel probe; a missing or failed architecture rejects the build.
+
+| Findings | Required observation |
+| --- | --- |
+| [CVE-2026-87866](https://curl.se/docs/CVE-2026-87866.html) | The wolfSSL-only defect cannot apply: every selectable TLS backend must be OpenSSL or Secure Transport. |
+| [CVE-2026-107928](https://curl.se/docs/CVE-2026-107928.html) | The GnuTLS-only defect cannot apply under the same complete backend enumeration. |
+| [CVE-2025-0725](https://curl.se/docs/CVE-2025-0725.html) | Runtime zlib must be at least 1.2.0.4; the supplier limits this issue to 1.2.0.3 and older. |
+| [CVE-2026-87865](https://curl.se/docs/CVE-2026-87865.html), [CVE-2026-9547](https://curl.se/docs/CVE-2026-9547.html), [CVE-2026-86410](https://curl.se/docs/CVE-2026-86410.html), [CVE-2026-12064](https://curl.se/docs/CVE-2026-12064.html) | The linked library must expose neither SFTP nor SCP. These advisories require SSH transfers; they concern libssh2, libssh or SSH options in the command-line tool. |
+
+Checking only the default backend, or setting `CURL_SSL_BACKEND` and looking at `curl --version`, does not enumerate every available backend. The verifier uses `curl_global_sslset` to obtain the complete backend list and `curl_version_info` for the linked library version, supported protocols and runtime zlib. Missing, empty or unrecognized observations fail verification; future versions or changed predicates require reassessment. Observations for both architectures are retained in the same qualification-hashed native-check evidence.
+
+Cookie, Public Suffix List, authentication, proxy and HTTP/2 findings remain blocking. In particular, absence of PSL support does not establish protection against overly broad cookies and is not a disposition for those findings.

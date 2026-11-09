@@ -138,4 +138,76 @@ print(json.dumps({"apple_python_dispositions": "verified", "executable": sys.exe
                   "bzip2_version": version, "bzip2_roundtrip": "passed"}, sort_keys=True))
 APPLE_PYTHON
 done
+
+# MultiSSL may expose a backend other than the CLI default. Inspect every
+# selectable backend and the actual linked library on both executable slices.
+for curl_arch in arm64 x86_64; do
+	/usr/bin/arch "-$curl_arch" /Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3 -I -B - <<'APPLE_CURL'
+import ctypes
+import json
+import platform
+import re
+import subprocess
+
+class CurlVersion(ctypes.Structure):
+    _fields_ = [("age", ctypes.c_int), ("version", ctypes.c_char_p),
+                ("version_num", ctypes.c_uint), ("host", ctypes.c_char_p),
+                ("features", ctypes.c_int), ("ssl_version", ctypes.c_char_p),
+                ("ssl_version_num", ctypes.c_long), ("libz_version", ctypes.c_char_p),
+                ("protocols", ctypes.POINTER(ctypes.c_char_p))]
+
+class SslBackend(ctypes.Structure):
+    _fields_ = [("id", ctypes.c_int), ("name", ctypes.c_char_p)]
+
+linked = subprocess.check_output(["/usr/bin/otool", "-L", "/usr/bin/curl"], text=True)
+libraries = [line.strip().split(" (", 1)[0] for line in linked.splitlines() if line.startswith("\t")]
+if "/usr/lib/libcurl.4.dylib" not in libraries or any(
+    "libcurl" in name and name != "/usr/lib/libcurl.4.dylib" for name in libraries
+):
+    raise RuntimeError("Reassess curl dispositions: executable linkage changed")
+library = ctypes.CDLL("/usr/lib/libcurl.4.dylib")
+library.curl_version_info.argtypes = [ctypes.c_int]
+library.curl_version_info.restype = ctypes.POINTER(CurlVersion)
+pointer = library.curl_version_info(0)
+if not pointer:
+    raise RuntimeError("Missing libcurl version information")
+info = pointer.contents
+if info.version != b"8.7.1":
+    raise RuntimeError("Reassess curl dispositions: library version changed")
+library.curl_global_sslset.argtypes = [ctypes.c_int, ctypes.c_char_p,
+    ctypes.POINTER(ctypes.POINTER(ctypes.POINTER(SslBackend)))]
+library.curl_global_sslset.restype = ctypes.c_int
+available = ctypes.POINTER(ctypes.POINTER(SslBackend))()
+# CURLSSLBACKEND_NONE requests an invalid backend, returning the full list
+# with CURLSSLSET_UNKNOWN_BACKEND, without choosing one or doing a transfer.
+if library.curl_global_sslset(0, None, ctypes.byref(available)) != 1 or not available:
+    raise RuntimeError("Cannot enumerate all selectable curl TLS backends")
+backends = []
+index = 0
+while available[index]:
+    backends.append(available[index].contents.name.decode())
+    index += 1
+if not backends or not set(backends) <= {"openssl", "secure-transport"}:
+    raise RuntimeError("Reassess curl dispositions: selectable TLS backend changed")
+protocols = []
+index = 0
+if not info.protocols:
+    raise RuntimeError("Missing libcurl protocol information")
+while info.protocols[index]:
+    protocols.append(info.protocols[index].decode())
+    index += 1
+if not protocols or {"sftp", "scp"} & set(protocols):
+    raise RuntimeError("Reassess curl dispositions: SSH transfer support changed")
+zlib = info.libz_version.decode() if info.libz_version else ""
+if not re.fullmatch(r"\d+\.\d+\.\d+(?:\.\d+)?", zlib):
+    raise RuntimeError("Missing or unrecognized runtime zlib version")
+parts = tuple(map(int, zlib.split(".")))
+if (parts + (0,) * (4 - len(parts))) < (1, 2, 0, 4):
+    raise RuntimeError("Reassess curl disposition: vulnerable runtime zlib")
+print(json.dumps({"apple_curl_dispositions": "verified", "architecture": platform.machine(),
+                  "version": info.version.decode(), "tls_backends": backends,
+                  "protocols": protocols, "zlib_version": zlib,
+                  "executable_libraries": libraries}, sort_keys=True))
+APPLE_CURL
+done
 echo 'native_build_smoke=passed'
