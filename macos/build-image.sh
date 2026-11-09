@@ -149,6 +149,8 @@ echo '==> Rebuilding Git LFS with maintained Go dependencies'
 tart exec -i "$temporary" /bin/bash -s -- refresh <"$root/macos/image/refresh-git-lfs.sh" | tee "$bundle/git-lfs-build.txt"
 echo '==> Refreshing Azure CLI dependencies within official package constraints'
 tart exec -i "$temporary" /opt/homebrew/bin/python3 - <"$root/macos/image/refresh-azure-cli.py"
+echo '==> Backporting AWS CLI dependency security fixes within supported constraints'
+tart exec -i "$temporary" /opt/homebrew/bin/python3 - <"$root/macos/image/refresh-aws-cli.py"
 if [[ "$profile" == xcode-android ]]; then
 	# shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
 	android_config=$( # shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
@@ -189,6 +191,7 @@ guest_job() {
   ' -- "$runner_dir" "$@"
 }
 guest_job /bin/bash -s <"$root/macos/image/verify-toolchain.sh" 2>&1 | tee "$bundle/toolchain-check.txt"
+guest_job /opt/homebrew/bin/python3 - verify <"$root/macos/image/refresh-aws-cli.py" 2>&1 | tee -a "$bundle/toolchain-check.txt"
 if [[ "$profile" == xcode-android ]]; then
 	# shellcheck disable=SC2016 # The quoted paths are evaluated inside the guest.
 	guest_job /bin/bash -c '

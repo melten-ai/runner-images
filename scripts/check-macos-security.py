@@ -36,6 +36,12 @@ curl_dispositions = {
     "CVE-2025-0725",
     "CVE-2026-107928",
 }
+aws_backports = {
+    "GHSA-mf9v-mfxr-j63j",
+    "GHSA-qccp-gfcp-xxvc",
+    "GHSA-vxq7-64xx-v4gw",
+    "GHSA-8988-9cw3-xx77",
+}
 root = Path(__file__).resolve().parents[1]
 scanner = sys.argv[1] if len(sys.argv) == 2 else "grype"
 
@@ -109,11 +115,29 @@ with tempfile.TemporaryDirectory() as d:
             "cpes": [{"cpe": "cpe:2.3:a:haxx:curl:8.7.1:*:*:*:*:*:*:*"}],
         }
     )
+    artifacts.append(
+        {
+            "id": "5",
+            "name": "urllib3",
+            "version": "2.6.3+melten.9ff67c841cad",
+            "type": "python",
+            "foundBy": "python-installed-package-cataloger",
+            "locations": [
+                {
+                    "path": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/"
+                    "python3.15/site-packages/urllib3-2.6.3+melten."
+                    "9ff67c841cad.dist-info/METADATA"
+                }
+            ],
+            "purl": "pkg:pypi/urllib3@2.6.3%2Bmelten.9ff67c841cad",
+        }
+    )
     expected_dispositions = {
         **{str(index): python_dispositions for index in (0, 1)},
         "2": {"CVE-2017-5506"},
         "3": {"CVE-2025-32460"},
         "4": curl_dispositions,
+        "5": aws_backports,
     }
     required_matches = dict(expected_dispositions)
     # Each adjacent case must still be reported by the real scanner. Keeping
@@ -121,13 +145,17 @@ with tempfile.TemporaryDirectory() as d:
     for original in tuple(artifacts):
         for field, value in (
             ("name", "OtherPackage"),
-            ("version", "0.0.1"),
+            ("version", "2.6.3" if original["type"] == "python" else "0.0.1"),
             ("type", "binary" if original["type"] != "binary" else "homebrew"),
             ("locations", [{"path": "Applications/Other.app/Contents/Info.plist"}]),
         ):
             nearby = copy.deepcopy(original)
             nearby.update({"id": str(len(artifacts)), field: value})
-            required_matches[nearby["id"]] = expected_dispositions[original["id"]]
+            # Changing a Python package name/type can remove its language-feed
+            # lookup entirely. Compare every observed finding in both scans;
+            # require baseline hits where that lookup remains defined.
+            if original["type"] != "python" or field not in ("name", "type"):
+                required_matches[nearby["id"]] = expected_dispositions[original["id"]]
             artifacts.append(nearby)
     sbom = work / "sbom.syft.json"
     sbom.write_text(
@@ -198,6 +226,6 @@ with tempfile.TemporaryDirectory() as d:
         for rule in m["appliedIgnoreRules"]
     )
     print(
-        f"Verified {len(ignored)} scoped dispositions; nearby name, version, "
-        "type and location matches remain blocking."
+        f"Verified {len(ignored)} scoped dispositions; all other observed findings "
+        "remain unchanged and High/Critical still block."
     )

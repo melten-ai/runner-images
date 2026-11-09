@@ -40,3 +40,20 @@ Seven rules apply only to the `binary` package `curl` 8.7.1 at `usr/bin/curl`. B
 Checking only the default backend, or setting `CURL_SSL_BACKEND` and looking at `curl --version`, does not enumerate every available backend. The verifier uses `curl_global_sslset` to obtain the complete backend list and `curl_version_info` for the linked library version, supported protocols and runtime zlib. Missing, empty or unrecognized observations fail verification; future versions or changed predicates require reassessment. Observations for both architectures are retained in the same qualification-hashed native-check evidence.
 
 Cookie, Public Suffix List, authentication, proxy and HTTP/2 findings remain blocking. In particular, absence of PSL support does not establish protection against overly broad cookies and is not a disposition for those findings.
+
+## AWS CLI urllib3 backport
+
+AWS CLI 2.39.6 requires urllib3 `>=1.25.4,<=2.6.3`. The factory preserves that requirement and the official CLI release, backporting supplier security fixes into `2.6.3+melten.9ff67c841cad`. A PEP 440 local version satisfies the existing upper bound. This compatibility backport is tracked in [#8](https://github.com/melten-ai/runner-images/issues/8); it is skipped once the vendor installs a supported upstream version with these fixes. The build identity derives from the source archive, patch checksums and verified resulting modules in [refresh-aws-cli.py](image/refresh-aws-cli.py).
+
+Four rules cover only that exact local Python distribution at the AWS CLI 2.39.6 / Python 3.15 Cellar metadata location:
+
+- [GHSA-mf9v-mfxr-j63j](https://github.com/advisories/GHSA-mf9v-mfxr-j63j): bounded decompression during repeated streaming reads and draining.
+- [GHSA-qccp-gfcp-xxvc](https://github.com/advisories/GHSA-qccp-gfcp-xxvc): stripping sensitive headers from cross-origin low-level proxy redirects.
+- [GHSA-vxq7-64xx-v4gw](https://github.com/advisories/GHSA-vxq7-64xx-v4gw): bounded chunk-size and trailer-line reads.
+- [GHSA-8988-9cw3-xx77](https://github.com/advisories/GHSA-8988-9cw3-xx77): separation of proxy and target TLS settings.
+
+Source and patch downloads require their recorded SHA256. Patching is isolated from any enclosing Homebrew Git checkout; exact resulting module hashes must match the tested backport before wheel construction and again after installation. The sdist's cached core metadata is discarded so the build receives its distinct local identity. A wheel missing that identity is rejected. Other AWS dependencies are preserved, and `pip check` runs against the actual vendor interpreter with the candidate package tree.
+
+Before and after activation, the actual CLI writes an object to an isolated local HTTP fixture, downloads matching bytes, deletes it and observes the missing object. Only synthetic credentials and the fixed test bucket/key are accepted. This tests the HTTP transport and material file lifecycle; the fixture is not an AWS permission or SigV4 emulator and does not establish live cloud authorization. Activation or receipt-write failure restores the original package tree. Replay verifies the existing source hashes and identity without rebuilding.
+
+The receipt records source inputs, wheel SHA256 and installed Python-file hashes. The factory independently verifies it before SBOM collection and includes the resulting report in qualification-hashed native-check evidence. The scanner retains the four source-fixed dispositions with reasons. Ordinary unpatched 2.6.3, other names, versions and locations retain their existing findings. Installed upstream urllib3 2.8.0 or newer is verified without applying this backport or these local-build exceptions.

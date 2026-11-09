@@ -362,6 +362,50 @@
         "type": "binary",
         "location": "usr/bin/curl"
       }
+    },
+    {
+      "vulnerability": "GHSA-mf9v-mfxr-j63j",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-mf9v-mfxr-j63j",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-qccp-gfcp-xxvc",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-qccp-gfcp-xxvc",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-vxq7-64xx-v4gw",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-vxq7-64xx-v4gw",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-8988-9cw3-xx77",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-8988-9cw3-xx77",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
     }
   ]
 }
