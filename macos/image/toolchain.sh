@@ -100,6 +100,12 @@ main() {
 	job_path="$JAVA_HOME/bin:$job_path"
 	local name cache_name url pattern selected version archive tool_work manifest
 	while IFS='|' read -r name url; do
+		if [[ "$name" == Python ]]; then
+			while IFS= read -r pattern; do
+				refresh_python_cache "$(cut -d. -f1,2 <<<"$pattern")"
+			done < <(jq -er '.toolcache[] | select(.name == "Python") | .arch.arm64.versions[]' "$toolset")
+			continue
+		fi
 		cache_name="$name"
 		case "$name" in Go) cache_name=go ;; Node) cache_name=node ;; esac
 		manifest="$work/$name.json"
@@ -126,6 +132,10 @@ main() {
 			rm -rf "$tool_work"
 		done < <(jq -er --arg name "$name" '.toolcache[] | select(.name == $name) | .arch.arm64.versions[]' "$toolset")
 	done < <(jq -er '.toolcache[] | select(.url) | .name + "|" + .url' "$toolset")
+
+	# The inherited base can retain outdated Cellar kegs after installations.
+	brew upgrade --formula --quiet </dev/null >&2
+	brew cleanup --prune=all </dev/null >&2
 
 	# Expose the newest cached Go compiler for scripts that invoke Go directly.
 	local go_version go_variable cache_version

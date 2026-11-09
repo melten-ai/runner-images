@@ -102,7 +102,13 @@ done
 tart exec "$temporary" /usr/bin/true
 
 echo '==> Installing the official macOS toolset and runtime caches'
-job_path=$(tart exec -i "$temporary" /bin/bash -s <"$root/macos/image/toolchain.sh")
+job_path=$(
+	{
+		cat "$root/macos/image/refresh-python-cache.sh"
+		printf '\n'
+		cat "$root/macos/image/toolchain.sh"
+	} | tart exec -i "$temporary" /bin/bash -s
+)
 [[ "$job_path" == */usr/bin* ]] || {
 	echo 'Guest toolchain did not return a usable job PATH.' >&2
 	exit 1
