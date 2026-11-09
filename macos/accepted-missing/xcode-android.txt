@@ -21,7 +21,6 @@ cmd aarch64-apple-darwin25-gcc-ranlib-15
 cmd aarch64-apple-darwin25-gfortran-13
 cmd aarch64-apple-darwin25-gfortran-14
 cmd aarch64-apple-darwin25-gfortran-15
-cmd android
 cmd azcopy
 cmd bicep
 cmd c++-13
