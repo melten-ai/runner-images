@@ -3,6 +3,55 @@
 # line build tools, default runtimes and the Python/Node/Go tool cache.
 set -euo pipefail
 
+image_formula_name() {
+	case "$1" in
+	packer) printf '%s\n' hashicorp/tap/packer ;;
+	applesimutils) printf '%s\n' wix-incubator/brew/applesimutils ;;
+	*) printf '%s\n' "$1" ;;
+	esac
+}
+
+install_image_formula() {
+	local formula
+	formula=$(image_formula_name "$1")
+	case "$formula" in
+	azure-cli)
+		brew install --cask --quiet "$formula" </dev/null >&2
+		return
+		;;
+	hashicorp/tap/packer | wix-incubator/brew/applesimutils)
+		# Authorize only the required formula, never an entire inherited tap.
+		brew trust --formula "$formula" </dev/null >&2 || return 1
+		;;
+	*/*)
+		echo "Unreviewed image formula tap: $formula" >&2
+		return 1
+		;;
+	esac
+	brew install --quiet "$formula" </dev/null >&2 || return 1
+	if [[ "$formula" == */* ]]; then
+		brew upgrade --formula --quiet "$formula" </dev/null >&2 || return 1
+	fi
+}
+
+upgrade_core_formulas() {
+	local installed formula
+	local formulas=()
+	installed=$(brew list --formula --full-name </dev/null) || return 1
+	while IFS= read -r formula; do
+		case "$formula" in
+		'') continue ;;
+		homebrew/core/*) formula=${formula#homebrew/core/} ;;
+		*/*) continue ;;
+		esac
+		[[ "$formula" =~ ^[a-z0-9][a-z0-9@+._-]*$ ]] || return 1
+		formulas+=("$formula")
+	done <<<"$installed"
+	if ((${#formulas[@]})); then
+		brew upgrade --formula --quiet "${formulas[@]}" </dev/null >&2 || return 1
+	fi
+}
+
 main() {
 	eval "$(/opt/homebrew/bin/brew shellenv)"
 	export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_ENV_HINTS=1
@@ -23,13 +72,7 @@ main() {
 	node_major=$(jq -er '.node.default' "$toolset")
 	brew update --quiet >&2
 	while IFS= read -r formula; do
-		# Packer is distributed through HashiCorp's tap, as in the hosted image.
-		if [[ "$formula" == packer ]]; then formula=hashicorp/tap/packer; fi
-		if [[ "$formula" == azure-cli ]]; then
-			brew install --cask --quiet "$formula" </dev/null >&2
-		else
-			brew install --quiet "$formula" </dev/null >&2
-		fi
+		install_image_formula "$formula"
 	done < <(jq -er '.brew.common_packages[]' "$toolset")
 	brew install --quiet "ruby@$ruby_minor" "python@$python_minor" "node@$node_major" rustup pipx jq curl wget >&2
 
@@ -45,7 +88,7 @@ main() {
 		fi
 	done
 	while IFS= read -r formula; do
-		if [[ "$formula" == packer ]]; then formula=hashicorp/tap/packer; fi
+		formula=$(image_formula_name "$formula")
 		if [[ "$formula" == azure-cli ]]; then continue; fi
 		prefix=$(brew --prefix "$formula")
 		if [[ -d "$prefix/bin" ]]; then job_path+=":$prefix/bin"; fi
@@ -134,7 +177,7 @@ main() {
 	done < <(jq -er '.toolcache[] | select(.url) | .name + "|" + .url' "$toolset")
 
 	# The inherited base can retain outdated Cellar kegs after installations.
-	brew upgrade --formula --quiet </dev/null >&2
+	upgrade_core_formulas
 	brew cleanup --prune=all </dev/null >&2
 
 	# Expose the newest cached Go compiler for scripts that invoke Go directly.

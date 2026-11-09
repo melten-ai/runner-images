@@ -2,6 +2,7 @@
 # Usage: bash macos/build-image.sh IMAGE [BASE] [xcode|xcode-android] [RUNNER_DIR] [REFERENCE_JSON] [ALLOWLIST]
 # Builds an unregistered local Tart image; does not change any running fleet.
 set -euo pipefail
+export TART_NO_AUTO_PRUNE=1
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 # shellcheck source=macos/network.sh
@@ -40,7 +41,7 @@ reference_revision=$(git -C "$(dirname "$reference")" rev-parse HEAD)
 	echo 'Apple Silicon macOS is required.' >&2
 	exit 1
 }
-for command in tart curl jq python3; do command -v "$command" >/dev/null; done
+for command in tart curl jq python3 gh; do command -v "$command" >/dev/null; done
 image_exists() { tart list --quiet | grep -Fxq -- "$1"; }
 active=$(tart list --format json | python3 -c 'import json,sys; print(sum(v["State"] == "running" for v in json.load(sys.stdin)))')
 if ((active >= 2)); then
@@ -100,6 +101,11 @@ for _ in $(seq 1 120); do
 	sleep 2
 done
 tart exec "$temporary" /usr/bin/true
+
+echo '==> Installing same-major macOS security updates'
+python3 "$root/scripts/update-macos.py" "$temporary" "$bridge" "$build_log" | tee "$bundle/os-update.txt"
+
+python3 "$root/scripts/prepare-macos-cask.py" "$temporary"
 
 echo '==> Installing the official macOS toolset and runtime caches'
 job_path=$(

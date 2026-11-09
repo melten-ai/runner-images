@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import shutil
@@ -24,7 +25,9 @@ command=a[0]
 if command=="list":
     if "--format" in a:
         status="running" if os.environ.get("TEST_FAIL_STAGE")=="capacity" else "stopped"
-        print(json.dumps([{"State":status} for _ in images]))
+        print(json.dumps([{"Name":name,
+            "State":status if "-build-" not in name else "running"}
+            for name in images]))
     else: print("\\n".join(images))
     sys.exit(0)
 home=Path(os.environ["TART_HOME"])/"vms"
@@ -48,6 +51,21 @@ if command=="run":
     while not (state.parent/(a[1]+".stopped")).exists(): time.sleep(.01)
     sys.exit(0)
 if command=="exec":
+    if "hw.model" in a: print("VirtualMac2,1")
+    if "-productVersion" in a: print("26.7.2")
+    if "/usr/sbin/softwareupdate" in a:
+        if os.environ.get("TEST_FAIL_STAGE")=="os-update": sys.exit(24)
+        print("No new software available.")
+    if "/opt/homebrew/bin/brew" in a:
+        if os.environ.get("TEST_FAIL_STAGE")=="cask": sys.exit(23)
+        if "info" in a:
+            print(json.dumps({"casks":[{"token":"azure-cli","version":"2.92.0",
+                "url":"https://github.com/Azure/azure-cli/releases/download/"
+                      "azure-cli-2.92.0/azure-cli-2.92.0-macos-arm64.tar.gz",
+                "sha256":os.environ["TEST_CASK_SHA"]}]}))
+        elif "--cache" in a:
+            print("/Users/admin/Library/Caches/Homebrew/downloads/example.tgz")
+    if "/usr/bin/shasum" in a: print(os.environ["TEST_CASK_SHA"]+"  example.tgz")
     if os.environ.get("TEST_FAIL_STAGE")=="boot" and "/usr/bin/true" in a: sys.exit(1)
     if "cmdline-tools" in " ".join(a): print("21 12266719 35 35.0.0")
     if "github-macos-toolset.json" in " ".join(a) and "cat " in " ".join(a):
@@ -86,6 +104,17 @@ state.write_text(json.dumps(images))
         + "a" * 64
         + "\"}]}'",
     }
+    gh = tools / "gh"
+    gh.write_text("""#!/usr/bin/env python3
+import json,os,sys
+if "--method" in sys.argv:
+    print(json.dumps({"assets":[{
+        "browser_download_url":"https://github.com/Azure/azure-cli/releases/download/"
+                               "azure-cli-2.92.0/azure-cli-2.92.0-macos-arm64.tar.gz",
+        "url":"https://api.github.com/repos/Azure/azure-cli/releases/assets/123",
+        "digest":"sha256:"+os.environ["TEST_CASK_SHA"]}]}))
+else: sys.stdout.buffer.write(b"synthetic official Azure archive")
+""")
     commands["git"] = """
 case "$*" in
  *rev-parse*) echo aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ;;
@@ -104,6 +133,8 @@ esac
         "capacity",
         "boot",
         "provision",
+        "cask",
+        "os-update",
         "job-path",
         "verify",
         "sbom",
@@ -137,6 +168,9 @@ esac
             "TEST_TART_STATE": str(state),
             "TART_HOME": str(tmp_path / "tart"),
             "TEST_FAIL_STAGE": "" if failure == "android" else failure,
+            "TEST_CASK_SHA": hashlib.sha256(
+                b"synthetic official Azure archive"
+            ).hexdigest(),
         }
         result = subprocess.run(
             [
