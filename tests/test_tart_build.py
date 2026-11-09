@@ -70,6 +70,7 @@ if command=="rename":
         (home/a[2]/"disk.img").write_bytes(b"changed-after-comparison")
 if command=="stop": (state.parent/(a[1]+".stopped")).touch()
 if command=="run":
+    (state.parent/(a[1]+".stopped")).unlink(missing_ok=True)
     if os.environ.get("TEST_FAIL_STAGE")=="boot": sys.exit(7)
     while not (state.parent/(a[1]+".stopped")).exists(): time.sleep(.01)
     sys.exit(0)
@@ -101,6 +102,10 @@ if command=="exec":
         if os.environ.get("TEST_FAIL_STAGE")=="provision": sys.exit(5)
         path="/example/bin:/usr/bin:/bin"
         print("invalid" if os.environ.get("TEST_FAIL_STAGE")=="job-path" else path)
+    if "verify_guest_agent()" in body:
+        stage="agent-refresh" if a[-1]=="refresh" else "agent-verify"
+        if os.environ.get("TEST_FAIL_STAGE")==stage: sys.exit(27)
+        print("guest_agent_identity=verified")
     if "SYFT_GOLANG_CAPTURE_SYMBOLS=all" in body:
         if os.environ.get("TEST_FAIL_STAGE")=="sbom": sys.exit(8)
     if "/bin/cat" in a and "/private/tmp/runner-image-sbom/sbom.syft.json" in a:
@@ -171,6 +176,8 @@ esac
         "cask",
         "os-update",
         "job-path",
+        "agent-refresh",
+        "agent-verify",
         "verify",
         "sbom",
         "sbom-read",

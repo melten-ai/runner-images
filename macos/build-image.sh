@@ -102,18 +102,21 @@ tart clone "$base" "$temporary"
 python3 "$root/scripts/image-fingerprint.py" "$tart_home/vms/$temporary" >"$bundle/base-fingerprint.json"
 tart set "$temporary" --cpu 4 --memory 8192
 bridge=$(select_tart_bridge_interface)
-tart run "$temporary" --no-graphics --net-bridged "$bridge" >"$build_log" 2>&1 &
-build_pid=$!
-running=true
-for _ in $(seq 1 120); do
-	if ! kill -0 "$build_pid" 2>/dev/null; then
-		echo 'Tart exited before the guest agent became ready.' >&2
-		exit 1
-	fi
-	if tart exec "$temporary" /usr/bin/true >/dev/null 2>&1; then break; fi
-	sleep 2
-done
-tart exec "$temporary" /usr/bin/true
+start_build_vm() {
+	tart run "$temporary" --no-graphics --net-bridged "$bridge" >>"$build_log" 2>&1 &
+	build_pid=$!
+	running=true
+	for _ in $(seq 1 120); do
+		if ! kill -0 "$build_pid" 2>/dev/null; then
+			echo 'Tart exited before the guest agent became ready.' >&2
+			exit 1
+		fi
+		if tart exec "$temporary" /usr/bin/true >/dev/null 2>&1; then break; fi
+		sleep 2
+	done
+	tart exec "$temporary" /usr/bin/true
+}
+start_build_vm
 
 echo '==> Installing same-major macOS security updates'
 python3 "$root/scripts/update-macos.py" "$temporary" "$bridge" "$build_log" | tee "$bundle/os-update.txt"
@@ -134,6 +137,14 @@ job_path=$(
 	echo 'Guest toolchain did not return a usable job PATH.' >&2
 	exit 1
 }
+echo '==> Rebuilding the guest agent with maintained Go dependencies'
+tart exec -i "$temporary" /bin/bash -s -- refresh <"$root/macos/image/refresh-guest-agent.sh" | tee "$bundle/guest-agent-build.txt"
+tart exec "$temporary" /bin/sync
+tart stop "$temporary" --timeout 120
+wait "$build_pid" || true
+running=false
+start_build_vm
+tart exec -i "$temporary" /bin/bash -s -- verify <"$root/macos/image/refresh-guest-agent.sh" | tee "$bundle/guest-agent-reboot.txt"
 echo '==> Refreshing Azure CLI dependencies within official package constraints'
 tart exec -i "$temporary" /opt/homebrew/bin/python3 - <"$root/macos/image/refresh-azure-cli.py"
 if [[ "$profile" == xcode-android ]]; then
