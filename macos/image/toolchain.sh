@@ -16,7 +16,8 @@ install_image_formula() {
 	formula=$(image_formula_name "$1")
 	case "$formula" in
 	azure-cli)
-		brew install --cask --quiet "$formula" </dev/null >&2
+		brew install --cask --quiet "$formula" </dev/null >&2 || return 1
+		brew upgrade --cask --quiet "$formula" </dev/null >&2 || return 1
 		return
 		;;
 	hashicorp/tap/packer | wix-incubator/brew/applesimutils)
