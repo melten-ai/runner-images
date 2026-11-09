@@ -38,13 +38,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TART_REGISTRY_USERNAME: ${{ github.actor }}
         run: python3 scripts/release-tart.py prepare "$QUALIFICATION"
-      - uses: anchore/scan-action@v7
-        with:
-          sbom: ${{ steps.evidence.outputs.bundle }}/sbom.syft.json
-          severity-cutoff: high
-          fail-build: true
-          output-format: json
-          output-file: artifacts/release/vulnerabilities.json
+      - name: Install verified scanner and block high or critical findings
+        env:
+          BUNDLE: ${{ steps.evidence.outputs.bundle }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 cloud/linux/install-toolchains.py --host-tool grype "$RUNNER_TEMP/runner-image-tools" "$RUNNER_TEMP/grype.json"
+          "$RUNNER_TEMP/runner-image-tools/bin/grype" "sbom:$BUNDLE/sbom.syft.json" --fail-on high --output json --file artifacts/release/vulnerabilities.json
       - uses: actions/attest@v4
         id: provenance
         with:

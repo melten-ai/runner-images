@@ -2,8 +2,14 @@
 # Bootstrap for the single command in a rebuild issue. Persistent state permits resume.
 set -euo pipefail
 profile=${1:?Image profile is required}
-[[ "$profile" == xcode || "$profile" == xcode-android ]]
-[[ $(uname -s) == Darwin && $(uname -m) == arm64 ]]
+[[ "$profile" == xcode || "$profile" == xcode-android ]] || {
+	echo 'Profile must be xcode or xcode-android.' >&2
+	exit 1
+}
+[[ $(uname -s) == Darwin && $(uname -m) == arm64 ]] || {
+	echo 'Apple Silicon macOS is required.' >&2
+	exit 1
+}
 command -v gh >/dev/null
 gh auth status --hostname github.com >/dev/null 2>&1
 for tool in tart jq grype; do

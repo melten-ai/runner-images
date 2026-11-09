@@ -39,11 +39,14 @@ def resolve_github(repository: str, pattern: str) -> dict[str, str]:
         read(f"https://api.github.com/repos/{repository}/releases/latest")
     )
     asset = next(a for a in release["assets"] if re.fullmatch(pattern, a["name"]))
-    return {
+    result = {
         "version": release["tag_name"],
         "url": asset["browser_download_url"],
         "sha256": asset["digest"].removeprefix("sha256:"),
     }
+    if asset.get("url"):
+        result["api_url"] = asset["url"]
+    return result
 
 
 def download(url: str, destination: Path) -> None:
@@ -146,7 +149,25 @@ def verified_download(spec: dict[str, str], archive: Path) -> None:
         spec[algorithm],
     ):
         raise ValueError("missing or invalid official archive checksum")
-    download(spec["url"], archive)
+    if os.environ.get("GH_TOKEN") and spec.get("api_url", "").startswith(
+        "https://api.github.com/repos/"
+    ):
+        # Authenticated build hosts can use the official asset API rather than
+        # the browser-download endpoint. Guests keep using public URLs.
+        with archive.open("wb") as stream:
+            subprocess.run(
+                [
+                    "gh",
+                    "api",
+                    spec["api_url"],
+                    "-H",
+                    "Accept: application/octet-stream",
+                ],
+                stdout=stream,
+                check=True,
+            )
+    else:
+        download(spec["url"], archive)
     with archive.open("rb") as stream:
         actual = hashlib.file_digest(stream, algorithm).hexdigest()
     if actual != spec[algorithm]:
@@ -161,6 +182,30 @@ def unpack(spec: dict[str, str], directory: Path) -> Path:
     with tarfile.open(archive) as stream:
         stream.extractall(extracted, filter="data")
     return extracted
+
+
+def install_host_tool(name: str, prefix: Path, receipt: Path) -> None:
+    # Build-host dependencies share the guest tools' retry and integrity checks.
+    # They are not part of the published VM image.
+    if name == "oneup":
+        spec = resolve_github(
+            "circlesac/oneup", r"oneup-x86_64-unknown-linux-gnu\.tar\.gz"
+        )
+    elif name == "grype":
+        spec = resolve_github("anchore/grype", r"grype_.*_linux_amd64\.tar\.gz")
+    else:
+        raise ValueError("unsupported build-host tool")
+    with tempfile.TemporaryDirectory() as directory:
+        extracted = unpack(spec, Path(directory))
+        executable = extracted / name
+        if not executable.is_file() or executable.is_symlink():
+            raise ValueError("build-host archive must contain a regular executable")
+        (prefix / "bin").mkdir(parents=True, exist_ok=True)
+        shutil.copy2(executable, prefix / "bin" / name)
+        (prefix / "bin" / name).chmod(0o755)
+    receipt.parent.mkdir(parents=True, exist_ok=True)
+    receipt.write_text(json.dumps({name: spec}, indent=2) + "\n")
+    print(f"Installed build-host {name} {spec['version']}", flush=True)
 
 
 def install_buildx(prefix: Path, spec: dict[str, str], directory: Path) -> None:
@@ -279,6 +324,7 @@ if __name__ == "__main__":
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--runner-npm", action="store_true")
     modes.add_argument("--resolve", action="store_true")
+    modes.add_argument("--host-tool", choices=("oneup", "grype"))
     parser.add_argument("--specifications", type=Path)
     args = parser.parse_args()
     if args.resolve:
@@ -287,6 +333,8 @@ if __name__ == "__main__":
         parser.error("prefix and receipt are required for installation")
     elif args.runner_npm:
         refresh_runner_npm(args.prefix.resolve(), args.receipt.resolve())
+    elif args.host_tool:
+        install_host_tool(args.host_tool, args.prefix.resolve(), args.receipt.resolve())
     else:
         specifications = (
             json.loads(args.specifications.read_text()) if args.specifications else None

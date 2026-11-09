@@ -5,7 +5,10 @@ set -euo pipefail
 RUNNER_VERSION="${1:?actions/runner version (e.g. 2.338.2) is required}"
 RUNNER_DIR="${2:?runner directory is required}"
 RUNNER_SHA="${3:?runner SHA256 is required}"
-[[ "$RUNNER_SHA" =~ ^[a-f0-9]{64}$ ]]
+[[ "$RUNNER_SHA" =~ ^[a-f0-9]{64}$ ]] || {
+	echo 'Runner SHA256 must contain exactly 64 lowercase hexadecimal characters.' >&2
+	exit 1
+}
 
 [[ "$RUNNER_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
 	echo "Runner version must look like 2.338.2." >&2

@@ -55,7 +55,8 @@ if command=="exec":
     body=sys.stdin.read() if "-i" in a else ""
     if "brew update" in body:
         if os.environ.get("TEST_FAIL_STAGE")=="provision": sys.exit(5)
-        print("/example/bin:/usr/bin:/bin")
+        path="/example/bin:/usr/bin:/bin"
+        print("invalid" if os.environ.get("TEST_FAIL_STAGE")=="job-path" else path)
     if "SYFT_GOLANG_CAPTURE_SYMBOLS=all" in body:
         if os.environ.get("TEST_FAIL_STAGE")=="sbom": sys.exit(8)
     if "/bin/cat" in a and "/private/tmp/runner-image-sbom/sbom.syft.json" in a:
@@ -102,6 +103,7 @@ esac
         "capacity",
         "boot",
         "provision",
+        "job-path",
         "verify",
         "sbom",
         "sbom-read",
@@ -137,7 +139,7 @@ esac
         }
         result = subprocess.run(
             [
-                "bash",
+                "/bin/bash",
                 str(root / "macos/build-image.sh"),
                 image,
                 "base",

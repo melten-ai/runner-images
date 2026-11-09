@@ -441,3 +441,140 @@ def test_runner_npm_installs_the_plan_without_resolving_again(
         prefix = runner / "externals" / runtime
         assert (prefix / "bin/npm").read_text() == "CLI"
         assert (prefix / "bin/node").read_text() == "official node"
+
+
+@pytest.mark.parametrize("name", ["oneup", "grype"])
+@pytest.mark.parametrize("failure", ["", "checksum", "missing", "symlink"])
+def test_host_tool_installs_verified_archive_and_preserves_existing_on_failure(
+    installer, tmp_path, monkeypatch, name, failure
+):
+    data = io.BytesIO()
+    with tarfile.open(fileobj=data, mode="w:gz") as archive:
+        body = b"#!/bin/sh\nprintf 'verified-tool\\n'\n"
+        entry = tarfile.TarInfo(name if failure != "missing" else "other")
+        entry.mode = 0o644  # Installer must restore execute permissions.
+        entry.size = len(body)
+        if failure == "symlink":
+            target = tarfile.TarInfo("target")
+            target.size = len(body)
+            archive.addfile(target, io.BytesIO(body))
+            entry.type = tarfile.SYMTYPE
+            entry.linkname = "target"
+            entry.size = 0
+            archive.addfile(entry)
+        else:
+            archive.addfile(entry, io.BytesIO(body))
+    payload = data.getvalue()
+    repository = "circlesac/oneup" if name == "oneup" else "anchore/grype"
+    filename = (
+        "oneup-x86_64-unknown-linux-gnu.tar.gz"
+        if name == "oneup"
+        else "grype_0.121.2_linux_amd64.tar.gz"
+    )
+    checksum = (
+        "a" * 64 if failure == "checksum" else hashlib.sha256(payload).hexdigest()
+    )
+    metadata = json.dumps(
+        {
+            "tag_name": "v26.10.0" if name == "oneup" else "v0.121.2",
+            "assets": [
+                {
+                    "name": filename,
+                    "digest": "sha256:" + checksum,
+                    "browser_download_url": "https://example.com/verified.tar.gz",
+                }
+            ],
+        }
+    ).encode()
+
+    def read(url):
+        assert url == f"https://api.github.com/repos/{repository}/releases/latest"
+        return metadata
+
+    def download(url, path):
+        assert url == "https://example.com/verified.tar.gz"
+        path.write_bytes(payload)
+
+    globals_ = installer["install_host_tool"].__globals__
+    monkeypatch.setitem(globals_, "read", read)
+    monkeypatch.setitem(globals_, "download", download)
+    prefix = tmp_path / "tools"
+    (prefix / "bin").mkdir(parents=True)
+    binary = prefix / "bin" / name
+    binary.write_bytes(b"preserved executable")
+    receipt = tmp_path / "receipt.json"
+    if failure:
+        with pytest.raises(ValueError):
+            installer["install_host_tool"](name, prefix, receipt)
+        assert binary.read_bytes() == b"preserved executable"
+        assert not receipt.exists()
+    else:
+        installer["install_host_tool"](name, prefix, receipt)
+        assert subprocess.check_output([str(binary)], text=True) == "verified-tool\n"
+        assert json.loads(receipt.read_text())[name]["sha256"] == checksum
+        assert not (prefix / "extracted").exists()
+
+
+def test_host_tool_rejects_unknown_dependency(installer, tmp_path):
+    with pytest.raises(ValueError, match="unsupported"):
+        installer["install_host_tool"]("unknown", tmp_path, tmp_path / "receipt")
+    assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("failure", ["", "checksum", "api"])
+def test_authenticated_asset_download_keeps_integrity_gate(
+    installer, tmp_path, monkeypatch, failure
+):
+    monkeypatch.setenv("GH_TOKEN", "synthetic-token")
+    url = "https://api.github.com/repos/example/tool/releases/assets/123"
+    payload = b"official binary archive"
+    spec = {
+        "url": "https://example.com/tool.tgz",
+        "api_url": url,
+        "sha256": hashlib.sha256(payload).hexdigest(),
+    }
+    calls = []
+
+    def run(args, **kwargs):
+        calls.append(args)
+        assert args == ["gh", "api", url, "-H", "Accept: application/octet-stream"]
+        if failure == "api":
+            raise subprocess.CalledProcessError(1, args)
+        kwargs["stdout"].write(b"tampered" if failure == "checksum" else payload)
+
+    monkeypatch.setattr(installer["subprocess"], "run", run)
+    archive = tmp_path / "download.tar"
+    if failure:
+        with pytest.raises(
+            ValueError if failure == "checksum" else subprocess.CalledProcessError
+        ):
+            installer["verified_download"](spec, archive)
+    else:
+        installer["verified_download"](spec, archive)
+        assert archive.read_bytes() == payload
+    assert len(calls) == 1
+
+
+def test_guest_asset_download_uses_public_url_without_host_identity(
+    installer, tmp_path, monkeypatch
+):
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    payload = b"public archive"
+    calls = []
+
+    def download(url, destination):
+        calls.append(url)
+        destination.write_bytes(payload)
+
+    monkeypatch.setitem(
+        installer["verified_download"].__globals__, "download", download
+    )
+    installer["verified_download"](
+        {
+            "url": "https://example.com/public.tgz",
+            "api_url": "https://api.github.com/repos/example/tool/releases/assets/123",
+            "sha256": hashlib.sha256(payload).hexdigest(),
+        },
+        tmp_path / "archive",
+    )
+    assert calls == ["https://example.com/public.tgz"]

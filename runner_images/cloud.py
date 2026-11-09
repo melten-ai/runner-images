@@ -18,14 +18,20 @@ from runner_images.rebuild import gh
 
 
 def command(args: list[str], root: Path, *, output: bool = False) -> str:
-    result = subprocess.run(
-        args,
-        cwd=root,
-        check=True,
-        text=True,
-        stdout=subprocess.PIPE if output else None,
-        timeout=14400,
-    )
+    try:
+        result = subprocess.run(
+            args,
+            cwd=root,
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE if output else None,
+            timeout=14400,
+        )
+    except subprocess.CalledProcessError as error:
+        # Captured tool diagnostics must survive a failed version/base lookup.
+        if output and error.stdout:
+            print(error.stdout, file=sys.stderr, end="")
+        raise
     return result.stdout.strip() if output else ""
 
 
@@ -236,9 +242,7 @@ def plan(root: Path, provider: str) -> dict[str, str]:
     target.write_text('package image\nconst Version = "0.0.0"\n')
     version = command(
         [
-            "npx",
-            "--yes",
-            "@circlesac/oneup@^26.10.0",
+            "oneup",
             "version",
             "--source",
             "git",

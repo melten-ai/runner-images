@@ -54,6 +54,11 @@ jobs:
       - uses: hashicorp/setup-packer@v3
         with:
           version: "1.16.2"
+      - name: Install verified build-host tools
+        run: |
+          python3 cloud/linux/install-toolchains.py --host-tool oneup "$RUNNER_TEMP/runner-image-tools" "$RUNNER_TEMP/oneup.json"
+          python3 cloud/linux/install-toolchains.py --host-tool grype "$RUNNER_TEMP/runner-image-tools" "$RUNNER_TEMP/grype.json"
+          echo "$RUNNER_TEMP/runner-image-tools/bin" >> "$GITHUB_PATH"
       - uses: google-github-actions/auth@v3
         if: inputs.provider == 'gcp'
         with:
@@ -78,14 +83,9 @@ jobs:
         id: build
         if: steps.plan.outputs.needed == 'true'
         run: python3 scripts/cloud-image.py build "$PROVIDER"
-      - uses: anchore/scan-action@v7
+      - name: Scan native SBOM and block high or critical findings
         if: steps.plan.outputs.needed == 'true'
-        with:
-          sbom: artifacts/cloud/${{ inputs.provider }}/sbom.syft.json
-          fail-build: true
-          severity-cutoff: high
-          output-format: json
-          output-file: artifacts/cloud/${{ inputs.provider }}/vulnerabilities.json
+        run: grype "sbom:artifacts/cloud/$PROVIDER/sbom.syft.json" --fail-on high --output json --file "artifacts/cloud/$PROVIDER/vulnerabilities.json"
       - uses: actions/attest@v4
         if: steps.plan.outputs.needed == 'true'
         id: provenance

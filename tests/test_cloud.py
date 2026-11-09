@@ -72,7 +72,7 @@ def fixture(tmp_path, monkeypatch, request):
             return json.dumps(external["toolchains"])
         if args[:2] == ["git", "rev-parse"]:
             return "a" * 40
-        if args[0] == "npx":
+        if args[0] == "oneup":
             return external["version"]
         if "describe-from-family" in args:
             return json.dumps(
@@ -559,3 +559,17 @@ def test_publication_rechecks_qualified_cloud_identity(fixture, monkeypatch):
     with pytest.raises(ValueError, match="identity changed"):
         cloud.publish(root, provider)
     assert not external["releases"]
+
+
+def test_failed_captured_command_keeps_diagnostic_output(tmp_path, capsys):
+    with pytest.raises(subprocess.CalledProcessError):
+        cloud.command(
+            [
+                "python3",
+                "-c",
+                'print("synthetic version failure"); raise SystemExit(7)',
+            ],
+            tmp_path,
+            output=True,
+        )
+    assert "synthetic version failure" in capsys.readouterr().err

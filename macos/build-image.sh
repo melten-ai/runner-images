@@ -20,11 +20,22 @@ reference_revision=$(git -C "$(dirname "$reference")" rev-parse HEAD)
 	echo 'Commit the image recipe before building a qualified image.' >&2
 	exit 1
 }
-[[ -f "$reference" && -f "$allowlist" && ! -e "$bundle" ]]
-[[ "$image" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ && "$image" != "$base" ]]
-[[ "$profile" == xcode || "$profile" == xcode-android ]]
-[[ "$runner_dir" =~ ^/Users/[A-Za-z0-9_-]+/[A-Za-z0-9._/-]+$ ]]
-[[ "$runner_dir" != *..* ]]
+[[ -f "$reference" && -f "$allowlist" && ! -e "$bundle" ]] || {
+	echo 'Reference and allowlist files must exist, and the evidence destination must be new.' >&2
+	exit 1
+}
+[[ "$image" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ && "$image" != "$base" ]] || {
+	echo 'Choose a safe new image name different from the base image.' >&2
+	exit 1
+}
+[[ "$profile" == xcode || "$profile" == xcode-android ]] || {
+	echo 'Profile must be xcode or xcode-android.' >&2
+	exit 1
+}
+[[ "$runner_dir" =~ ^/Users/[A-Za-z0-9_-]+/[A-Za-z0-9._/-]+$ && "$runner_dir" != *..* ]] || {
+	echo 'Runner directory must be below a user home without parent traversal.' >&2
+	exit 1
+}
 [[ $(uname -s) == Darwin && $(uname -m) == arm64 ]] || {
 	echo 'Apple Silicon macOS is required.' >&2
 	exit 1
@@ -92,7 +103,10 @@ tart exec "$temporary" /usr/bin/true
 
 echo '==> Installing the official macOS toolset and runtime caches'
 job_path=$(tart exec -i "$temporary" /bin/bash -s <"$root/macos/image/toolchain.sh")
-[[ "$job_path" == */usr/bin* ]]
+[[ "$job_path" == */usr/bin* ]] || {
+	echo 'Guest toolchain did not return a usable job PATH.' >&2
+	exit 1
+}
 if [[ "$profile" == xcode-android ]]; then
 	# shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
 	android_config=$( # shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
