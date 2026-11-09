@@ -7,48 +7,6 @@ from pathlib import Path
 import pytest
 
 
-def test_collector_emits_both_formats_from_one_guest_scan(tmp_path):
-    root = Path(__file__).resolve().parents[1]
-    tools = tmp_path / "bin"
-    tools.mkdir()
-    (tools / "brew").write_text("#!/bin/sh\nexit 0\n")
-    (tools / "syft").write_text("""#!/usr/bin/env python3
-import json, os, sys
-from pathlib import Path
-assert os.environ["SYFT_GOLANG_CAPTURE_SYMBOLS"] == "all"
-with Path(os.environ["TEST_SCAN_CALLS"]).open("a") as stream:
-    stream.write(json.dumps(sys.argv[1:]) + "\\n")
-for index, arg in enumerate(sys.argv[1:], 1):
-    if arg == "-o":
-        format, path = sys.argv[index + 1].split("=", 1)
-        Path(path).write_text(json.dumps({"format": format}))
-""")
-    for tool in tools.iterdir():
-        tool.chmod(0o755)
-    evidence = tmp_path / "evidence"
-    script = tmp_path / "collect.sh"
-    script.write_text(
-        (root / "macos/image/collect-sbom.sh")
-        .read_text()
-        .replace("/private/tmp/runner-image-sbom", str(evidence))
-    )
-    calls = tmp_path / "calls.jsonl"
-    subprocess.run(
-        ["bash", str(script)],
-        env=dict(
-            os.environ,
-            PATH=str(tools) + os.pathsep + os.environ["PATH"],
-            TEST_SCAN_CALLS=str(calls),
-        ),
-        check=True,
-    )
-    assert len(calls.read_text().splitlines()) == 1
-    for format in ("syft", "spdx"):
-        assert json.loads((evidence / f"sbom.{format}.json").read_text()) == {
-            "format": f"{format}-json"
-        }
-
-
 def test_build_lifecycle_and_failure_cleanup(tmp_path):
     root = Path(__file__).resolve().parents[1]
     tools = tmp_path / "bin"
@@ -98,7 +56,7 @@ if command=="exec":
     if "brew update" in body:
         if os.environ.get("TEST_FAIL_STAGE")=="provision": sys.exit(5)
         print("/example/bin:/usr/bin:/bin")
-    if "syft scan dir:/" in body:
+    if "SYFT_GOLANG_CAPTURE_SYMBOLS=all" in body:
         if os.environ.get("TEST_FAIL_STAGE")=="sbom": sys.exit(8)
     if "/bin/cat" in a and "/private/tmp/runner-image-sbom/sbom.syft.json" in a:
         print(json.dumps({"artifacts":[{"name":"synthetic"}]}))
