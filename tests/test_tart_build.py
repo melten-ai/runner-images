@@ -8,6 +8,29 @@ from pathlib import Path
 import pytest
 
 
+def install_gh_cli(tools):
+    gh = tools / "gh"
+    gh.write_text("""#!/usr/bin/env python3
+import json,os,sys
+if "repos/actions/runner/releases/latest" in sys.argv:
+    print(json.dumps({"tag_name":"v2.338.2","assets":[{
+        "name":"actions-runner-osx-arm64-2.338.2.tar.gz",
+        "digest":"sha256:"+"a"*64}]}))
+elif "repos/anchore/syft/releases/latest" in sys.argv:
+    print(json.dumps({"name":"syft_1.99.0_darwin_arm64.tar.gz",
+        "browser_download_url":"https://example.invalid/syft.tar.gz",
+        "digest":"sha256:"+"b"*64}))
+elif "--method" in sys.argv:
+    print(json.dumps({"assets":[{
+        "browser_download_url":"https://github.com/Azure/azure-cli/releases/download/"
+                               "azure-cli-2.92.0/azure-cli-2.92.0-macos-arm64.tar.gz",
+        "url":"https://api.github.com/repos/Azure/azure-cli/releases/assets/123",
+        "digest":"sha256:"+os.environ["TEST_CASK_SHA"]}]}))
+else: sys.stdout.buffer.write(b"synthetic official Azure archive")
+""")
+    gh.chmod(0o755)
+
+
 def test_build_lifecycle_and_failure_cleanup(tmp_path):
     root = Path(__file__).resolve().parents[1]
     tools = tmp_path / "bin"
@@ -105,25 +128,7 @@ state.write_text(json.dumps(images))
         + "a" * 64
         + "\"}]}'",
     }
-    gh = tools / "gh"
-    gh.write_text("""#!/usr/bin/env python3
-import json,os,sys
-if "repos/actions/runner/releases/latest" in sys.argv:
-    print(json.dumps({"tag_name":"v2.338.2","assets":[{
-        "name":"actions-runner-osx-arm64-2.338.2.tar.gz",
-        "digest":"sha256:"+"a"*64}]}))
-elif "repos/anchore/syft/releases/latest" in sys.argv:
-    print(json.dumps({"name":"syft_1.99.0_darwin_arm64.tar.gz",
-        "browser_download_url":"https://example.invalid/syft.tar.gz",
-        "digest":"sha256:"+"b"*64}))
-elif "--method" in sys.argv:
-    print(json.dumps({"assets":[{
-        "browser_download_url":"https://github.com/Azure/azure-cli/releases/download/"
-                               "azure-cli-2.92.0/azure-cli-2.92.0-macos-arm64.tar.gz",
-        "url":"https://api.github.com/repos/Azure/azure-cli/releases/assets/123",
-        "digest":"sha256:"+os.environ["TEST_CASK_SHA"]}]}))
-else: sys.stdout.buffer.write(b"synthetic official Azure archive")
-""")
+    install_gh_cli(tools)
     commands["git"] = """
 case "$*" in
  *rev-parse*) echo aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ;;
@@ -289,6 +294,7 @@ elif args[0]=='clone':
     (tools / "uname").write_text(
         "#!/bin/bash\nif [[ $1 == -s ]]; then echo Darwin; else echo arm64; fi\n"
     )
+    install_gh_cli(tools)
     for tool in tools.iterdir():
         tool.chmod(0o755)
     reference = tmp_path / "reference.json"
