@@ -5,12 +5,21 @@ set -euo pipefail
 work=$(mktemp -d /private/tmp/runner-image-sbom-scanner.XXXXXX)
 trap 'rm -rf "$work"' EXIT
 
-release=$(curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 \
-	https://api.github.com/repos/anchore/syft/releases/latest)
-asset=$(jq -er '
-	.assets[]
-	| select(.name | test("^syft_.*_darwin_arm64\\.tar\\.gz$"))
+# The factory passes public asset metadata resolved with host gh authentication.
+# Standalone use retains the public API path; credentials never enter the guest.
+if (($# == 1)); then
+	asset=$1
+elif (($# == 0)); then
+	release=$(curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 \
+		https://api.github.com/repos/anchore/syft/releases/latest)
+	asset=$(jq -er '
+  .assets[] | select(.name | test("^syft_.*_darwin_arm64\\.tar\\.gz$"))
 ' <<<"$release")
+else
+	echo 'Expected at most one public Syft asset JSON argument.' >&2
+	exit 1
+fi
+jq -e '.name | test("^syft_.*_darwin_arm64\\.tar\\.gz$")' <<<"$asset" >/dev/null
 url=$(jq -er '.browser_download_url' <<<"$asset")
 digest=$(jq -er '.digest' <<<"$asset")
 if [[ ! "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]; then

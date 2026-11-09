@@ -77,6 +77,14 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
+# Resolve public releases before downloading a base or starting a build VM.
+release=$(gh api repos/actions/runner/releases/latest)
+version=$(jq -er '.tag_name | ltrimstr("v")' <<<"$release")
+checksum=$(jq -er --arg version "$version" '.assets[] | select(.name == "actions-runner-osx-arm64-" + $version + ".tar.gz") | .digest | ltrimstr("sha256:")' <<<"$release")
+syft_asset=$(gh api repos/anchore/syft/releases/latest --jq '
+  .assets[] | select(.name | test("^syft_.*_darwin_arm64\\.tar\\.gz$"))
+')
+
 # OCI tags are mutable. Refresh them even when Tart has a cached image;
 # local names and immutable digest references retain their normal cache.
 if [[ "$base" == */* && "$base" != *@sha256:* ]] || ! image_exists "$base"; then
@@ -133,9 +141,6 @@ if [[ "$profile" == xcode-android ]]; then
 	job_path+=":/Users/admin/android-sdk/platform-tools:/Users/admin/android-sdk/cmdline-tools/latest/bin"
 fi
 
-release=$(curl -fsSL --retry 5 https://api.github.com/repos/actions/runner/releases/latest)
-version=$(jq -er '.tag_name | ltrimstr("v")' <<<"$release")
-checksum=$(jq -er --arg version "$version" '.assets[] | select(.name == "actions-runner-osx-arm64-" + $version + ".tar.gz") | .digest | ltrimstr("sha256:")' <<<"$release")
 tart exec -i "$temporary" /bin/bash -s -- "$version" "$runner_dir" "$checksum" \
 	<"$root/macos/image/install-runner.sh"
 # shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
@@ -158,11 +163,6 @@ guest_job() {
     exec "$@"
   ' -- "$runner_dir" "$@"
 }
-guest_job /bin/bash -s <"$root/macos/image/collect-sbom.sh"
-# Both formats come from the same guest scan; no host-side conversion is needed.
-guest_job /bin/cat /private/tmp/runner-image-sbom/sbom.syft.json </dev/null >"$bundle/sbom.syft.json"
-guest_job /bin/cat /private/tmp/runner-image-sbom/sbom.spdx.json </dev/null >"$bundle/sbom.spdx.json"
-guest_job /bin/rm /private/tmp/runner-image-sbom/sbom.syft.json /private/tmp/runner-image-sbom/sbom.spdx.json </dev/null
 guest_job /bin/bash -s <"$root/macos/image/verify-toolchain.sh" 2>&1 | tee "$bundle/toolchain-check.txt"
 if [[ "$profile" == xcode-android ]]; then
 	# shellcheck disable=SC2016 # The quoted paths are evaluated inside the guest.
@@ -171,6 +171,13 @@ if [[ "$profile" == xcode-android ]]; then
     "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --version
   ' </dev/null 2>&1 | tee -a "$bundle/toolchain-check.txt"
 fi
+
+# Resolve public metadata with host authentication; no host token enters the VM.
+guest_job /bin/bash -s -- "$syft_asset" <"$root/macos/image/collect-sbom.sh"
+# Both formats come from the same guest scan; no host-side conversion is needed.
+guest_job /bin/cat /private/tmp/runner-image-sbom/sbom.syft.json </dev/null >"$bundle/sbom.syft.json"
+guest_job /bin/cat /private/tmp/runner-image-sbom/sbom.spdx.json </dev/null >"$bundle/sbom.spdx.json"
+guest_job /bin/rm /private/tmp/runner-image-sbom/sbom.syft.json /private/tmp/runner-image-sbom/sbom.spdx.json </dev/null
 
 {
 	cat "$root/runner_images/inventory.py"

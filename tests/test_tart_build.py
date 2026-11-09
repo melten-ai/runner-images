@@ -108,7 +108,15 @@ state.write_text(json.dumps(images))
     gh = tools / "gh"
     gh.write_text("""#!/usr/bin/env python3
 import json,os,sys
-if "--method" in sys.argv:
+if "repos/actions/runner/releases/latest" in sys.argv:
+    print(json.dumps({"tag_name":"v2.338.2","assets":[{
+        "name":"actions-runner-osx-arm64-2.338.2.tar.gz",
+        "digest":"sha256:"+"a"*64}]}))
+elif "repos/anchore/syft/releases/latest" in sys.argv:
+    print(json.dumps({"name":"syft_1.99.0_darwin_arm64.tar.gz",
+        "browser_download_url":"https://example.invalid/syft.tar.gz",
+        "digest":"sha256:"+"b"*64}))
+elif "--method" in sys.argv:
     print(json.dumps({"assets":[{
         "browser_download_url":"https://github.com/Azure/azure-cli/releases/download/"
                                "azure-cli-2.92.0/azure-cli-2.92.0-macos-arm64.tar.gz",

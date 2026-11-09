@@ -5,7 +5,7 @@ set -euo pipefail
 sw_vers
 toolset="$HOME/.runner-image/github-macos-toolset.json"
 test -s "$toolset"
-for tool in git gh jq curl wget python python3 pip pipx 2to3 node npm ruby gem bundle fastlane pod java javac go rustup rustc cargo rustfmt cargo-clippy cmake ninja clang swift xcodebuild codesign security tar gzip unzip shasum; do
+for tool in git gh jq curl wget python python3 pip pipx 2to3 node npm ruby gem bundle fastlane pod java javac go rustup rustc cargo rustfmt cargo-clippy cmake ninja clang clang++ swift swiftc xcodebuild codesign security tar gzip unzip shasum; do
 	command -v "$tool"
 done
 python3 --version
@@ -42,3 +42,38 @@ while IFS= read -r major; do
 	test -x "${!name}/bin/java"
 	"${!name}/bin/java" -version
 done < <(jq -er '.java.arm64.versions[]' "$toolset")
+
+# Exercise the same compiler/runtime contracts as the Linux image smoke.
+printf '#include <stdio.h>\nint main(void){puts("runner-smoke");return 0;}\n' >"$conversion/hello.c"
+clang "$conversion/hello.c" -o "$conversion/hello-c"
+[[ $("$conversion/hello-c") == runner-smoke ]]
+printf '#include <iostream>\nint main(){std::cout << "runner-smoke";}\n' >"$conversion/hello.cpp"
+clang++ -std=c++17 "$conversion/hello.cpp" -o "$conversion/hello-cpp"
+[[ $("$conversion/hello-cpp") == runner-smoke ]]
+cat >"$conversion/CMakeLists.txt" <<'CMAKE'
+cmake_minimum_required(VERSION 3.20)
+project(runner_smoke LANGUAGES C)
+add_executable(runner-smoke hello.c)
+CMAKE
+cmake -S "$conversion" -B "$conversion/cmake-build" -G Ninja
+cmake --build "$conversion/cmake-build"
+[[ $("$conversion/cmake-build/runner-smoke") == runner-smoke ]]
+printf 'fn main(){print!("runner-smoke");}\n' >"$conversion/hello.rs"
+rustc "$conversion/hello.rs" -o "$conversion/hello-rust"
+[[ $("$conversion/hello-rust") == runner-smoke ]]
+cargo new --quiet --bin --vcs none "$conversion/cargo-smoke"
+cargo build --quiet --offline --manifest-path "$conversion/cargo-smoke/Cargo.toml"
+"$conversion/cargo-smoke/target/debug/cargo-smoke"
+python3 -m venv "$conversion/venv"
+"$conversion/venv/bin/python" -c 'import ssl, sqlite3; assert ssl.OPENSSL_VERSION'
+node -e 'require("node:assert").strictEqual(require("node:crypto").createHash("sha256").update("runner-smoke").digest("hex").length, 64)'
+[[ $(ruby -ropenssl -rjson -e 'print JSON.parse(%q({"result":"runner-smoke"}))["result"]') == runner-smoke ]]
+printf 'package main\nimport "fmt"\nfunc main(){fmt.Print("runner-smoke")}\n' >"$conversion/hello.go"
+[[ $(GOCACHE="$conversion/go-cache" go run "$conversion/hello.go") == runner-smoke ]]
+printf 'class RunnerSmoke { public static void main(String[] args) { System.out.print("runner-smoke"); } }\n' >"$conversion/RunnerSmoke.java"
+javac -d "$conversion" "$conversion/RunnerSmoke.java"
+[[ $(java -cp "$conversion" RunnerSmoke) == runner-smoke ]]
+printf 'print("runner-smoke")\n' >"$conversion/hello.swift"
+swiftc -module-cache-path "$conversion/swift-cache" "$conversion/hello.swift" -o "$conversion/hello-swift"
+[[ $("$conversion/hello-swift") == runner-smoke ]]
+echo 'native_build_smoke=passed'
