@@ -1,4 +1,4 @@
-"""Exercise the real scanner's exact Mac platform-disposition boundaries."""
+"""Exercise the real scanner's exact Mac vulnerability-disposition boundaries."""
 
 import copy
 import json
@@ -48,17 +48,59 @@ with tempfile.TemporaryDirectory() as d:
         }
         for index, path in enumerate(paths)
     ]
+    artifacts += [
+        {
+            "id": "2",
+            "name": "imagemagick",
+            "version": "7.1.2-35",
+            "type": "homebrew",
+            "foundBy": "homebrew-cataloger",
+            "locations": [
+                {
+                    "path": "opt/homebrew/Cellar/imagemagick/7.1.2-35/"
+                    ".brew/imagemagick.rb"
+                }
+            ],
+            "cpes": [
+                {"cpe": "cpe:2.3:a:imagemagick:imagemagick:7.1.2-35:*:*:*:*:*:*:*"}
+            ],
+        },
+        {
+            "id": "3",
+            "name": "graphicsmagick",
+            "version": "1.3.49",
+            "type": "homebrew",
+            "foundBy": "homebrew-cataloger",
+            "locations": [
+                {
+                    "path": "opt/homebrew/Cellar/graphicsmagick/1.3.49/"
+                    ".brew/graphicsmagick.rb"
+                }
+            ],
+            "cpes": [
+                {"cpe": "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49:*:*:*:*:*:*:*"}
+            ],
+        },
+    ]
+    expected_dispositions = {
+        **{str(index): platform_only for index in (0, 1)},
+        "2": {"CVE-2017-5506"},
+        "3": {"CVE-2025-32460"},
+    }
+    required_matches = dict(expected_dispositions)
     # Each adjacent case must still be reported by the real scanner. Keeping
     # the CPE constant isolates rule scope from version-range feed changes.
-    for field, value in (
-        ("name", "OtherPython"),
-        ("version", "3.9.7"),
-        ("type", "binary"),
-        ("locations", [{"path": "Applications/Other.app/Contents/Info.plist"}]),
-    ):
-        nearby = copy.deepcopy(artifacts[0])
-        nearby.update({"id": str(len(artifacts)), field: value})
-        artifacts.append(nearby)
+    for original in tuple(artifacts):
+        for field, value in (
+            ("name", "OtherPackage"),
+            ("version", "0.0.1"),
+            ("type", "binary"),
+            ("locations", [{"path": "Applications/Other.app/Contents/Info.plist"}]),
+        ):
+            nearby = copy.deepcopy(original)
+            nearby.update({"id": str(len(artifacts)), field: value})
+            required_matches[nearby["id"]] = expected_dispositions[original["id"]]
+            artifacts.append(nearby)
     sbom = work / "sbom.syft.json"
     sbom.write_text(
         json.dumps(
@@ -105,9 +147,18 @@ with tempfile.TemporaryDirectory() as d:
     expected = {
         identity(m)
         for m in before["matches"]
-        if m["vulnerability"]["id"] in platform_only
-        and m["artifact"]["id"] in ("0", "1")
+        if m["vulnerability"]["id"]
+        in expected_dispositions.get(m["artifact"]["id"], set())
     }
+    assert all(
+        {
+            m["vulnerability"]["id"]
+            for m in before["matches"]
+            if m["artifact"]["id"] == key
+        }
+        >= vulnerabilities
+        for key, vulnerabilities in required_matches.items()
+    ), "The unmodified scanner must report every disposition and adjacent fixture"
     ignored = {identity(m) for m in after["ignoredMatches"]}
     assert expected and ignored == expected, (expected, ignored)
     assert {identity(m) for m in after["matches"]} == {
@@ -119,6 +170,6 @@ with tempfile.TemporaryDirectory() as d:
         for rule in m["appliedIgnoreRules"]
     )
     print(
-        f"Verified {len(ignored)} platform-only dispositions; nearby name, version, "
+        f"Verified {len(ignored)} scoped dispositions; nearby name, version, "
         "type and location matches remain blocking."
     )
