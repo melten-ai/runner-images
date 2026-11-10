@@ -406,6 +406,281 @@
         "type": "python",
         "location": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
       }
+    },
+    {
+      "vulnerability": "CVE-2012-1164",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2013-4449",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2014-9713",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2015-1545",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2017-14159",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2017-17740",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2017-9287",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2019-13057",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2019-13565",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-12243",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-25692",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-25709",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-25710",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36221",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36222",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36223",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36224",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36225",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36226",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36227",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36228",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36229",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36230",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2021-27212",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-29155",
+      "namespace": "nvd:cpe",
+      "reason": "Apple ships this exact openldap-search-binary as the ldapsearch client; the advisory affects slapd server code or server-only overlays/backends, and this image contains no slapd executable. Keep client-side libldap advisories blocking. https://www.openldap.org/doc/admin26/quickstart.html",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
     }
   ]
 }

@@ -27,6 +27,33 @@ python_dispositions = {
     "CVE-2026-82049",
     "CVE-2019-12900",
 }
+openldap_server_dispositions = {
+    "CVE-2012-1164",
+    "CVE-2013-4449",
+    "CVE-2014-9713",
+    "CVE-2015-1545",
+    "CVE-2017-14159",
+    "CVE-2017-17740",
+    "CVE-2017-9287",
+    "CVE-2019-13057",
+    "CVE-2019-13565",
+    "CVE-2020-12243",
+    "CVE-2020-25692",
+    "CVE-2020-25709",
+    "CVE-2020-25710",
+    "CVE-2020-36221",
+    "CVE-2020-36222",
+    "CVE-2020-36223",
+    "CVE-2020-36224",
+    "CVE-2020-36225",
+    "CVE-2020-36226",
+    "CVE-2020-36227",
+    "CVE-2020-36228",
+    "CVE-2020-36229",
+    "CVE-2020-36230",
+    "CVE-2021-27212",
+    "CVE-2022-29155",
+}
 curl_dispositions = {
     "CVE-2026-12064",
     "CVE-2026-86410",
@@ -117,6 +144,20 @@ with tempfile.TemporaryDirectory() as d:
     )
     artifacts.append(
         {
+            "id": "6",
+            "name": "openldap",
+            "version": "2.4.28",
+            "type": "binary",
+            "foundBy": "binary-classifier-cataloger",
+            "locations": [{"path": "usr/bin/ldapsearch"}],
+            "cpes": [{"cpe": "cpe:2.3:a:openldap:openldap:2.4.28:*:*:*:*:*:*:*"}],
+            "purl": "pkg:generic/openldap@2.4.28",
+            "metadataType": "binary-signature",
+            "metadata": {"matches": [{"classifier": "openldap-search-binary"}]},
+        }
+    )
+    artifacts.append(
+        {
             "id": "5",
             "name": "urllib3",
             "version": "2.6.3+melten.9ff67c841cad",
@@ -138,6 +179,7 @@ with tempfile.TemporaryDirectory() as d:
         "3": {"CVE-2025-32460"},
         "4": curl_dispositions,
         "5": aws_backports,
+        "6": openldap_server_dispositions,
     }
     required_matches = dict(expected_dispositions)
     # Each adjacent case must still be reported by the real scanner. Keeping

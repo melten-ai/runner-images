@@ -17,6 +17,30 @@ Rules require the exact package name, version, `homebrew` package type and Cella
 
 Run `uv run python scripts/check-macos-security.py` with Grype installed. The actual scanner must first report all disposition fixtures, then move only the accepted identities to `ignoredMatches`. Adjacent names, versions, package types and locations must retain their original findings, and High/Critical must still return exit 2.
 
+## Apple `ldapsearch` server-only matches
+
+The exact `openldap` 2.4.28 `binary` record at `usr/bin/ldapsearch` is Apple's
+client executable (`openldap-search-binary`), not an OpenLDAP `slapd` server.
+The image contains no `slapd` executable or server backend. The policy therefore
+disposes only the server-side findings below at that exact package, version and
+path; client-side library findings remain blocking:
+
+`CVE-2012-1164`, `CVE-2013-4449`, `CVE-2014-9713`, `CVE-2015-1545`,
+`CVE-2017-14159`, `CVE-2017-17740`, `CVE-2017-9287`, `CVE-2019-13057`,
+`CVE-2019-13565`, `CVE-2020-12243`, `CVE-2020-25692`, `CVE-2020-25709`,
+`CVE-2020-25710`, `CVE-2020-36221`, `CVE-2020-36222`, `CVE-2020-36223`,
+`CVE-2020-36224`, `CVE-2020-36225`, `CVE-2020-36226`, `CVE-2020-36227`,
+`CVE-2020-36228`, `CVE-2020-36229`, `CVE-2020-36230`, `CVE-2021-27212`,
+`CVE-2022-29155`.
+
+The advisory descriptions identify these as `slapd` server code, server-only
+overlays or server-only backends. The policy keeps the client-side TLS, BER and
+certificate findings (`CVE-2012-2668`, `CVE-2015-3276`, `CVE-2015-6908` and
+`CVE-2020-15719`) blocking. The exact package/location rule and adjacent-identity
+regression are covered by [grype.json](grype.json) and
+`uv run python scripts/check-macos-security.py`; the OpenLDAP server/client
+boundary is described in the [OpenLDAP administrator guide](https://www.openldap.org/doc/admin26/quickstart.html).
+
 ## Apple Python runtime predicates
 
 Seven additional rules apply only to Python 3.9.6 at the two exact Apple app-bundle locations already named in the policy. A version string alone does not establish these dispositions. Before SBOM collection, `verify-toolchain.sh` executes each bundle's own interpreter in isolated mode, checks its standard-library module locations and enforces these predicates:
