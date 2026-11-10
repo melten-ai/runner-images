@@ -76,6 +76,7 @@ source "azure-arm" "ubuntu" {
     replication_regions  = [var.azure_location]
     storage_account_type = "Standard_LRS"
   }
+  ssh_timeout = "30m"
 }
 build {
   sources = ["source.googlecompute.ubuntu", "source.azure-arm.ubuntu"]
