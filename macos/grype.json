@@ -681,6 +681,281 @@
         "type": "binary",
         "location": "usr/bin/ldapsearch"
       }
+    },
+    {
+      "vulnerability": "CVE-2025-3891",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-29167",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-34355",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-34356",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-42535",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-42536",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-44185",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-44186",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-46729",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-47360",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-48005",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-48913",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56153",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56154",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56449",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-57941",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-59685",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-59797",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-63045",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-63292",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-63686",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-63718",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-73636",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-73637",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-93546",
+      "namespace": "nvd:cpe",
+      "reason": "Apple httpd 2.4.67 is present at this exact system path, but the advisory is limited to a module absent from the image or to Windows path handling. The native verifier runs /usr/sbin/httpd -M before qualification and fails if any scoped module appears. Core httpd findings remain blocking. https://httpd.apache.org/docs/2.4/mod/",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
     }
   ]
 }

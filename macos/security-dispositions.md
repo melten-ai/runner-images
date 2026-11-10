@@ -41,6 +41,24 @@ regression are covered by [grype.json](grype.json) and
 `uv run python scripts/check-macos-security.py`; the OpenLDAP server/client
 boundary is described in the [OpenLDAP administrator guide](https://www.openldap.org/doc/admin26/quickstart.html).
 
+## Apple httpd module predicates
+
+Apple's exact `httpd` 2.4.67 binary at `usr/sbin/httpd` is retained because
+`httpd` is part of the hosted command contract. The native verifier runs
+`/usr/sbin/httpd -M` before qualification and requires these modules to remain
+absent: `mod_auth_openidc`, `mod_ldap`, `mod_proxy`, `mod_proxy_html`,
+`mod_dav_fs`, `mod_xml2enc`, `mod_ssl`, `mod_proxy_ftp`, `mod_heartmonitor`,
+`mod_session_cookie`, `mod_auth_digest`, `mod_http2`, `mod_charset_lite`,
+`mod_rewrite`, `mod_vhost_alias` and `mod_proxy_uwsgi`.
+
+The policy scopes only the corresponding module-specific findings, plus the
+Windows-only path finding [CVE-2026-59685](https://www.cve.org/CVERecord?id=CVE-2026-59685),
+to that exact binary, version and location. Core `mod_http` and configuration
+parser findings remain blocking. A future image that loads any scoped module
+fails native verification before qualification. The module list and failure
+path are covered by `tests/test_apple_httpd_dispositions.py`; Apache's module
+contracts are documented in the [Apache module reference](https://httpd.apache.org/docs/2.4/mod/).
+
 ## Apple Python runtime predicates
 
 Seven additional rules apply only to Python 3.9.6 at the two exact Apple app-bundle locations already named in the policy. A version string alone does not establish these dispositions. Before SBOM collection, `verify-toolchain.sh` executes each bundle's own interpreter in isolated mode, checks its standard-library module locations and enforces these predicates:

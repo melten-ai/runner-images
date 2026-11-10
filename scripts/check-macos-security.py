@@ -27,6 +27,33 @@ python_dispositions = {
     "CVE-2026-82049",
     "CVE-2019-12900",
 }
+httpd_module_dispositions = {
+    "CVE-2025-3891",
+    "CVE-2026-29167",
+    "CVE-2026-34355",
+    "CVE-2026-34356",
+    "CVE-2026-42535",
+    "CVE-2026-42536",
+    "CVE-2026-44185",
+    "CVE-2026-44186",
+    "CVE-2026-46729",
+    "CVE-2026-47360",
+    "CVE-2026-48005",
+    "CVE-2026-48913",
+    "CVE-2026-56153",
+    "CVE-2026-56154",
+    "CVE-2026-56449",
+    "CVE-2026-57941",
+    "CVE-2026-59685",
+    "CVE-2026-59797",
+    "CVE-2026-63045",
+    "CVE-2026-63292",
+    "CVE-2026-63686",
+    "CVE-2026-63718",
+    "CVE-2026-73636",
+    "CVE-2026-73637",
+    "CVE-2026-93546",
+}
 openldap_server_dispositions = {
     "CVE-2012-1164",
     "CVE-2013-4449",
@@ -158,6 +185,18 @@ with tempfile.TemporaryDirectory() as d:
     )
     artifacts.append(
         {
+            "id": "7",
+            "name": "httpd",
+            "version": "2.4.67",
+            "type": "binary",
+            "foundBy": "httpd-binary-cataloger",
+            "locations": [{"path": "usr/sbin/httpd"}],
+            "cpes": [{"cpe": "cpe:2.3:a:apache:http_server:2.4.67:*:*:*:*:*:*:*"}],
+            "purl": "pkg:generic/httpd@2.4.67",
+        }
+    )
+    artifacts.append(
+        {
             "id": "5",
             "name": "urllib3",
             "version": "2.6.3+melten.9ff67c841cad",
@@ -180,6 +219,7 @@ with tempfile.TemporaryDirectory() as d:
         "4": curl_dispositions,
         "5": aws_backports,
         "6": openldap_server_dispositions,
+        "7": httpd_module_dispositions,
     }
     required_matches = dict(expected_dispositions)
     # Each adjacent case must still be reported by the real scanner. Keeping
