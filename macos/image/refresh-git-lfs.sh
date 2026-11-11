@@ -53,7 +53,7 @@ LFS_SMOKE
 }
 
 refresh_git_lfs() {
-	local work toolset go_version prefix binary source source_version identity version description digest uid gid mode
+	local work toolset go_version prefix binary source source_version identity version description digest uid gid mode attempt
 	git_lfs_work=$(mktemp -d /private/tmp/runner-image-git-lfs.XXXXXX)
 	work=$git_lfs_work
 	trap 'chmod -R u+w "$git_lfs_work"; rm -rf "$git_lfs_work"' EXIT
@@ -76,10 +76,17 @@ refresh_git_lfs() {
 		echo "Git LFS rebuild found an unsupported binary location: $binary" >&2
 		exit 1
 	}
-	go mod download -json github.com/git-lfs/git-lfs/v3@latest >"$work/source.json" || {
-		cat "$work/source.json" >&2
-		exit 1
-	}
+	# Only this transfer retries transient guest-network failures, matching
+	# the factory curl policy (5 retries, 2s delay); the source checks below
+	# never retry.
+	for attempt in 1 2 3 4 5 6; do
+		go mod download -json github.com/git-lfs/git-lfs/v3@latest >"$work/source.json" && break
+		[ "$attempt" -lt 6 ] || {
+			cat "$work/source.json" >&2
+			exit 1
+		}
+		sleep 2
+	done
 	source=$(jq -er '.Dir' "$work/source.json")
 	source_version=$(jq -er '.Version | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | ltrimstr("v")' "$work/source.json")
 	[ "$binary" = "/opt/homebrew/Cellar/git-lfs/$source_version/bin/git-lfs" ] || {
