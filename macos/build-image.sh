@@ -163,6 +163,8 @@ if [[ "$profile" == xcode-android ]]; then
 		platform-tools "platforms;android-$platform_version" "build-tools;$build_tools" \
 		<"$root/macos/image/install-android.sh"
 	job_path+=":/Users/admin/android-sdk/platform-tools:/Users/admin/android-sdk/cmdline-tools/latest/bin"
+	tart exec -i "$temporary" /usr/bin/env "PATH=$job_path" /opt/homebrew/bin/python3 - refresh \
+		<"$root/macos/image/refresh-android-bc.py"
 fi
 
 {
@@ -193,6 +195,8 @@ guest_job() {
 guest_job /bin/bash -s <"$root/macos/image/verify-toolchain.sh" 2>&1 | tee "$bundle/toolchain-check.txt"
 guest_job /opt/homebrew/bin/python3 - verify <"$root/macos/image/refresh-aws-cli.py" 2>&1 | tee -a "$bundle/toolchain-check.txt"
 if [[ "$profile" == xcode-android ]]; then
+	guest_job /opt/homebrew/bin/python3 - verify <"$root/macos/image/refresh-android-bc.py" \
+		2>&1 | tee -a "$bundle/toolchain-check.txt"
 	# shellcheck disable=SC2016 # The quoted paths are evaluated inside the guest.
 	guest_job /bin/bash -c '
     "$HOME/android-sdk/platform-tools/adb" version

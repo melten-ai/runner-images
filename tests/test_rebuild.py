@@ -111,7 +111,14 @@ def test_old_build_cannot_close_new_request_and_failed_upload_stays_open(root, a
     assert state[1]["state"] == "open"
 
 
-@pytest.mark.parametrize("name", ["macos/image/refresh-aws-cli.py", "macos/grype.json"])
+@pytest.mark.parametrize(
+    "name",
+    [
+        "macos/image/refresh-aws-cli.py",
+        "macos/grype.json",
+        "macos/image/refresh-android-bc.py",
+    ],
+)
 def test_python_recipe_and_security_policy_changes_reopen_rebuilds(root, api, name):
     path = root / name
     path.parent.mkdir(parents=True, exist_ok=True)

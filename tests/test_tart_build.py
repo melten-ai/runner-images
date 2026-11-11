@@ -109,6 +109,10 @@ if command=="exec":
     if "verify_git_lfs()" in body:
         if os.environ.get("TEST_FAIL_STAGE")=="lfs-refresh": sys.exit(28)
         print("git_lfs_identity=verified")
+    if "def rewrite_classpath(" in body:
+        stage="bc-refresh" if a[-1]=="refresh" else "bc-verify"
+        if os.environ.get("TEST_FAIL_STAGE")==stage: sys.exit(29)
+        print("android_bc_dependencies=verified")
     if "SYFT_GOLANG_CAPTURE_SYMBOLS=all" in body:
         if os.environ.get("TEST_FAIL_STAGE")=="sbom": sys.exit(8)
     if "/bin/cat" in a and "/private/tmp/runner-image-sbom/sbom.syft.json" in a:
@@ -182,6 +186,8 @@ esac
         "agent-refresh",
         "agent-verify",
         "lfs-refresh",
+        "bc-refresh",
+        "bc-verify",
         "verify",
         "sbom",
         "sbom-read",
@@ -224,7 +230,9 @@ esac
                 str(root / "macos/build-image.sh"),
                 image,
                 "base",
-                "xcode-android" if failure == "android" else "xcode",
+                "xcode-android"
+                if failure == "android" or failure.startswith("bc-")
+                else "xcode",
                 "/Users/admin/actions-runner",
                 str(reference),
                 str(allowlist),
@@ -250,6 +258,11 @@ esac
             assert json.loads((bundle / "inventory.json").read_text())["records"] == [
                 "cmd bash"
             ]
+            if failure == "android":
+                assert (
+                    "android_bc_dependencies=verified"
+                    in (bundle / "toolchain-check.txt").read_text()
+                )
             repeated = subprocess.run(
                 ["bash", str(root / "macos/build-image.sh"), image, "base"],
                 env=env,
