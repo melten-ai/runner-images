@@ -2210,6 +2210,61 @@
         "type": "python",
         "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/wheel-0.37.0.dist-info/METADATA"
       }
+    },
+    {
+      "vulnerability": "GHSA-v3c5-jqr6-7qm8",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted legacy-framework private dependency risk (2026-11-11). This private package belongs to the already accepted Apple/Xcode Python 3.9.6 framework; preserve the vendor environment alongside maintained Homebrew Python. No newer future copy is claimed. This is an accepted vulnerability, not a fix; the retained consumer can still exercise it. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^future$",
+        "version": "0.18.2",
+        "type": "python",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/future-0.18.2.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-v3c5-jqr6-7qm8",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted legacy-framework private dependency risk (2026-11-11). This private package belongs to the already accepted Apple/Xcode Python 3.9.6 framework; preserve the vendor environment alongside maintained Homebrew Python. No newer future copy is claimed. This is an accepted vulnerability, not a fix; the retained consumer can still exercise it. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^future$",
+        "version": "0.18.2",
+        "type": "python",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/future-0.18.2.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-r2xf-8xr9-62gw",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted legacy-framework private dependency risk (2026-11-11). This private package belongs to the official Android 23.0 Kotlin compiler 2.4.0-dev-2631-for-lint, retained alongside Homebrew Kotlin 2.4.21. The compiler identity was read from META-INF/compiler.version in the checksum-verified official archive. This is an accepted vulnerability, not a fix; the retained consumer can still exercise it. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^jline-builtins$",
+        "version": "3.24.1",
+        "type": "java-archive",
+        "location": "Users/admin/android-sdk/cmdline-tools/23.0/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+      }
+    },
+    {
+      "vulnerability": "GHSA-2r2c-cx56-8933",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted legacy-framework private dependency risk (2026-11-11). This private package belongs to the official Android 23.0 Kotlin compiler 2.4.0-dev-2631-for-lint, retained alongside Homebrew Kotlin 2.4.21. The compiler identity was read from META-INF/compiler.version in the checksum-verified official archive. This is an accepted vulnerability, not a fix; the retained consumer can still exercise it. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^jline-remote-telnet$",
+        "version": "3.24.1",
+        "type": "java-archive",
+        "location": "Users/admin/android-sdk/cmdline-tools/23.0/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+      }
+    },
+    {
+      "vulnerability": "GHSA-47qp-hqvx-6r3f",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted legacy-framework private dependency risk (2026-11-11). This private package belongs to the official Android 23.0 Kotlin compiler 2.4.0-dev-2631-for-lint, retained alongside Homebrew Kotlin 2.4.21. The compiler identity was read from META-INF/compiler.version in the checksum-verified official archive. This is an accepted vulnerability, not a fix; the retained consumer can still exercise it. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^jline-remote-telnet$",
+        "version": "3.24.1",
+        "type": "java-archive",
+        "location": "Users/admin/android-sdk/cmdline-tools/23.0/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+      }
     }
   ]
 }

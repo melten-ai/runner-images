@@ -507,6 +507,74 @@ with tempfile.TemporaryDirectory() as d:
             "accepted_cves": ["GHSA-qwmp-2cf2-g9g6"],
         },
     ]
+    legacy_packages += [
+        {
+            "name": "future",
+            "version": "0.18.2",
+            "type": "python",
+            "foundBy": "python-installed-package-cataloger",
+            "purl": "pkg:pypi/future@0.18.2",
+            "locations": [
+                {
+                    "path": (
+                        "Applications/Xcode_27.2.app/Contents/Developer/Library/"
+                        "Frameworks/Python3.framework/Versions/3.9/lib/python3.9"
+                        "/site-packages/future-0.18.2.dist-info/METADATA"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-v3c5-jqr6-7qm8"],
+        },
+        {
+            "name": "future",
+            "version": "0.18.2",
+            "type": "python",
+            "foundBy": "python-installed-package-cataloger",
+            "purl": "pkg:pypi/future@0.18.2",
+            "locations": [
+                {
+                    "path": (
+                        "Library/Developer/CommandLineTools/Library/Frameworks/P"
+                        "ython3.framework/Versions/3.9/lib/python3.9/site-packag"
+                        "es/future-0.18.2.dist-info/METADATA"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-v3c5-jqr6-7qm8"],
+        },
+        {
+            "name": "jline-builtins",
+            "version": "3.24.1",
+            "type": "java-archive",
+            "foundBy": "java-archive-cataloger",
+            "purl": "pkg:maven/org.jline/jline-builtins@3.24.1",
+            "locations": [
+                {
+                    "path": (
+                        "Users/admin/android-sdk/cmdline-tools/23.0/lib/external"
+                        "/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-r2xf-8xr9-62gw"],
+        },
+        {
+            "name": "jline-remote-telnet",
+            "version": "3.24.1",
+            "type": "java-archive",
+            "foundBy": "java-archive-cataloger",
+            "purl": "pkg:maven/org.jline/jline-remote-telnet@3.24.1",
+            "locations": [
+                {
+                    "path": (
+                        "Users/admin/android-sdk/cmdline-tools/23.0/lib/external"
+                        "/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-2r2c-cx56-8933", "GHSA-47qp-hqvx-6r3f"],
+        },
+    ]
     legacy_ids = set()
     for package in legacy_packages:
         package["id"] = str(len(artifacts))
