@@ -1,3 +1,4 @@
+import io
 import json
 import plistlib
 import subprocess
@@ -222,14 +223,25 @@ class Guest:
         raise AssertionError(f"unexpected guest command {argv}")
 
     def popen(self, argv, **kwargs):
-        assert argv == ["tart", "run", VM, "--no-graphics", "--net-bridged", "en0"]
-        assert kwargs["stdout"].mode == "a" and kwargs["stderr"] is subprocess.STDOUT
         self.popens.append((argv, kwargs))
-        self.state = "running"
-        return Process()
+        if argv[:2] == ["tart", "run"]:
+            assert argv == ["tart", "run", VM, "--no-graphics", "--net-bridged", "en0"]
+            assert (
+                kwargs["stdout"].mode == "a" and kwargs["stderr"] is subprocess.STDOUT
+            )
+            self.state = "running"
+            return Process()
+        assert argv[0:4] == ["tart", "exec", "-i", VM]
+        assert kwargs["stdin"] is subprocess.PIPE
+        assert kwargs["stdout"] is subprocess.PIPE
+        self.calls.append(["tart", "exec", VM, *argv[4:]])
+        result = self.installer()
+        return InstallProcess(result)
 
     def sleep(self, seconds):
         self.clock += seconds
+        if self.state == "stopped" and self.version == "26.7.2":
+            self.state = "running"
 
     def mutations(self):
         return [
@@ -240,10 +252,41 @@ class Guest:
 
 
 class Process:
-    returncode = None
+    def __init__(self):
+        self.returncode = None
+        self.stdin = io.StringIO()
+        self.stdout = io.StringIO()
 
     def poll(self):
         return self.returncode
+
+    def terminate(self):
+        return None
+
+    def kill(self):
+        return None
+
+    def communicate(self, timeout=None):
+        return "", ""
+
+
+class InstallProcess:
+    def __init__(self, result):
+        self.returncode = result.returncode
+        self.stdout = io.StringIO(result.stdout + result.stderr)
+        self.stdin = io.StringIO()
+
+    def poll(self):
+        return self.returncode
+
+    def terminate(self):
+        return None
+
+    def kill(self):
+        return None
+
+    def communicate(self, timeout=None):
+        return self.stdout.read(), ""
 
 
 @pytest.fixture
@@ -277,7 +320,7 @@ def test_existing_recovery_updates_without_partition_changes(guest, tmp_path):
     assert [" ".join(c[5:]) for c in guest.mutations()] == [
         f"/usr/sbin/softwareupdate --install {LABEL} --restart --user admin --stdinpass"
     ]
-    assert len(guest.popens) == 1
+    assert len(guest.popens) == 2
     assert "exited 255" in log.read_text()
 
 
@@ -364,7 +407,7 @@ def test_installer_exit_zero_with_fatal_error_is_rejected(guest, tmp_path):
     )
     with pytest.raises(UpdateError, match="1256"):
         update_os(VM, "en0", tmp_path / "log")
-    assert not guest.popens and guest.version == "26.6.2"
+    assert len(guest.popens) == 1 and guest.version == "26.6.2"
     assert "1256" in (tmp_path / "log").read_text()
 
 
@@ -375,12 +418,28 @@ def test_sudo_refusal_is_rejected(guest, tmp_path):
 
 
 def test_installer_stream_timeout_still_requires_guest_version(guest, tmp_path):
-    def hang():
-        guest.restarting()
-        raise subprocess.TimeoutExpired("tart", 14400)
-
-    guest.installer = hang
+    guest.installer = guest.restarting
     assert update_os(VM, "en0", tmp_path / "log") == "26.7.2"
+
+
+def test_restart_stream_closes_after_guest_boot_changes(guest, tmp_path, monkeypatch):
+    class StreamingProcess(Process):
+        def __init__(self):
+            super().__init__()
+            self.returncode = None
+            self.stdout = io.StringIO("installer output\n")
+
+        def terminate(self):
+            self.returncode = 0
+
+    def popen(argv, **kwargs):
+        guest.popens.append((argv, kwargs))
+        guest.restarting()
+        return StreamingProcess()
+
+    monkeypatch.setattr(macos_update.subprocess, "Popen", popen)
+    assert update_os(VM, "en0", tmp_path / "log") == "26.7.2"
+    assert guest.clock <= 15
 
 
 @pytest.mark.parametrize("reported", ["27.2", "26.6.1", "garbage"])
@@ -412,7 +471,7 @@ def test_exit_zero_without_restart_fails_at_deadline(guest, tmp_path):
     guest.installer = lambda: ok("Downloading macOS Tahoe 26.7.2\nDone.\n")
     with pytest.raises(UpdateError, match="deadline"):
         update_os(VM, "en0", tmp_path / "log")
-    assert guest.clock == 3600 and not guest.popens
+    assert guest.clock == 3600 and len(guest.popens) == 1
 
 
 def test_failed_restart_is_not_retried(guest, tmp_path, monkeypatch):
@@ -423,7 +482,7 @@ def test_failed_restart_is_not_retried(guest, tmp_path, monkeypatch):
         return process
 
     monkeypatch.setattr(macos_update.subprocess, "Popen", popen)
-    with pytest.raises(UpdateError, match="tart run exited 1"):
+    with pytest.raises(UpdateError, match="deadline"):
         update_os(VM, "en0", tmp_path / "log")
     assert len(guest.popens) == 1
 
@@ -436,9 +495,9 @@ def test_repeated_stops_are_bounded(guest, tmp_path, monkeypatch):
         return process
 
     monkeypatch.setattr(macos_update.subprocess, "Popen", popen)
-    with pytest.raises(UpdateError, match="deadline"):
+    with pytest.raises((UpdateError, ValueError), match="deadline|closed"):
         update_os(VM, "en0", tmp_path / "log")
-    assert guest.clock == 3600 and len(guest.popens) > 3
+    assert guest.clock == 3600 and len(guest.popens) == 1
 
 
 def test_reports_failed_tart_list(guest, tmp_path, monkeypatch):

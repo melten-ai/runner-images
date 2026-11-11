@@ -236,6 +236,68 @@ def boot(vm: str) -> str | None:
     return match.group(1) if not result.returncode and match else None
 
 
+def install_and_restart(
+    vm: str, label: str, booted: str, timeout: float = 4 * 3600
+) -> tuple[int | None, str]:
+    """Run the restart-triggering installer while observing Tart externally.
+
+    Tart can keep the communicator stream open after macOS has rebooted. The
+    guest's changed boot time is the authoritative completion signal; once it
+    changes, close the stale stream and let the normal post-reboot verifier
+    check the target OS version.
+    """
+    command = [
+        "tart",
+        "exec",
+        "-i",
+        vm,
+        "/usr/bin/sudo",
+        "-n",
+        "/usr/sbin/softwareupdate",
+        "--install",
+        label,
+        "--restart",
+        "--user",
+        "admin",
+        "--stdinpass",
+    ]
+    process = subprocess.Popen(
+        command,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    assert process.stdin is not None
+    process.stdin.write("admin\n")
+    process.stdin.close()
+    started = time.monotonic()
+    output = ""
+    while time.monotonic() - started < timeout:
+        if process.poll() is not None:
+            output += process.stdout.read() if process.stdout else ""
+            return process.returncode, output
+        try:
+            if state(vm) == "running":
+                now = boot(vm)
+                if now and now != booted:
+                    process.terminate()
+                    try:
+                        output += process.communicate(timeout=30)[0] or ""
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        output += process.communicate()[0] or ""
+                    return process.returncode, output
+        except UpdateError:
+            # A restart briefly makes the guest unreachable; the next state
+            # probe is the authoritative retry boundary.
+            pass
+        time.sleep(15)
+    process.kill()
+    output += process.communicate()[0] or ""
+    raise UpdateError(f"softwareupdate --install {label} timed out after {timeout:g}s")
+
+
 def wait(
     vm: str, bridge: str, log: Path, current: Version, target: Version, booted: str
 ) -> str:
@@ -318,23 +380,8 @@ def update_os(vm: str, bridge: str, log: Path) -> str:
     if not booted:
         raise UpdateError("guest boot time is unavailable")
     try:
-        installer = guest(
-            vm,
-            "/usr/bin/sudo",
-            "-n",
-            "/usr/sbin/softwareupdate",
-            "--install",
-            label,
-            "--restart",
-            "--user",
-            "admin",
-            "--stdinpass",
-            timeout=4 * 3600,
-            input_text="admin\n",
-        )
-        code, output = installer.returncode, installer.stdout + installer.stderr
+        code, output = install_and_restart(vm, label, booted)
     except UpdateError as error:
-        # A restart can leave the stream open; the guest version decides.
         code, output = None, str(error)
     with log.open("a") as handle:
         handle.write(f"softwareupdate --install {label} exited {code}\n{output}\n")
