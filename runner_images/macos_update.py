@@ -8,6 +8,7 @@ import json
 import plistlib
 import re
 import subprocess
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, cast
@@ -261,41 +262,52 @@ def install_and_restart(
         "admin",
         "--stdinpass",
     ]
-    process = subprocess.Popen(
-        command,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-    )
-    assert process.stdin is not None
-    process.stdin.write("admin\n")
-    process.stdin.close()
-    started = time.monotonic()
-    output = ""
-    while time.monotonic() - started < timeout:
-        if process.poll() is not None:
-            output += process.stdout.read() if process.stdout else ""
-            return process.returncode, output
+    # File-backed output cannot fill an unread pipe while Tart is being probed.
+    with tempfile.TemporaryFile(mode="w+t") as stream:
+        process = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            stdout=stream,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
         try:
-            if state(vm) == "running":
-                now = boot(vm)
-                if now and now != booted:
-                    process.terminate()
-                    try:
-                        output += process.communicate(timeout=30)[0] or ""
-                    except subprocess.TimeoutExpired:
-                        process.kill()
-                        output += process.communicate()[0] or ""
-                    return process.returncode, output
-        except UpdateError:
-            # A restart briefly makes the guest unreachable; the next state
-            # probe is the authoritative retry boundary.
-            pass
-        time.sleep(15)
-    process.kill()
-    output += process.communicate()[0] or ""
-    raise UpdateError(f"softwareupdate --install {label} timed out after {timeout:g}s")
+            assert process.stdin is not None
+            process.stdin.write("admin\n")
+            process.stdin.close()
+            # Python 3.11/3.12 communicate() otherwise flushes the closed pipe.
+            process.stdin = None
+            started = time.monotonic()
+            while time.monotonic() - started < timeout:
+                if process.poll() is not None:
+                    break
+                try:
+                    if state(vm) == "running":
+                        now = boot(vm)
+                        if now and now != booted:
+                            process.terminate()
+                            break
+                except UpdateError:
+                    # A restart briefly makes the guest unreachable.
+                    pass
+                time.sleep(15)
+            else:
+                raise UpdateError(
+                    f"softwareupdate --install {label} timed out after {timeout:g}s"
+                )
+            try:
+                process.communicate(timeout=30)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.communicate()
+            stream.seek(0)
+            return process.returncode, stream.read()
+        finally:
+            if process.poll() is None:
+                process.kill()
+                process.wait()
+            if process.stdin is not None:
+                process.stdin.close()
 
 
 def wait(

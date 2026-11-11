@@ -20,47 +20,13 @@ Rules require the exact package name, version, `homebrew` package type and Cella
 
 Run `uv run python scripts/check-macos-security.py` with Grype installed. The actual scanner must first report all disposition fixtures, then move only the accepted identities to `ignoredMatches`. Adjacent names, versions, package types and locations must retain their original findings, and High/Critical must still return exit 2.
 
-## Apple `ldapsearch` server-only matches
+## Withdrawn Apple OpenLDAP and httpd absence dispositions
 
-The exact `openldap` 2.4.28 `binary` record at `usr/bin/ldapsearch` is Apple's
-client executable (`openldap-search-binary`), not an OpenLDAP `slapd` server.
-The image contains no `slapd` executable or server backend. The policy therefore
-disposes only the server-side findings below at that exact package, version and
-path; client-side library findings remain blocking:
+On 2026-11-11, review withdrew 25 OpenLDAP server-only dispositions and 24 httpd module-specific dispositions. The earlier assessment treated the scanner's `ldapsearch` record as evidence that no `slapd` server existed, and default `httpd -M` output as evidence that module code was absent. Neither observation proves installed-code absence. Apple also ships loadable modules under `/usr/libexec/apache2`; an actual configuration-only probe loaded `proxy_module (shared)` with `LoadModule`, without starting a server. The host's Apple OpenLDAP packaging also includes `/usr/libexec/slapd`; the exact guest server inventory remains unverified.
 
-`CVE-2012-1164`, `CVE-2013-4449`, `CVE-2014-9713`, `CVE-2015-1545`,
-`CVE-2017-14159`, `CVE-2017-17740`, `CVE-2017-9287`, `CVE-2019-13057`,
-`CVE-2019-13565`, `CVE-2020-12243`, `CVE-2020-25692`, `CVE-2020-25709`,
-`CVE-2020-25710`, `CVE-2020-36221`, `CVE-2020-36222`, `CVE-2020-36223`,
-`CVE-2020-36224`, `CVE-2020-36225`, `CVE-2020-36226`, `CVE-2020-36227`,
-`CVE-2020-36228`, `CVE-2020-36229`, `CVE-2020-36230`, `CVE-2021-27212`,
-`CVE-2022-29155`.
+Those 49 advisories remain blocking. No additional owner risk acceptance is inferred, no modules or servers are removed, and no default configuration is changed. The native verifier no longer treats default module loading as a security predicate. The actual-scanner regression retains both original package fixtures, requires the withdrawn advisories in the baseline and checks that their findings stay in `matches` after policy application. The regression in `tests/test_apple_httpd_dispositions.py` also rejects reintroducing either absence waiver.
 
-The advisory descriptions identify these as `slapd` server code, server-only
-overlays or server-only backends. The policy keeps the client-side TLS, BER and
-certificate findings (`CVE-2012-2668`, `CVE-2015-3276`, `CVE-2015-6908` and
-`CVE-2020-15719`) blocking. The exact package/location rule and adjacent-identity
-regression are covered by [grype.json](grype.json) and
-`uv run python scripts/check-macos-security.py`; the OpenLDAP server/client
-boundary is described in the [OpenLDAP administrator guide](https://www.openldap.org/doc/admin26/quickstart.html).
-
-## Apple httpd module predicates
-
-Apple's exact `httpd` 2.4.67 binary at `usr/sbin/httpd` is retained because
-`httpd` is part of the hosted command contract. The native verifier runs
-`/usr/sbin/httpd -M` before qualification and requires these modules to remain
-absent: `mod_auth_openidc`, `mod_ldap`, `mod_proxy`, `mod_proxy_html`,
-`mod_dav_fs`, `mod_xml2enc`, `mod_ssl`, `mod_proxy_ftp`, `mod_heartmonitor`,
-`mod_session_cookie`, `mod_auth_digest`, `mod_http2`, `mod_charset_lite`,
-`mod_rewrite`, `mod_vhost_alias` and `mod_proxy_uwsgi`.
-
-The policy scopes only the corresponding module-specific findings, plus the
-Windows-only path finding [CVE-2026-59685](https://www.cve.org/CVERecord?id=CVE-2026-59685),
-to that exact binary, version and location. Core `mod_http` and configuration
-parser findings remain blocking. A future image that loads any scoped module
-fails native verification before qualification. The module list and failure
-path are covered by `tests/test_apple_httpd_dispositions.py`; Apache's module
-contracts are documented in the [Apache module reference](https://httpd.apache.org/docs/2.4/mod/).
+Only Windows-specific [CVE-2026-59685](https://www.cve.org/CVERecord?id=CVE-2026-59685) remains inapplicable at the exact Apple `httpd` 2.4.67 binary at `usr/sbin/httpd`. Other httpd findings and all OpenLDAP findings remain blocking. This corrects the earlier applicability claim; earlier policy scans do not establish a clean image.
 
 ## Apple Python runtime predicates
 

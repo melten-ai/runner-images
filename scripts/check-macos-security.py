@@ -272,8 +272,8 @@ with tempfile.TemporaryDirectory() as d:
         "3": {"CVE-2025-32460", "CVE-2007-0770"},
         "4": curl_dispositions,
         "5": aws_backports,
-        "6": openldap_server_dispositions,
-        "7": httpd_module_dispositions,
+        "6": set(),
+        "7": {"CVE-2026-59685"},
     }
     legacy_packages = [
         {
@@ -599,7 +599,11 @@ with tempfile.TemporaryDirectory() as d:
         expected_dispositions[package["id"]] = set(package.pop("accepted_cves"))
         legacy_ids.add(package["id"])
         artifacts.append(package)
-    required_matches = dict(expected_dispositions)
+    required_matches = {
+        **expected_dispositions,
+        "6": openldap_server_dispositions,
+        "7": httpd_module_dispositions,
+    }
     # Each adjacent case must still be reported by the real scanner. Keeping
     # the CPE constant isolates rule scope from version-range feed changes.
     for original in tuple(artifacts):

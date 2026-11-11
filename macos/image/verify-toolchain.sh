@@ -139,41 +139,8 @@ print(json.dumps({"apple_python_dispositions": "verified", "executable": sys.exe
 APPLE_PYTHON
 done
 
-# Apple ships httpd with a small static module set. These exact findings apply
-# only to modules that are absent from the image; core httpd findings remain
-# blocking. Re-check the loaded set on every qualification.
-python3 - <<'APPLE_HTTPD'
-import json
-import re
-import subprocess
-
-output = subprocess.check_output(
-    ["/usr/sbin/httpd", "-M"], text=True, stderr=subprocess.STDOUT
-)
-modules = sorted(set(re.findall(r"^\s+([a-z0-9_]+)_module \(", output, re.M)))
-forbidden = {
-    "auth_openidc",
-    "ldap",
-    "proxy_html",
-    "proxy",
-    "dav_fs",
-    "xml2enc",
-    "ssl",
-    "proxy_ftp",
-    "heartmonitor",
-    "session_cookie",
-    "auth_digest",
-    "http2",
-    "charset_lite",
-    "rewrite",
-    "vhost_alias",
-    "proxy_uwsgi",
-}
-loaded = sorted(forbidden.intersection(modules))
-if loaded:
-    raise RuntimeError("Reassess Apple httpd dispositions: modules loaded: " + ",".join(loaded))
-print(json.dumps({"apple_httpd_dispositions": "verified", "loaded_modules": modules}, sort_keys=True))
-APPLE_HTTPD
+# Default httpd -M output is configuration, not the installed module inventory.
+# No module-absence or OpenLDAP server-absence security waiver is applied.
 
 # MultiSSL may expose a backend other than the CLI default. Inspect every
 # selectable backend and the actual linked library on both executable slices.

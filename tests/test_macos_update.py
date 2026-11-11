@@ -233,9 +233,10 @@ class Guest:
             return Process()
         assert argv[0:4] == ["tart", "exec", "-i", VM]
         assert kwargs["stdin"] is subprocess.PIPE
-        assert kwargs["stdout"] is subprocess.PIPE
+        assert kwargs["stdout"].writable()
         self.calls.append(["tart", "exec", VM, *argv[4:]])
         result = self.installer()
+        kwargs["stdout"].write(result.stdout + result.stderr)
         return InstallProcess(result)
 
     def sleep(self, seconds):
@@ -264,7 +265,10 @@ class Process:
         return None
 
     def kill(self):
-        return None
+        self.returncode = -9
+
+    def wait(self):
+        return self.returncode
 
     def communicate(self, timeout=None):
         return "", ""
@@ -283,7 +287,10 @@ class InstallProcess:
         return None
 
     def kill(self):
-        return None
+        self.returncode = -9
+
+    def wait(self):
+        return self.returncode
 
     def communicate(self, timeout=None):
         return self.stdout.read(), ""
@@ -435,6 +442,7 @@ def test_restart_stream_closes_after_guest_boot_changes(guest, tmp_path, monkeyp
     def popen(argv, **kwargs):
         guest.popens.append((argv, kwargs))
         guest.restarting()
+        kwargs["stdout"].write("installer output\n")
         return StreamingProcess()
 
     monkeypatch.setattr(macos_update.subprocess, "Popen", popen)
@@ -577,3 +585,50 @@ def test_staged_update_volume_resumes_without_partition_writes(guest, tmp_path):
     guest.containers[-1]["Volumes"].append({"Roles": ["Update"]})
     assert update_os(VM, "en0", tmp_path / "log") == "26.7.2"
     assert not any("resizeContainer" in c or "addPartition" in c for c in guest.calls)
+
+
+@pytest.mark.parametrize("mode", ["exit", "reboot", "timeout"])
+def test_installer_real_process_stream_and_cleanup(tmp_path, monkeypatch, mode):
+    real_popen = subprocess.Popen
+    real_sleep = macos_update.time.sleep
+    ready = tmp_path / "ready"
+    children = []
+    script = (
+        "import pathlib,sys,time; "
+        "assert sys.stdin.read() == 'admin\\n'; "
+        "sys.stdout.write('x' * 1000000); sys.stdout.flush(); "
+        f"pathlib.Path({str(ready)!r}).touch(); "
+        + ("time.sleep(60)" if mode != "exit" else "")
+    )
+
+    def popen(argv, **kwargs):
+        assert argv[:4] == ["tart", "exec", "-i", VM]
+        child = real_popen([sys.executable, "-c", script], **kwargs)
+        children.append(child)
+        return child
+
+    monkeypatch.setattr(macos_update.subprocess, "Popen", popen)
+    monkeypatch.setattr(macos_update, "state", lambda vm: "running")
+    monkeypatch.setattr(
+        macos_update,
+        "boot",
+        lambda vm: "200" if mode == "reboot" and ready.exists() else "100",
+    )
+    monkeypatch.setattr(macos_update.time, "sleep", lambda _: real_sleep(0.005))
+    try:
+        if mode == "timeout":
+            with pytest.raises(UpdateError, match="timed out"):
+                macos_update.install_and_restart(VM, LABEL, "100", timeout=0.3)
+        else:
+            code, output = macos_update.install_and_restart(VM, LABEL, "100", timeout=3)
+            assert code == 0 if mode == "exit" else code != 0
+            assert output == "x" * 1000000
+        assert len(children) == 1 and children[0].poll() is not None
+        assert children[0].stdin is None
+    finally:
+        for child in children:
+            if child.poll() is None:
+                child.kill()
+            child.wait()
+            if child.stdout:
+                child.stdout.close()

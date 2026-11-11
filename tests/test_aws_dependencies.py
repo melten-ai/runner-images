@@ -242,3 +242,21 @@ def test_backport_applies_inside_a_parent_git_checkout(
     assert (
         work / "source/urllib3-2.6.3/src/urllib3/response.py"
     ).read_bytes() == patched
+
+
+def test_backport_policy_tracks_source_identity():
+    root = Path(__file__).resolve().parents[1]
+    version = aws.build_version(aws.source_inputs())
+    rules = [
+        r
+        for r in json.loads((root / "macos/grype.json").read_text())["ignore"]
+        if r["package"]["name"] == "^urllib3$"
+    ]
+    assert len(rules) == 4
+    assert all(
+        r["package"]["version"] == version
+        and f"urllib3-{version}.dist-info/METADATA" in r["package"]["location"]
+        for r in rules
+    )
+    for path in ("scripts/check-macos-security.py", "macos/security-dispositions.md"):
+        assert version in (root / path).read_text()
