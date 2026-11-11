@@ -275,6 +275,244 @@ with tempfile.TemporaryDirectory() as d:
         "6": openldap_server_dispositions,
         "7": httpd_module_dispositions,
     }
+    legacy_packages = [
+        {
+            "name": "bundler",
+            "version": "1.17.2",
+            "type": "gem",
+            "foundBy": "ruby-installed-gemspec-cataloger",
+            "purl": "pkg:gem/bundler@1.17.2",
+            "locations": [
+                {
+                    "path": (
+                        "Library/Ruby/Gems/2.6.0/specifications/default/bundler-"
+                        "1.17.2.gemspec"
+                    )
+                }
+            ],
+            "accepted_cves": [
+                "GHSA-fp4w-jxhp-m23p",
+                "GHSA-g98m-96g9-wfjq",
+                "GHSA-jvgm-pfqv-887x",
+            ],
+        },
+        {
+            "name": "guava",
+            "version": "33.4.0-jre",
+            "type": "java-archive",
+            "foundBy": "java-archive-cataloger",
+            "purl": "pkg:maven/com.google.guava/guava@33.4.0-jre",
+            "locations": [
+                {
+                    "path": (
+                        "Users/admin/.android/cli/bundles/cd7cde7182f533706c1649"
+                        "60fc5d89cd8091be8f/main.jar"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-xxph-c9ww-hj94"],
+        },
+        {
+            "name": "guava",
+            "version": "33.4.0-jre",
+            "type": "java-archive",
+            "foundBy": "java-archive-cataloger",
+            "purl": "pkg:maven/com.google.guava/guava@33.4.0-jre",
+            "locations": [
+                {
+                    "path": (
+                        "Users/admin/android-sdk/cmdline-tools/23.0/lib/external"
+                        "/com/google/guava/guava/33.4.0-jre/guava-33.4.0-jre.jar"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-xxph-c9ww-hj94"],
+        },
+        {
+            "name": "json",
+            "version": "2.1.0",
+            "type": "gem",
+            "foundBy": "ruby-installed-gemspec-cataloger",
+            "purl": "pkg:gem/json@2.1.0",
+            "locations": [
+                {
+                    "path": (
+                        "Library/Ruby/Gems/2.6.0/specifications/default/json-2.1"
+                        ".0.gemspec"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-jphg-qwrw-7w9g"],
+        },
+        {
+            "name": "json",
+            "version": "2.18.0",
+            "type": "gem",
+            "foundBy": "ruby-installed-gemspec-cataloger",
+            "purl": "pkg:gem/json@2.18.0",
+            "locations": [
+                {
+                    "path": (
+                        "Users/admin/.rbenv/versions/4.0.7/lib/ruby/gems/4.0.0/s"
+                        "pecifications/default/json-2.18.0.gemspec"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-3m6g-2423-7cp3"],
+        },
+        {
+            "name": "json",
+            "version": "2.18.0",
+            "type": "gem",
+            "foundBy": "ruby-installed-gemspec-cataloger",
+            "purl": "pkg:gem/json@2.18.0",
+            "locations": [
+                {
+                    "path": (
+                        "opt/homebrew/Library/Homebrew/vendor/portable-ruby/4.0."
+                        "9/lib/ruby/gems/4.0.0/specifications/default/json-2.18."
+                        "0.gemspec"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-3m6g-2423-7cp3"],
+        },
+        {
+            "name": "protobuf-java",
+            "version": "2.6.1",
+            "type": "java-archive",
+            "foundBy": "java-archive-cataloger",
+            "purl": "pkg:maven/com.google.protobuf/protobuf-java@2.6.1",
+            "locations": [
+                {
+                    "path": (
+                        "Users/admin/android-sdk/cmdline-tools/23.0/lib/external"
+                        "/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-735f-pc8j-v9w8", "GHSA-wrvw-hg22-4m67"],
+        },
+        {
+            "name": "setuptools",
+            "version": "58.0.4",
+            "type": "python",
+            "foundBy": "python-installed-package-cataloger",
+            "purl": "pkg:pypi/setuptools@58.0.4",
+            "locations": [
+                {
+                    "path": (
+                        "Applications/Xcode_27.2.app/Contents/Developer/Library/"
+                        "Frameworks/Python3.framework/Versions/3.9/lib/python3.9"
+                        "/site-packages/setuptools-58.0.4.dist-info/METADATA"
+                    )
+                }
+            ],
+            "accepted_cves": [
+                "GHSA-5rjg-fvgr-3xxf",
+                "GHSA-cx63-2mw6-8hw5",
+                "GHSA-r9hx-vwmv-q579",
+            ],
+        },
+        {
+            "name": "setuptools",
+            "version": "58.0.4",
+            "type": "python",
+            "foundBy": "python-installed-package-cataloger",
+            "purl": "pkg:pypi/setuptools@58.0.4",
+            "locations": [
+                {
+                    "path": (
+                        "Library/Developer/CommandLineTools/Library/Frameworks/P"
+                        "ython3.framework/Versions/3.9/lib/python3.9/site-packag"
+                        "es/setuptools-58.0.4.dist-info/METADATA"
+                    )
+                }
+            ],
+            "accepted_cves": [
+                "GHSA-5rjg-fvgr-3xxf",
+                "GHSA-cx63-2mw6-8hw5",
+                "GHSA-r9hx-vwmv-q579",
+            ],
+        },
+        {
+            "name": "setuptools",
+            "version": "65.5.0",
+            "type": "python",
+            "foundBy": "python-installed-package-cataloger",
+            "purl": "pkg:pypi/setuptools@65.5.0",
+            "locations": [
+                {
+                    "path": (
+                        "Users/admin/android-sdk/ndk/28.2.13676358/toolchains/ll"
+                        "vm/prebuilt/darwin-x86_64/python3/lib/python3.11/site-p"
+                        "ackages/setuptools-65.5.0.dist-info/METADATA"
+                    )
+                }
+            ],
+            "accepted_cves": [
+                "GHSA-5rjg-fvgr-3xxf",
+                "GHSA-cx63-2mw6-8hw5",
+                "GHSA-r9hx-vwmv-q579",
+            ],
+        },
+        {
+            "name": "stringio",
+            "version": "0.0.2",
+            "type": "gem",
+            "foundBy": "ruby-installed-gemspec-cataloger",
+            "purl": "pkg:gem/stringio@0.0.2",
+            "locations": [
+                {
+                    "path": (
+                        "Library/Ruby/Gems/2.6.0/specifications/default/stringio"
+                        "-0.0.2.gemspec"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-v5h6-c2hv-hv3r"],
+        },
+        {
+            "name": "wheel",
+            "version": "0.37.0",
+            "type": "python",
+            "foundBy": "python-installed-package-cataloger",
+            "purl": "pkg:pypi/wheel@0.37.0",
+            "locations": [
+                {
+                    "path": (
+                        "Applications/Xcode_27.2.app/Contents/Developer/Library/"
+                        "Frameworks/Python3.framework/Versions/3.9/lib/python3.9"
+                        "/site-packages/wheel-0.37.0.dist-info/METADATA"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-qwmp-2cf2-g9g6"],
+        },
+        {
+            "name": "wheel",
+            "version": "0.37.0",
+            "type": "python",
+            "foundBy": "python-installed-package-cataloger",
+            "purl": "pkg:pypi/wheel@0.37.0",
+            "locations": [
+                {
+                    "path": (
+                        "Library/Developer/CommandLineTools/Library/Frameworks/P"
+                        "ython3.framework/Versions/3.9/lib/python3.9/site-packag"
+                        "es/wheel-0.37.0.dist-info/METADATA"
+                    )
+                }
+            ],
+            "accepted_cves": ["GHSA-qwmp-2cf2-g9g6"],
+        },
+    ]
+    legacy_ids = set()
+    for package in legacy_packages:
+        package["id"] = str(len(artifacts))
+        expected_dispositions[package["id"]] = set(package.pop("accepted_cves"))
+        legacy_ids.add(package["id"])
+        artifacts.append(package)
     required_matches = dict(expected_dispositions)
     # Each adjacent case must still be reported by the real scanner. Keeping
     # the CPE constant isolates rule scope from version-range feed changes.
@@ -290,7 +528,10 @@ with tempfile.TemporaryDirectory() as d:
             # Changing a Python package name/type can remove its language-feed
             # lookup entirely. Compare every observed finding in both scans;
             # require baseline hits where that lookup remains defined.
-            if original["type"] != "python" or field not in ("name", "type"):
+            if (original["id"] in legacy_ids and field == "locations") or (
+                original["id"] not in legacy_ids
+                and (original["type"] != "python" or field not in ("name", "type"))
+            ):
                 required_matches[nearby["id"]] = expected_dispositions[original["id"]]
             artifacts.append(nearby)
     sbom = work / "sbom.syft.json"
