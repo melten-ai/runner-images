@@ -575,6 +575,21 @@ with tempfile.TemporaryDirectory() as d:
             "accepted_cves": ["GHSA-2r2c-cx56-8933", "GHSA-47qp-hqvx-6r3f"],
         },
     ]
+    legacy_packages += [
+        {
+            "name": "guava",
+            "version": "33.6.0-jre",
+            "type": "java-archive",
+            "foundBy": "java-archive-cataloger",
+            "purl": "pkg:maven/com.google.guava/guava@33.6.0-jre",
+            "locations": [
+                {
+                    "path": "opt/homebrew/Cellar/kotlin/2.4.21/libexec/lib/kotlin-main-kts.jar"
+                }
+            ],
+            "accepted_cves": ["GHSA-xxph-c9ww-hj94"],
+        }
+    ]
     legacy_ids = set()
     for package in legacy_packages:
         package["id"] = str(len(artifacts))

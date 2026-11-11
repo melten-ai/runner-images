@@ -2265,6 +2265,17 @@
         "type": "java-archive",
         "location": "Users/admin/android-sdk/cmdline-tools/23.0/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
       }
+    },
+    {
+      "vulnerability": "GHSA-xxph-c9ww-hj94",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted private Guava risk (2026-11-11): exact Homebrew Kotlin 2.4.21 private main-kts bundle, Guava 33.6.0-jre. A separately installed Guava does not replace this bundled consumer. This is an accepted vulnerability, not a fix. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^guava$",
+        "version": "33.6.0-jre",
+        "type": "java-archive",
+        "location": "opt/homebrew/Cellar/kotlin/2.4.21/libexec/lib/kotlin-main-kts.jar"
+      }
     }
   ]
 }

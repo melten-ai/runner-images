@@ -76,3 +76,13 @@ These extend the same owner-approved coexisting-framework rule to private depend
 | jline-remote-telnet 3.24.1 | `Users/admin/android-sdk/cmdline-tools/23.0/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar` | [GHSA-2r2c-cx56-8933](https://github.com/advisories/GHSA-2r2c-cx56-8933), [GHSA-47qp-hqvx-6r3f](https://github.com/advisories/GHSA-47qp-hqvx-6r3f) | This private package belongs to the official Android 23.0 Kotlin compiler 2.4.0-dev-2631-for-lint, retained alongside Homebrew Kotlin 2.4.21. The compiler identity was read from META-INF/compiler.version in the checksum-verified official archive. |
 
 These remain vulnerable dependencies. This risk acceptance does not change class loading, package resolution or runtime selection and does not waive Bouncy Castle, current Guava, SQLite or Apple HTTP/LDAP findings. Reassess when the vendor framework or bundle changes. Exact advisory/name/version/type/location boundaries and the other High/Critical publication failures are exercised by the actual Mac scanner regression.
+
+## Private Guava bundles
+
+Owner accepted on 2026-11-11 for the exact private Java archives below. The Android CLI bundle and Kotlin 2.4.21 `kotlin-main-kts.jar` load their own Guava copy; installing a newer Guava elsewhere does not change those classpaths. No blanket Guava exception applies, and the advisory remains visible in `ignoredMatches`. Reassess when each supplier bundle changes.
+
+| Version | Exact consumer archive | Advisory |
+| --- | --- | --- |
+| 33.6.0-jre | `opt/homebrew/Cellar/kotlin/2.4.21/libexec/lib/kotlin-main-kts.jar` | [GHSA-xxph-c9ww-hj94](https://github.com/advisories/GHSA-xxph-c9ww-hj94) (Homebrew Kotlin 2.4.21 private main-kts bundle) |
+
+This does not waive Apache HTTPD, Apple OpenLDAP or SQLite findings.
