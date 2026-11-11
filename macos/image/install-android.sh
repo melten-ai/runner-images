@@ -98,10 +98,10 @@ ANDROID_PACKAGES=("$@")
 	echo "Java feature version must be numeric." >&2
 	exit 1
 }
-((${#ANDROID_PACKAGES[@]} > 0)) || {
-	echo "At least one Android package is required." >&2
-	exit 1
-}
+COMMAND_LINE_TOOLS_ONLY=false
+if ((${#ANDROID_PACKAGES[@]} == 0)); then
+	COMMAND_LINE_TOOLS_ONLY=true
+fi
 ANDROID_COMMAND_LINE_TOOLS_SHORT_VERSION=$(jq -er '.version | select(test("^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"))' <<<"$ANDROID_TOOL_MANIFEST")
 ANDROID_COMMAND_LINE_TOOLS_URL=$(jq -er '.url | select(test("^https://dl\\.google\\.com/android/repository/commandlinetools-mac(_x86_64|_aarch64)?-[0-9]+_latest\\.zip$"))' <<<"$ANDROID_TOOL_MANIFEST")
 ANDROID_CHECKSUM_ALGORITHM=$(jq -er '.checksum_algorithm | select(. == "sha1" or . == "sha256")' <<<"$ANDROID_TOOL_MANIFEST")
@@ -128,37 +128,79 @@ for command in curl jq tar unzip; do
 	}
 done
 
+ANDROID_SDK_ROOT="$HOME/android-sdk"
+if [[ -L "$ANDROID_SDK_ROOT" ]]; then
+	echo "Android SDK root must not be a symlink." >&2
+	exit 1
+fi
+if [[ -e "$ANDROID_SDK_ROOT" && ! -d "$ANDROID_SDK_ROOT" ]]; then
+	echo "Android SDK root must be a directory." >&2
+	exit 1
+fi
+if [[ -L "$ANDROID_SDK_ROOT/cmdline-tools" ]]; then
+	echo "Android command-line tools root must not be a symlink." >&2
+	exit 1
+fi
+if [[ -e "$ANDROID_SDK_ROOT/cmdline-tools" && ! -d "$ANDROID_SDK_ROOT/cmdline-tools" ]]; then
+	echo "Android command-line tools root must be a directory." >&2
+	exit 1
+fi
+if [[ "$COMMAND_LINE_TOOLS_ONLY" == true ]]; then
+	assert_android_sdk_safe_for_refresh "$ANDROID_SDK_ROOT" || {
+		echo "Android SDK layout is unsafe for command-line tools refresh." >&2
+		exit 1
+	}
+fi
+
 BUILD_DIR=$(mktemp -d /tmp/runner-image-android.XXXXXX)
 cleanup() {
 	rm -rf "$BUILD_DIR"
 }
 trap cleanup EXIT
 
-echo "==> Resolving Temurin JDK $JAVA_FEATURE_VERSION"
-TEMURIN_METADATA=$(curl -fsSL \
-	"https://api.adoptium.net/v3/assets/feature_releases/${JAVA_FEATURE_VERSION}/ga?architecture=aarch64&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=mac&page=0&page_size=1&project=jdk&sort_method=DEFAULT&sort_order=DESC&vendor=eclipse")
-TEMURIN_VERSION=$(jq -er '.[0].version_data.semver' <<<"$TEMURIN_METADATA")
-TEMURIN_URL=$(jq -er '.[0].binaries[0].package.link' <<<"$TEMURIN_METADATA")
-TEMURIN_SHA=$(jq -er '.[0].binaries[0].package.checksum | select(test("^[a-f0-9]{64}$"))' <<<"$TEMURIN_METADATA")
-TEMURIN_CACHE_VERSION=${TEMURIN_VERSION/+/-}
-TEMURIN_CACHE_ROOT="$HOME/hostedtoolcache/Java_Temurin-Hotspot_jdk/${TEMURIN_CACHE_VERSION}"
+TEMURIN_VERSION=''
+TEMURIN_CACHE_ROOT=''
+if [[ "$COMMAND_LINE_TOOLS_ONLY" == false ]]; then
+	echo "==> Resolving Temurin JDK $JAVA_FEATURE_VERSION"
+	TEMURIN_METADATA=$(curl -fsSL \
+		"https://api.adoptium.net/v3/assets/feature_releases/${JAVA_FEATURE_VERSION}/ga?architecture=aarch64&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=mac&page=0&page_size=1&project=jdk&sort_method=DEFAULT&sort_order=DESC&vendor=eclipse")
+	TEMURIN_VERSION=$(jq -er '.[0].version_data.semver' <<<"$TEMURIN_METADATA")
+	TEMURIN_URL=$(jq -er '.[0].binaries[0].package.link' <<<"$TEMURIN_METADATA")
+	TEMURIN_SHA=$(jq -er '.[0].binaries[0].package.checksum | select(test("^[a-f0-9]{64}$"))' <<<"$TEMURIN_METADATA")
+	TEMURIN_CACHE_VERSION=${TEMURIN_VERSION/+/-}
+	TEMURIN_CACHE_ROOT="$HOME/hostedtoolcache/Java_Temurin-Hotspot_jdk/${TEMURIN_CACHE_VERSION}"
 
-echo "==> Caching Temurin JDK $TEMURIN_VERSION"
-curl -fsSL "$TEMURIN_URL" -o "$BUILD_DIR/temurin.tar.gz"
-printf '%s  %s\n' "$TEMURIN_SHA" "$BUILD_DIR/temurin.tar.gz" | shasum -a 256 -c -
-mkdir -p "$BUILD_DIR/temurin"
-tar xzf "$BUILD_DIR/temurin.tar.gz" -C "$BUILD_DIR/temurin"
-TEMURIN_SOURCE=$(find "$BUILD_DIR/temurin" -mindepth 1 -maxdepth 1 -type d | head -1)
-[[ -n "$TEMURIN_SOURCE" && -d "$TEMURIN_SOURCE/Contents/Home" ]] || {
-	echo "Downloaded Temurin archive has an unexpected layout." >&2
-	exit 1
-}
-rm -rf "$TEMURIN_CACHE_ROOT/arm64" "$TEMURIN_CACHE_ROOT/arm64.complete"
-mkdir -p "$TEMURIN_CACHE_ROOT/arm64"
-cp -R "$TEMURIN_SOURCE/." "$TEMURIN_CACHE_ROOT/arm64/"
-touch "$TEMURIN_CACHE_ROOT/arm64.complete"
-JAVA_HOME="$TEMURIN_CACHE_ROOT/arm64/Contents/Home"
-export JAVA_HOME
+	echo "==> Caching Temurin JDK $TEMURIN_VERSION"
+	curl -fsSL "$TEMURIN_URL" -o "$BUILD_DIR/temurin.tar.gz"
+	printf '%s  %s\n' "$TEMURIN_SHA" "$BUILD_DIR/temurin.tar.gz" | shasum -a 256 -c -
+	mkdir -p "$BUILD_DIR/temurin"
+	tar xzf "$BUILD_DIR/temurin.tar.gz" -C "$BUILD_DIR/temurin"
+	TEMURIN_SOURCE=$(find "$BUILD_DIR/temurin" -mindepth 1 -maxdepth 1 -type d | head -1)
+	[[ -n "$TEMURIN_SOURCE" && -d "$TEMURIN_SOURCE/Contents/Home" ]] || {
+		echo "Downloaded Temurin archive has an unexpected layout." >&2
+		exit 1
+	}
+	rm -rf "$TEMURIN_CACHE_ROOT/arm64" "$TEMURIN_CACHE_ROOT/arm64.complete"
+	mkdir -p "$TEMURIN_CACHE_ROOT/arm64"
+	cp -R "$TEMURIN_SOURCE/." "$TEMURIN_CACHE_ROOT/arm64/"
+	touch "$TEMURIN_CACHE_ROOT/arm64.complete"
+	JAVA_HOME="$TEMURIN_CACHE_ROOT/arm64/Contents/Home"
+	export JAVA_HOME
+else
+	toolset="$HOME/.runner-image/github-macos-toolset.json"
+	[[ "$JAVA_FEATURE_VERSION" == "$(jq -er '.java.arm64.default' "$toolset")" ]] || {
+		echo "Inherited Android refresh must use the toolset default Java." >&2
+		exit 1
+	}
+	JAVA_HOME=$(
+		grep -E '^JAVA_HOME=' "$HOME/.runner-image/environment" | tail -1 | cut -d= -f2-
+	)
+	[[ -n "$JAVA_HOME" && -x "$JAVA_HOME/bin/java" ]] || {
+		echo "Toolset Java must be cached before inherited Android refresh." >&2
+		exit 1
+	}
+	export JAVA_HOME
+fi
 
 echo "==> Installing Android command-line tools $ANDROID_COMMAND_LINE_TOOLS_SHORT_VERSION"
 curl -fsSL \
@@ -167,7 +209,6 @@ curl -fsSL \
 printf '%s  %s\n' "$ANDROID_CHECKSUM" "$BUILD_DIR/android-command-line-tools.zip" | shasum -a "$hash_bits" -c -
 mkdir -p "$BUILD_DIR/android-command-line-tools"
 unzip -q "$BUILD_DIR/android-command-line-tools.zip" -d "$BUILD_DIR/android-command-line-tools"
-ANDROID_SDK_ROOT="$HOME/android-sdk"
 ANDROID_HOME=$ANDROID_SDK_ROOT
 ANDROID_COMMAND_LINE_TOOLS_ROOT="$ANDROID_SDK_ROOT/cmdline-tools/$ANDROID_COMMAND_LINE_TOOLS_SHORT_VERSION"
 rm -rf "$ANDROID_COMMAND_LINE_TOOLS_ROOT"
@@ -181,43 +222,55 @@ if [ -x "$ANDROID_COMMAND_LINE_TOOLS_ROOT/bin/android" ]; then
 	export ANDROID_CLI_BIN="$BUILD_DIR/android-cli"
 fi
 
-for _ in $(seq 1 100); do
-	echo y
-done >"$BUILD_DIR/android-license-answers"
-sdkmanager --licenses <"$BUILD_DIR/android-license-answers" >/dev/null
+if ((${#ANDROID_PACKAGES[@]} > 0)); then
+	for _ in $(seq 1 100); do
+		echo y
+	done >"$BUILD_DIR/android-license-answers"
+	sdkmanager --licenses <"$BUILD_DIR/android-license-answers" >/dev/null
 
-echo "==> Installing Android packages: ${ANDROID_PACKAGES[*]}"
-for package in "${ANDROID_PACKAGES[@]}"; do
-	# Install one package at a time so sdkmanager finishes extracting each
-	# archive before the next package starts. A single multi-package invocation
-	# can return while the final package is still being materialized.
-	sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "$package"
-done
+	echo "==> Installing Android packages: ${ANDROID_PACKAGES[*]}"
+	for package in "${ANDROID_PACKAGES[@]}"; do
+		# Install one package at a time so sdkmanager finishes extracting each
+		# archive before the next package starts. A single multi-package invocation
+		# can return while the final package is still being materialized.
+		sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "$package"
+	done
+fi
 
-cat >"$HOME/.runner-image/android-facts" <<EOF
-macos_version=$(sw_vers -productVersion)
-macos_build=$(sw_vers -buildVersion)
-xcode_version=$(xcodebuild -version | awk 'NR == 1 { print $2 }')
-xcode_build=$(xcodebuild -version | awk 'NR == 2 { print $3 }')
-java_temurin=$TEMURIN_VERSION
-android_command_line_tools=$ANDROID_COMMAND_LINE_TOOLS_SHORT_VERSION
-android_packages=${ANDROID_PACKAGES[*]}
-prepared_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-EOF
+{
+	echo "macos_version=$(sw_vers -productVersion)"
+	echo "macos_build=$(sw_vers -buildVersion)"
+	echo "xcode_version=$(xcodebuild -version | awk 'NR == 1 { print $2 }')"
+	echo "xcode_build=$(xcodebuild -version | awk 'NR == 2 { print $3 }')"
+	if [[ "$COMMAND_LINE_TOOLS_ONLY" == false ]]; then
+		echo "java_temurin=$TEMURIN_VERSION"
+	else
+		echo "android_maintenance=command-line-tools-only"
+	fi
+	echo "android_command_line_tools=$ANDROID_COMMAND_LINE_TOOLS_SHORT_VERSION"
+	if ((${#ANDROID_PACKAGES[@]} > 0)); then
+		echo "android_packages=${ANDROID_PACKAGES[*]}"
+	fi
+	echo "prepared_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+} >"$HOME/.runner-image/android-facts"
 
 echo "==> Verifying cached toolchain"
-test -x "$TEMURIN_CACHE_ROOT/arm64/Contents/Home/bin/java"
-test -f "$TEMURIN_CACHE_ROOT/arm64.complete"
+if [[ "$COMMAND_LINE_TOOLS_ONLY" == false ]]; then
+	test -x "$TEMURIN_CACHE_ROOT/arm64/Contents/Home/bin/java"
+	test -f "$TEMURIN_CACHE_ROOT/arm64.complete"
+fi
 test -x "$ANDROID_COMMAND_LINE_TOOLS_ROOT/bin/sdkmanager"
-for package in "${ANDROID_PACKAGES[@]}"; do
-	if [[ "$package" == tools ]] && grep -Fxq 'Pkg.Path=tools' "$ANDROID_SDK_ROOT/tools/source.properties"; then
-		continue
-	fi
-	verify_android_package "$ANDROID_SDK_ROOT" "$package" || {
-		echo "Android package $package is missing installed metadata or files." >&2
-		exit 1
-	}
-done
+if ((${#ANDROID_PACKAGES[@]} > 0)); then
+	for package in "${ANDROID_PACKAGES[@]}"; do
+		if [[ "$package" == tools ]] && grep -Fxq 'Pkg.Path=tools' "$ANDROID_SDK_ROOT/tools/source.properties"; then
+			continue
+		fi
+		verify_android_package "$ANDROID_SDK_ROOT" "$package" || {
+			echo "Android package $package is missing installed metadata or files." >&2
+			exit 1
+		}
+	done
+fi
 activate_android_tools "$ANDROID_SDK_ROOT" "$ANDROID_COMMAND_LINE_TOOLS_SHORT_VERSION" "$BUILD_DIR"
 retire_old_android_tools "$ANDROID_SDK_ROOT" "$ANDROID_COMMAND_LINE_TOOLS_SHORT_VERSION"
 jq --argjson selected "$ANDROID_TOOL_MANIFEST" '.runner_image_android_policy = $selected | .android["cmdline-tools"] = ($selected.url | split("/") | last)' "$HOME/.runner-image/github-macos-toolset.json" >"$BUILD_DIR/effective-toolset.json"
@@ -225,4 +278,6 @@ mv "$BUILD_DIR/effective-toolset.json" "$HOME/.runner-image/github-macos-toolset
 cat "$HOME/.runner-image/android-facts"
 
 mkdir -p "$HOME/.runner-image"
-printf 'ANDROID_HOME=%s\nANDROID_SDK_ROOT=%s\n' "$ANDROID_HOME" "$ANDROID_SDK_ROOT" >>"$HOME/.runner-image/environment"
+if [[ "$COMMAND_LINE_TOOLS_ONLY" == false ]]; then
+	printf 'ANDROID_HOME=%s\nANDROID_SDK_ROOT=%s\n' "$ANDROID_HOME" "$ANDROID_SDK_ROOT" >>"$HOME/.runner-image/environment"
+fi
