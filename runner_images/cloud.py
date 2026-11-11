@@ -84,6 +84,7 @@ def inputs(
         "runner_images/compare.py",
         "runner_images/inventory.py",
         "scripts/cloud-image.py",
+        "cloud/grype.json",
     ]
     names += [
         str(p.relative_to(root))

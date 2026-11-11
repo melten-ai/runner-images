@@ -8,6 +8,17 @@ import pytest
 from runner_images import cloud
 
 
+def test_cloud_security_policy_changes_build_identity(fixture):
+    root, provider, _ = fixture
+    cloud.plan(root, provider)
+    before = json.loads(cloud.state_path(root, provider).read_text())["input_id"]
+    (root / "cloud/grype.json").write_text("changed scanner policy")
+    cloud.plan(root, provider)
+    assert (
+        json.loads(cloud.state_path(root, provider).read_text())["input_id"] != before
+    )
+
+
 @pytest.fixture(params=["gcp", "azure"])
 def fixture(tmp_path, monkeypatch, request):
     provider = request.param
@@ -20,6 +31,7 @@ def fixture(tmp_path, monkeypatch, request):
         "runner_images/inventory.py",
         "scripts/cloud-image.py",
         "cloud/runner.pkr.hcl",
+        "cloud/grype.json",
     ):
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)

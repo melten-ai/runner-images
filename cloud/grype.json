@@ -1,0 +1,180 @@
+{
+  "ignore": [
+    {
+      "vulnerability": "CVE-2026-105482",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-106069",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-111497",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-48617",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-48937",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56846",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56848",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-58043",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-105482",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20_alpine/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-106069",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20_alpine/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-111497",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20_alpine/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-48617",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20_alpine/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-48937",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20_alpine/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56846",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20_alpine/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56848",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20_alpine/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-58043",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "opt/actions-runner/externals/node20_alpine/bin/node"
+      }
+    }
+  ]
+}
