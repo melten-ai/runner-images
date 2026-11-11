@@ -1,6 +1,28 @@
 {
   "ignore": [
     {
+      "vulnerability": "CVE-2007-0770",
+      "namespace": "nvd:cpe",
+      "reason": "The PALM RLE decoder reads the run length once before Min bounds checking, retaining the documented 2007-02-10 fix. Verified in the SHA256-checked official 1.3.49 source archive. https://graphicsmagick.org/ChangeLog-2007.html https://security-tracker.debian.org/tracker/CVE-2007-0770",
+      "package": {
+        "name": "^graphicsmagick$",
+        "version": "1.3.49",
+        "type": "homebrew",
+        "location": "opt/homebrew/Cellar/graphicsmagick/1.3.49/.brew/graphicsmagick.rb"
+      }
+    },
+    {
+      "vulnerability": "CVE-2014-9826",
+      "namespace": "nvd:cpe",
+      "reason": "The SUN reader uses CorruptImageError for both header cases changed in upstream patch 69490f5, present in the exact installed source acaf7e4. https://sources.debian.org/src/imagemagick/8%3A6.8.9.9-5/debian/patches/0025-Fix-handling-of-corrupted-of-psd-sun-and-xpm-file.patch/ https://github.com/ImageMagick/ImageMagick/blob/acaf7e418d4ab0386e165251b7ef014a7959a205/coders/sun.c",
+      "package": {
+        "name": "^imagemagick$",
+        "version": "7.1.2-35",
+        "type": "homebrew",
+        "location": "opt/homebrew/Cellar/imagemagick/7.1.2-35/.brew/imagemagick.rb"
+      }
+    },
+    {
       "vulnerability": "CVE-2017-5506",
       "namespace": "nvd:cpe",
       "reason": "The negative EXIF-offset guard from upstream fix 9a069e0 is present in ImageMagick 7.1.2-35 MagickCore/profile.c. Exact verified Homebrew release only. https://github.com/ImageMagick/ImageMagick/commit/9a069e0f2e027ec5138f998023cf9cb62c04889f https://github.com/ImageMagick/ImageMagick/blob/7.1.2-35/MagickCore/profile.c",

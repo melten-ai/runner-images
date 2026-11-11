@@ -268,8 +268,8 @@ with tempfile.TemporaryDirectory() as d:
     )
     expected_dispositions = {
         **{str(index): python_dispositions for index in (0, 1)},
-        "2": {"CVE-2017-5506"},
-        "3": {"CVE-2025-32460"},
+        "2": {"CVE-2017-5506", "CVE-2014-9826"},
+        "3": {"CVE-2025-32460", "CVE-2007-0770"},
         "4": curl_dispositions,
         "5": aws_backports,
         "6": openldap_server_dispositions,
