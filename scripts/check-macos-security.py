@@ -584,7 +584,10 @@ with tempfile.TemporaryDirectory() as d:
             "purl": "pkg:maven/com.google.guava/guava@33.6.0-jre",
             "locations": [
                 {
-                    "path": "opt/homebrew/Cellar/kotlin/2.4.21/libexec/lib/kotlin-main-kts.jar"
+                    "path": (
+                        "opt/homebrew/Cellar/kotlin/2.4.21/libexec/lib/kotlin-ma"
+                        "in-kts.jar"
+                    )
                 }
             ],
             "accepted_cves": ["GHSA-xxph-c9ww-hj94"],
