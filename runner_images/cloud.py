@@ -285,6 +285,64 @@ def plan(root: Path, provider: str) -> dict[str, str]:
     return {"needed": "true", "record": "true"}
 
 
+def controller_update(definition: dict[str, object], version: str) -> list[str]:
+    """Definition-update arguments declaring SCSI,NVMe disk controller support.
+
+    Without this feature a gallery definition is SCSI-only and NVMe-only VM
+    sizes reject its image versions. Azure requires startsAtVersion when the
+    feature is introduced on a definition that already has versions, so the
+    declaration starts exactly at the version being built: older versions
+    never retroactively claim NVMe support. Returns [] when the definition
+    already declares both controllers.
+    """
+    features = cast(list[dict[str, str]], definition.get("features") or [])
+    index = next(
+        (
+            i
+            for i, feature in enumerate(features)
+            if feature.get("name") == "DiskControllerTypes"
+        ),
+        None,
+    )
+    controllers = (
+        []
+        if index is None
+        else [
+            c.strip() for c in features[index].get("value", "").split(",") if c.strip()
+        ]
+    )
+    missing = [c for c in ("SCSI", "NVMe") if c not in controllers]
+    if index is not None:
+        boundary = features[index].get("startsAtVersion")
+        if boundary and tuple(map(int, version.split("."))) < tuple(
+            map(int, boundary.split("."))
+        ):
+            raise ValueError("image version precedes declared controller support")
+    if "NVMe" in controllers and "SCSI" not in controllers:
+        # Moving this boundary would remove NVMe support from older versions.
+        raise ValueError("NVMe-only definition requires separate controller migration")
+    if not missing:
+        return []
+    value = ",".join(controllers + missing)
+    if index is None:
+        return [
+            "--add",
+            "features",
+            json.dumps(
+                {
+                    "name": "DiskControllerTypes",
+                    "value": value,
+                    "startsAtVersion": version,
+                }
+            ),
+        ]
+    return [
+        "--set",
+        f"features[{index}].value={value}",
+        f"features[{index}].startsAtVersion={version}",
+    ]
+
+
 def build(root: Path, provider: str) -> None:
     path = state_path(root, provider)
     state = read_object(path)
@@ -347,6 +405,37 @@ def build(root: Path, provider: str) -> None:
             ],
             root,
         )
+    else:
+        identity = [
+            "--gallery-name",
+            settings["azure_gallery"],
+            "--resource-group",
+            settings["azure_resource_group"],
+            "--gallery-image-definition",
+            settings["azure_image_definition"],
+            "--subscription",
+            settings["azure_subscription_id"],
+            "-o",
+            "json",
+        ]
+        change = controller_update(
+            api(["az", "sig", "image-definition", "show", *identity], root),
+            str(state["version"]),
+        )
+        if change:
+            command(
+                [
+                    "az",
+                    "sig",
+                    "image-definition",
+                    "update",
+                    "--allow-update-image",
+                    "true",
+                    *change,
+                    *identity,
+                ],
+                root,
+            )
     command(["packer", "init", "cloud"], root)
     command(
         [

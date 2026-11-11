@@ -26,11 +26,17 @@ assert stat.S_ISCHR(os.fstat(0).st_mode), "brew must not consume the script"
 args=sys.argv[1:]
 with Path(os.environ["TEST_BREW_LOG"]).open("a") as f: f.write(json.dumps(args)+"\\n")
 if args[0]==os.environ.get("TEST_FAIL"): raise SystemExit(7)
+state=Path(os.environ["TEST_BREW_LOG"]+".state")
+installed=os.environ.get("TEST_INSTALLED", "").splitlines()
+if state.exists(): installed=json.loads(state.read_text())
+if args[0]=="uninstall":
+    if "--force" in args and args[-1] in installed:
+        installed.remove(args[-1])
+    state.write_text(json.dumps(installed))
 if args[0]=="list":
-    installed=os.environ.get("TEST_INSTALLED", "")
     if "--versions" in args:
-        raise SystemExit(0 if args[-1] in installed.splitlines() else 1)
-    print(installed)
+        raise SystemExit(0 if args[-1] in installed else 1)
+    print("\\n".join(installed))
 if args[0]=="uses": print(os.environ.get("TEST_USERS", ""))
 """
     )
@@ -141,8 +147,13 @@ def test_unused_extras_removed_and_unrelated_ruby_preserved(shell, tmp_path):
     (versions / "2.7.7").symlink_to(outside, target_is_directory=True)
     result, calls = shell("retire_unused_inherited_tools", "otel-cli\ngitlab-runner")
     assert result.returncode == 0, result.stderr
-    assert ["uninstall", "--formula", "otel-cli"] in calls
-    assert ["uninstall", "--formula", "gitlab-runner"] in calls
+    assert any(c[0] == "uninstall" and c[-1] == "otel-cli" for c in calls)
+    assert any(c[0] == "uninstall" and c[-1] == "gitlab-runner" for c in calls)
+    # Homebrew's ordinary uninstall removes only the latest keg; an older keg
+    # would remain listed and upgrade_core_formulas would reinstall the tool.
+    result, calls = shell("upgrade_core_formulas", "otel-cli\ngitlab-runner")
+    assert result.returncode == 0, result.stderr
+    assert not any(call[0] == "upgrade" for call in calls)
     assert not (versions / "2.7.8").exists()
     assert (versions / "3.4.12/openssl").exists()
     assert (versions / "2.7.7").is_symlink() and (outside / "keep").exists()

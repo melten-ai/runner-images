@@ -252,7 +252,17 @@ def test_backport_policy_tracks_source_identity():
         for r in json.loads((root / "macos/grype.json").read_text())["ignore"]
         if r["package"]["name"] == "^urllib3$"
     ]
-    assert len(rules) == 4
+    advisories = {
+        "GHSA-mf9v-mfxr-j63j",
+        "GHSA-qccp-gfcp-xxvc",
+        "GHSA-vxq7-64xx-v4gw",
+        "GHSA-8988-9cw3-xx77",
+    }
+    assert len(rules) == 8
+    for cli in ("2.39.6", "2.40.0"):
+        scoped = [r for r in rules if f"/awscli/{cli}/" in r["package"]["location"]]
+        assert len(scoped) == 4
+        assert {r["vulnerability"] for r in scoped} == advisories
     assert all(
         r["package"]["version"] == version
         and f"urllib3-{version}.dist-info/METADATA" in r["package"]["location"]

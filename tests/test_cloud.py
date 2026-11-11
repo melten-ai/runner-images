@@ -1,5 +1,6 @@
 import copy
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -71,6 +72,10 @@ def fixture(tmp_path, monkeypatch, request):
         "fail": "",
         "version": "26.11.0",
         "base": "ubuntu-example-20261108",
+        "definition_features": [
+            {"name": "SecurityType", "value": "TrustedLaunchSupported"},
+            {"name": "DiskControllerTypes", "value": "SCSI, NVMe"},
+        ],
         "toolchains": {
             "node": {"version": "v24.0.0", "sha256": "a" * 64},
             "git-lfs": {
@@ -103,6 +108,22 @@ def fixture(tmp_path, monkeypatch, request):
             )
         if args[:4] == ["az", "vm", "image", "show"]:
             return json.dumps({"name": external["base"]})
+        if args[:4] == ["az", "sig", "image-definition", "show"]:
+            return json.dumps(
+                {"features": copy.deepcopy(external["definition_features"])}
+            )
+        if args[:4] == ["az", "sig", "image-definition", "update"]:
+            features = external["definition_features"]
+            if "--add" in args:
+                features.append(json.loads(args[args.index("--add") + 2]))
+            if "--set" in args:
+                position = args.index("--set") + 1
+                while position < len(args) and not args[position].startswith("--"):
+                    target, value = args[position].split("=", 1)
+                    selected = re.fullmatch(r"features\[(\d+)\]\.(\w+)", target)
+                    features[int(selected.group(1))][selected.group(2)] = value
+                    position += 1
+            return ""
         state = current()
         tags = {
             "owner": "runner-images",
@@ -284,6 +305,99 @@ def test_plan_build_publish_noop_and_new_inputs(fixture):
     assert cloud.plan(root, provider)["needed"] == "false"
     state["base"] = "new-upstream-image"
     assert cloud.plan(root, provider)["needed"] == "true"
+
+
+def test_build_declares_nvme_support_starting_at_exact_built_version(fixture):
+    root, provider, state = fixture
+    state["definition_features"] = [
+        {"name": "SecurityType", "value": "TrustedLaunchSupported"},
+        {"name": "IsAcceleratedNetworkSupported", "value": "true"},
+    ]
+    cloud.plan(root, provider)
+    cloud.build(root, provider)
+    if provider == "gcp":
+        assert not any("image-definition" in c for c in state["commands"])
+        return
+    updates = [
+        c
+        for c in state["commands"]
+        if c[:4] == ["az", "sig", "image-definition", "update"]
+    ]
+    assert len(updates) == 1
+    update = updates[0]
+    assert update[update.index("--allow-update-image") + 1] == "true"
+    # The feature must carry the exact first supporting image version; older
+    # versions never retroactively claim NVMe support.
+    assert json.loads(update[update.index("--add") + 2]) == {
+        "name": "DiskControllerTypes",
+        "value": "SCSI,NVMe",
+        "startsAtVersion": "26.11.0",
+    }
+    assert "--set" not in update
+    assert "--remove" not in update
+    assert not any("SecurityType" in argument for argument in update)
+    assert state["definition_features"] == [
+        {"name": "SecurityType", "value": "TrustedLaunchSupported"},
+        {"name": "IsAcceleratedNetworkSupported", "value": "true"},
+        {
+            "name": "DiskControllerTypes",
+            "value": "SCSI,NVMe",
+            "startsAtVersion": "26.11.0",
+        },
+    ]
+    # The definition supports NVMe before Packer publishes the version.
+    assert state["commands"].index(update) < next(
+        i for i, c in enumerate(state["commands"]) if c[:2] == ["packer", "build"]
+    )
+    # A rebuild sees the reconciled definition and stays read-only.
+    cloud.build(root, provider)
+    assert (
+        sum(
+            c[:4] == ["az", "sig", "image-definition", "update"]
+            for c in state["commands"]
+        )
+        == 1
+    )
+
+
+def test_partial_controller_declaration_widens_only_from_built_version(fixture):
+    root, provider, state = fixture
+    state["definition_features"] = [{"name": "DiskControllerTypes", "value": "SCSI"}]
+    cloud.plan(root, provider)
+    cloud.build(root, provider)
+    if provider == "gcp":
+        assert not any("image-definition" in c for c in state["commands"])
+        return
+    updates = [
+        c
+        for c in state["commands"]
+        if c[:4] == ["az", "sig", "image-definition", "update"]
+    ]
+    assert len(updates) == 1
+    position = updates[0].index("--set")
+    assert updates[0][position + 1 : position + 3] == [
+        "features[0].value=SCSI,NVMe",
+        "features[0].startsAtVersion=26.11.0",
+    ]
+    assert "--add" not in updates[0]
+    assert state["definition_features"] == [
+        {
+            "name": "DiskControllerTypes",
+            "value": "SCSI,NVMe",
+            "startsAtVersion": "26.11.0",
+        }
+    ]
+
+
+def test_build_leaves_already_correct_definition_untouched(fixture):
+    root, provider, state = fixture
+    before = copy.deepcopy(state["definition_features"])
+    cloud.plan(root, provider)
+    cloud.build(root, provider)
+    assert not any(
+        c[:4] == ["az", "sig", "image-definition", "update"] for c in state["commands"]
+    )
+    assert state["definition_features"] == before
 
 
 @pytest.mark.parametrize(
@@ -617,3 +731,33 @@ def test_failed_captured_command_keeps_diagnostic_output(tmp_path, capsys):
             output=True,
         )
     assert "synthetic version failure" in capsys.readouterr().err
+
+
+def test_controller_update_preserves_prior_nvme_version_boundary():
+    definition = {
+        "features": [
+            {
+                "name": "DiskControllerTypes",
+                "value": "NVMe",
+                "startsAtVersion": "25.1.0",
+            }
+        ]
+    }
+    before = copy.deepcopy(definition)
+    with pytest.raises(ValueError, match="NVMe-only"):
+        cloud.controller_update(definition, "26.11.0")
+    assert definition == before
+
+
+def test_controller_update_rejects_version_before_declared_support():
+    definition = {
+        "features": [
+            {
+                "name": "DiskControllerTypes",
+                "value": "SCSI,NVMe",
+                "startsAtVersion": "26.12.0",
+            }
+        ]
+    }
+    with pytest.raises(ValueError, match="precedes"):
+        cloud.controller_update(definition, "26.11.0")

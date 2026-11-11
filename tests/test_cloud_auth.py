@@ -34,6 +34,7 @@ def test_bootstrap_binds_immutable_repository_and_workflow_without_keys(
         "created": set(),
         "assignments": set(),
         "delays": [],
+        "features": [],
     }
 
     def run(command, **kwargs):
@@ -95,12 +96,16 @@ def test_bootstrap_binds_immutable_repository_and_workflow_without_keys(
                 state["created"].add("group")
             elif command[1:4] == ["sig", "image-definition", "list"]:
                 response = (
-                    [{"name": "example-image"}]
+                    [{"name": "example-image", "features": state["features"]}]
                     if "definition" in state["created"]
                     else []
                 )
             elif command[1:4] == ["sig", "image-definition", "create"]:
                 state["created"].add("definition")
+                state["features"] = [
+                    {"name": pair.split("=", 1)[0], "value": pair.split("=", 1)[1]}
+                    for pair in command[command.index("--features") + 1].split()
+                ]
             elif command[1:4] == ["ad", "app", "list"]:
                 response = (
                     [{"id": "example-app", "appId": "example-client"}]
@@ -196,6 +201,89 @@ def test_bootstrap_binds_immutable_repository_and_workflow_without_keys(
     assert not any(
         c[:4] == ["az", "ad", "sp", "create-for-rbac"] for c in state["calls"]
     )
+    create = next(
+        c for c in state["calls"] if c[1:4] == ["sig", "image-definition", "create"]
+    )
+    assert create[create.index("--features") + 1] == "DiskControllerTypes=SCSI,NVMe"
+    # A definition created with NVMe support needs no reconciliation on rerun.
+    assert not any(
+        c[1:4] == ["sig", "image-definition", "update"] for c in state["calls"]
+    )
+
+
+def _run_azure_with_existing_definition(monkeypatch, tmp_path, features, calls):
+    configuration = {
+        "repository": "example-org/runner-images",
+        "azure_subscription": "00000000-0000-0000-0000-000000000000",
+        "azure_tenant": "11111111-1111-1111-1111-111111111111",
+        "azure_build_group": "example-builds",
+        "azure_image_group": "example-images",
+        "azure_location": "centralus",
+        "azure_vm_size": "Standard_D2as_v7",
+        "azure_gallery": "examplegallery",
+        "azure_definition": "example-image",
+    }
+    configuration_path = tmp_path / "private-configuration.json"
+    configuration_path.write_text(json.dumps(configuration))
+
+    def run(command, **kwargs):
+        calls.append(command)
+        response = {}
+        if command[:2] == ["gh", "api"]:
+            response = {"id": 42, "owner": {"id": 7}}
+        if command[0] == "az":
+            if command[1:3] == ["account", "show"]:
+                response = {"tenantId": configuration["azure_tenant"]}
+            elif command[1:3] == ["group", "list"]:
+                response = [{"name": "example-builds"}]
+            elif command[1:4] == ["sig", "image-definition", "list"]:
+                response = [
+                    {
+                        "name": "example-image",
+                        "features": [dict(feature) for feature in features],
+                    }
+                ]
+            elif command[1:4] == ["ad", "app", "list"]:
+                response = [{"id": "example-app", "appId": "example-client"}]
+            elif command[1:4] == ["ad", "sp", "list"]:
+                response = [{"id": "example-principal"}]
+            elif command[1] == "rest":
+                if command[command.index("--method") + 1] == "GET":
+                    response = {
+                        "value": [{"name": "github-cloud-main", "id": "example-fic"}]
+                    }
+            elif command[1:4] == ["role", "definition", "list"]:
+                response = [{}]
+            elif command[1:4] == ["role", "assignment", "list"]:
+                response = [{}]
+        return subprocess.CompletedProcess(command, 0, json.dumps(response), "")
+
+    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["configure-auth.py", str(configuration_path), "--provider", "azure"],
+    )
+    runpy.run_path("cloud/configure-auth.py", run_name="__main__")
+
+
+def test_bootstrap_never_updates_an_existing_definition(tmp_path, monkeypatch):
+    # Adding DiskControllerTypes to a definition that already has versions
+    # requires the exact startsAtVersion, known only to the versioned cloud
+    # build; without a version the bootstrap must stay read-only even when
+    # the definition lacks NVMe support.
+    features = [{"name": "SecurityType", "value": "TrustedLaunchSupported"}]
+    calls = []
+    _run_azure_with_existing_definition(monkeypatch, tmp_path, features, calls)
+    assert not any(
+        c[1:4]
+        in (
+            ["sig", "image-definition", "update"],
+            ["sig", "image-definition", "create"],
+        )
+        for c in calls
+    )
+    assert features == [{"name": "SecurityType", "value": "TrustedLaunchSupported"}]
 
 
 def test_auth_setup_failure_does_not_continue_or_leak_into_other_provider(

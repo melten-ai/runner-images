@@ -249,29 +249,31 @@ with tempfile.TemporaryDirectory() as d:
             "purl": "pkg:generic/httpd@2.4.67",
         }
     )
-    artifacts.append(
-        {
-            "id": "5",
-            "name": "urllib3",
-            "version": "2.6.3+melten.9ff67c841cad",
-            "type": "python",
-            "foundBy": "python-installed-package-cataloger",
-            "locations": [
-                {
-                    "path": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/"
-                    "python3.15/site-packages/urllib3-2.6.3+melten."
-                    "9ff67c841cad.dist-info/METADATA"
-                }
-            ],
-            "purl": "pkg:pypi/urllib3@2.6.3%2Bmelten.9ff67c841cad",
-        }
-    )
+    for artifact_id, aws_version in (("5", "2.39.6"), ("8", "2.40.0")):
+        artifacts.append(
+            {
+                "id": artifact_id,
+                "name": "urllib3",
+                "version": "2.6.3+melten.9ff67c841cad",
+                "type": "python",
+                "foundBy": "python-installed-package-cataloger",
+                "locations": [
+                    {
+                        "path": f"opt/homebrew/Cellar/awscli/{aws_version}/libexec/lib/"
+                        "python3.15/site-packages/urllib3-2.6.3+melten."
+                        "9ff67c841cad.dist-info/METADATA"
+                    }
+                ],
+                "purl": "pkg:pypi/urllib3@2.6.3%2Bmelten.9ff67c841cad",
+            }
+        )
     expected_dispositions = {
         **{str(index): python_dispositions for index in (0, 1)},
         "2": {"CVE-2017-5506", "CVE-2014-9826"},
         "3": {"CVE-2025-32460", "CVE-2007-0770"},
         "4": curl_dispositions,
         "5": aws_backports,
+        "8": aws_backports,
         "6": set(),
         "7": {"CVE-2026-59685"},
     }

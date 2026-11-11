@@ -117,7 +117,8 @@ retire_unused_inherited_tools() {
 				echo "Retaining $formula: installed formula dependents exist" >&2
 				continue
 			fi
-			brew uninstall --formula "$formula" </dev/null >&2 || return 1
+			# Remove every inherited keg; otherwise upgrade reinstalls the tool.
+			brew uninstall --formula --force "$formula" </dev/null >&2 || return 1
 		fi
 	done
 	# Ruby jobs use patched Homebrew Ruby. Preserve links and unrelated versions.

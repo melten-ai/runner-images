@@ -54,9 +54,9 @@ Cookie, Public Suffix List, authentication, proxy and HTTP/2 findings remain blo
 
 ## AWS CLI urllib3 backport
 
-AWS CLI 2.39.6 requires urllib3 `>=1.25.4,<=2.6.3`. The factory preserves that requirement and the official CLI release, backporting supplier security fixes into `2.6.3+melten.9ff67c841cad`. A PEP 440 local version satisfies the existing upper bound. This compatibility backport is tracked in [#8](https://github.com/melten-ai/runner-images/issues/8); it is skipped once the vendor installs a supported upstream version with these fixes. The build identity derives from the source archive, patch checksums and verified resulting modules in [refresh-aws-cli.py](image/refresh-aws-cli.py).
+AWS CLI 2.39.6 and 2.40.0 require urllib3 `>=1.25.4,<=2.6.3`. The factory preserves that requirement and the official CLI release, backporting supplier security fixes into `2.6.3+melten.9ff67c841cad`. A PEP 440 local version satisfies the existing upper bound. This compatibility backport is tracked in [#8](https://github.com/melten-ai/runner-images/issues/8); it is skipped once the vendor installs a supported upstream version with these fixes. The build identity derives from the source archive, patch checksums and verified resulting modules in [refresh-aws-cli.py](image/refresh-aws-cli.py).
 
-Four rules cover only that exact local Python distribution at the AWS CLI 2.39.6 / Python 3.15 Cellar metadata location:
+Four advisories are scoped separately to that exact local Python distribution at the AWS CLI 2.39.6 and 2.40.0 / Python 3.15 Cellar metadata locations. The 2.40.0 image was rebuilt and its source hashes, dependency check, CLI transfer/deletion and independent receipt verification passed again after a cold boot; other CLI versions remain blocking:
 
 - [GHSA-mf9v-mfxr-j63j](https://github.com/advisories/GHSA-mf9v-mfxr-j63j): bounded decompression during repeated streaming reads and draining.
 - [GHSA-qccp-gfcp-xxvc](https://github.com/advisories/GHSA-qccp-gfcp-xxvc): stripping sensitive headers from cross-origin low-level proxy redirects.

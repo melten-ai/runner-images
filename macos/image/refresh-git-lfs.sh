@@ -66,11 +66,20 @@ refresh_git_lfs() {
 	export GOOS=darwin GOARCH=arm64 CGO_ENABLED=0
 	printf '[init]\n defaultBranch = master\n' >"$work/gitconfig"
 	export GIT_CONFIG_GLOBAL="$work/gitconfig" GIT_CONFIG_NOSYSTEM=1
-	[ "$(go version)" = "go version go$go_version darwin/arm64" ]
+	[ "$(go version)" = "go version go$go_version darwin/arm64" ] || {
+		echo "Git LFS rebuild did not resolve the required Go $go_version compiler." >&2
+		exit 1
+	}
 	prefix=$(brew --prefix git-lfs)
 	binary=$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$prefix/bin/git-lfs")
-	[[ "$binary" =~ ^/opt/homebrew/Cellar/git-lfs/[0-9]+\.[0-9]+\.[0-9]+/bin/git-lfs$ ]] || exit 1
-	go mod download -json github.com/git-lfs/git-lfs/v3@latest >"$work/source.json"
+	[[ "$binary" =~ ^/opt/homebrew/Cellar/git-lfs/[0-9]+\.[0-9]+\.[0-9]+/bin/git-lfs$ ]] || {
+		echo "Git LFS rebuild found an unsupported binary location: $binary" >&2
+		exit 1
+	}
+	go mod download -json github.com/git-lfs/git-lfs/v3@latest >"$work/source.json" || {
+		cat "$work/source.json" >&2
+		exit 1
+	}
 	source=$(jq -er '.Dir' "$work/source.json")
 	source_version=$(jq -er '.Version | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | ltrimstr("v")' "$work/source.json")
 	[ "$binary" = "/opt/homebrew/Cellar/git-lfs/$source_version/bin/git-lfs" ] || {
