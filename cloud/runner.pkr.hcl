@@ -76,7 +76,10 @@ source "azure-arm" "ubuntu" {
     replication_regions  = [var.azure_location]
     storage_account_type = "Standard_LRS"
   }
-  ssh_timeout = "30m"
+  # Consumers deploy exact image IDs from release receipts; a gallery
+  # "latest" alias must never resolve to an unpromoted build.
+  shared_gallery_image_version_exclude_from_latest = true
+  ssh_timeout                                      = "30m"
 }
 build {
   sources = ["source.googlecompute.ubuntu", "source.azure-arm.ubuntu"]
@@ -94,6 +97,14 @@ build {
   provisioner "file" {
     source      = "cloud/linux/install-toolchains.py"
     destination = "/tmp/runner-source/install-toolchains.py"
+  }
+  provisioner "file" {
+    source      = "cloud/linux/verify-kernel.py"
+    destination = "/tmp/runner-source/verify-kernel.py"
+  }
+  provisioner "file" {
+    source      = "cloud/kernel-fixes.json"
+    destination = "/tmp/runner-source/kernel-fixes.json"
   }
   provisioner "file" {
     content     = jsonencode(var.toolchains)

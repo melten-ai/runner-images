@@ -20,6 +20,17 @@ def test_cloud_security_policy_changes_build_identity(fixture):
     )
 
 
+def test_kernel_disposition_data_changes_build_identity(fixture):
+    root, provider, _ = fixture
+    cloud.plan(root, provider)
+    before = json.loads(cloud.state_path(root, provider).read_text())["input_id"]
+    (root / "cloud/kernel-fixes.json").write_text("changed kernel dispositions")
+    cloud.plan(root, provider)
+    assert (
+        json.loads(cloud.state_path(root, provider).read_text())["input_id"] != before
+    )
+
+
 @pytest.fixture(params=["gcp", "azure"])
 def fixture(tmp_path, monkeypatch, request):
     provider = request.param
@@ -33,6 +44,7 @@ def fixture(tmp_path, monkeypatch, request):
         "scripts/cloud-image.py",
         "cloud/runner.pkr.hcl",
         "cloud/grype.json",
+        "cloud/kernel-fixes.json",
     ):
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)

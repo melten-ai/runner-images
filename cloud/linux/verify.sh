@@ -44,6 +44,8 @@ from runner_images.inventory import collect
 with open('/tmp/runner-evidence/inventory.json', 'w') as stream:
     json.dump(collect(), stream, indent=2)
 PY
+# Kernel disposition predicates must hold before any SBOM/scan evidence exists.
+sudo python3 /tmp/runner-source/verify-kernel.py /tmp/runner-source/kernel-fixes.json
 # Remove package downloads before scanning the installed image, not after it.
 sudo apt-get clean
 sudo env SYFT_GOLANG_CAPTURE_SYMBOLS=all /tmp/runner-tools/syft scan dir:/ --override-default-catalogers image \

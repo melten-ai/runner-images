@@ -71,6 +71,7 @@ jobs:
           "$RUNNER_TEMP/runner-image-tools/bin/grype" version
           python3 scripts/check-macos-security.py "$RUNNER_TEMP/runner-image-tools/bin/grype"
           python3 scripts/check-runner-security.py "$RUNNER_TEMP/runner-image-tools/bin/grype"
+          python3 cloud/check-kernel-security.py "$RUNNER_TEMP/runner-image-tools/bin/grype"
       - name: Validate both cloud recipes without authentication or resources
         env:
           PACKER_GITHUB_API_TOKEN: ${{ github.token }}
