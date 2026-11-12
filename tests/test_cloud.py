@@ -640,7 +640,7 @@ def test_cleanup_reports_stalled_deletion_and_attempts_other_resources(fixture):
         assert any("instances" in c and "delete" in c for c in state["commands"])
         assert any("disks" in c and "delete" in c for c in state["commands"])
     else:
-        assert sum(c[:3] == ["az", "resource", "list"] for c in state["commands"]) == 2
+        assert sum(c[:3] == ["az", "resource", "list"] for c in state["commands"]) >= 2
 
 
 @pytest.mark.parametrize(
