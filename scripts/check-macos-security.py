@@ -217,7 +217,10 @@ with tempfile.TemporaryDirectory() as d:
             "foundBy": "homebrew-cataloger",
             "locations": [
                 {
-                    "path": "opt/homebrew/Cellar/graphicsmagick/1.3.49_1/.brew/graphicsmagick.rb"
+                    "path": (
+                        "opt/homebrew/Cellar/graphicsmagick/1.3.49_1/.brew/"
+                        "graphicsmagick.rb"
+                    )
                 }
             ],
             "cpes": [
