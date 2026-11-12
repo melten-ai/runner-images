@@ -23,6 +23,10 @@ for package in snapd google-osconfig-agent linux-tools-common; do
 		exit 1
 	fi
 done
+if dpkg-query -W -f='${binary:Package}\n' 2>/dev/null | grep -Eq '^linux-(tools|cloud-tools)-[0-9].*-(gcp|azure)$|^linux-(gcp|azure)-[0-9].*-tools-'; then
+	echo "versioned provider kernel tools are still installed" >&2
+	exit 1
+fi
 for path in /snap /var/snap /var/lib/snapd /usr/lib/snapd /usr/bin/google_osconfig_agent; do
 	test ! -e "$path"
 done

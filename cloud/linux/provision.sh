@@ -47,9 +47,10 @@ if dpkg-query -W -f='${Status}' google-osconfig-agent 2>/dev/null | grep -q 'ins
 fi
 # The GCE base image carries versioned kernel diagnostic tools that are not
 # consumed by the runner contract. Keep the running kernel and its modules,
-# but remove only linux-tools packages before SBOM capture.
+# but remove versioned linux-tools and linux-cloud-tools packages before SBOM
+# capture. The provider's common cloud-tools package remains available.
 dpkg-query -W -f='${binary:Package}\n' 2>/dev/null |
-	grep -E '^linux-(tools-common|tools-[0-9].*-gcp|gcp-[0-9].*-tools-)' |
+	grep -E '^linux-tools-common$|^linux-(tools|cloud-tools)-[0-9].*-(gcp|azure)$|^linux-(gcp|azure)-[0-9].*-tools-' |
 	xargs -r sudo apt-get purge -y
 sudo systemctl enable --now docker
 sudo usermod -aG docker runnerbuilder
