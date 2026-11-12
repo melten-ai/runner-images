@@ -210,6 +210,23 @@ with tempfile.TemporaryDirectory() as d:
     ]
     artifacts.append(
         {
+            "id": "9",
+            "name": "graphicsmagick",
+            "version": "1.3.49_1",
+            "type": "homebrew",
+            "foundBy": "homebrew-cataloger",
+            "locations": [
+                {
+                    "path": "opt/homebrew/Cellar/graphicsmagick/1.3.49_1/.brew/graphicsmagick.rb"
+                }
+            ],
+            "cpes": [
+                {"cpe": "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49:*:*:*:*:*:*:*"}
+            ],
+        }
+    )
+    artifacts.append(
+        {
             "id": "4",
             "name": "curl",
             "version": "8.7.1",
@@ -245,7 +262,11 @@ with tempfile.TemporaryDirectory() as d:
             "purl": "pkg:generic/httpd@2.4.67",
         }
     )
-    for artifact_id, aws_version in (("5", "2.39.6"), ("8", "2.40.0")):
+    for artifact_id, aws_version in (
+        ("5", "2.39.6"),
+        ("8", "2.40.0"),
+        ("10", "2.40.1"),
+    ):
         artifacts.append(
             {
                 "id": artifact_id,
@@ -267,9 +288,11 @@ with tempfile.TemporaryDirectory() as d:
         **{str(index): python_dispositions for index in (0, 1)},
         "2": {"CVE-2017-5506", "CVE-2014-9826"},
         "3": {"CVE-2025-32460", "CVE-2007-0770"},
+        "9": {"CVE-2025-32460", "CVE-2007-0770"},
         "4": curl_dispositions,
         "5": aws_backports,
         "8": aws_backports,
+        "10": aws_backports,
         "6": openldap_server_dispositions,
         "7": httpd_module_dispositions,
     }
