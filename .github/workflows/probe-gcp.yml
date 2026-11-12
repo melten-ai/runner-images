@@ -1,6 +1,7 @@
 name: Probe GCP image
 on:
-  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
   probe:
     runs-on: [self-hosted, gcp-image-probe]
