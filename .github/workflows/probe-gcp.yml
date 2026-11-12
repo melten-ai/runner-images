@@ -1,0 +1,22 @@
+name: Probe GCP image
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: [self-hosted, gcp-image-probe]
+    timeout-minutes: 10
+    steps:
+      - name: Verify image runtime
+        shell: bash
+        run: |
+          set -eux
+          test -f /var/tmp/gcp-image-probe-started
+          test ! -e /snap
+          test ! -e /var/snap
+          test ! -e /var/lib/snapd
+          test ! -e /usr/bin/google_osconfig_agent
+          test "$(node --version)" = "v26.13.1"
+          test "$(npm --version)" = "12.2.2"
+          docker --version
+          systemctl is-active docker
+          printf 'gcp image actions probe passed\n'
