@@ -589,7 +589,7 @@ with tempfile.TemporaryDirectory() as d:
                 }
             ],
             "accepted_cves": ["GHSA-xxph-c9ww-hj94"],
-        }
+        },
     ]
     legacy_ids = set()
     for package in legacy_packages:

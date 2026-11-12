@@ -17,6 +17,15 @@ npm --version
 for runtime in node20 node24; do
 	/opt/actions-runner/externals/"$runtime"/bin/node /opt/actions-runner/externals/"$runtime"/lib/node_modules/npm/bin/npm-cli.js --version
 done
+for package in snapd google-osconfig-agent linux-tools-common; do
+	if dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q 'install ok installed'; then
+		echo "removed package is still installed: $package" >&2
+		exit 1
+	fi
+done
+for path in /snap /var/snap /var/lib/snapd /usr/lib/snapd /usr/bin/google_osconfig_agent; do
+	test ! -e "$path"
+done
 docker compose version
 docker buildx version
 sudo docker info --format '{{.ServerVersion}}'

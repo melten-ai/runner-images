@@ -85,7 +85,24 @@ Owner accepted on 2026-11-11 for the exact private Java archives below. The Andr
 | --- | --- | --- |
 | 33.6.0-jre | `opt/homebrew/Cellar/kotlin/2.4.21/libexec/lib/kotlin-main-kts.jar` | [GHSA-xxph-c9ww-hj94](https://github.com/advisories/GHSA-xxph-c9ww-hj94) (Homebrew Kotlin 2.4.21 private main-kts bundle) |
 
-This does not waive Apache HTTPD, Apple OpenLDAP or SQLite findings.
+The exact Apple HTTPD, OpenLDAP, SQLite, ActiveSupport and runner WebUtilities
+exceptions are listed below. Other versions, paths and advisories remain
+blocking.
+
+## Additional exact Mac component exceptions
+
+Owner accepted on 2026-11-12 for the exact supplier-managed or required
+components below. These are retention decisions, not fixes. Each policy rule
+pins the advisory, package name, version, type and location and is reassessed
+when the supplier publishes a fixed version or the image contract changes.
+
+| Component | Exact version, type and location |
+| --- | --- |
+| Apple OpenLDAP | `2.4.28`, `binary`, `usr/bin/ldapsearch` |
+| Apple HTTPD | `2.4.67`, `binary`, `usr/sbin/httpd` |
+| Homebrew SQLite | `3.54.1`, `homebrew`, `opt/homebrew/Cellar/sqlite/3.54.1/.brew/sqlite.rb` |
+| ActiveSupport | `7.2.4`, `gem`, the Homebrew and portable-Ruby gemspec locations in `macos/grype.json` |
+| Runner WebUtilities | `8.0.25`, `dotnet`, `Users/admin/actions-runner/bin/Runner.Worker.deps.json` |
 
 ## GCP provider-managed components retained during remediation
 

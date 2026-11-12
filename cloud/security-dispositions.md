@@ -28,9 +28,11 @@ Any present-but-changed byte, identity or version fails qualification before any
 
 ## What remains blocking
 
-Only the per-platform released-and-USN-confirmed fixes above are dispositioned. Everything else keeps its findings, including:
+The per-platform released-and-USN-confirmed fixes above are the canonical supplier-fix dispositions. Separate owner-approved retention rules in `cloud/grype.json` cover only exact provider-managed or required identities that remain after remediation. Every such rule is pinned to advisory, package name, version, type and location and is checked for anchored names and exact version/location values.
 
-- the 20 Azure advisories whose fix (`linux-azure-7.0 7.0.0-1020.21~24.04.1`) is still `pending` without a released noble USN — notably **CVE-2026-98432** and **CVE-2026-100075**. The owner-approved exact Azure-image exceptions record these residual risks until Canonical publishes the corresponding noble USN;
+Everything else keeps its findings, including:
+
+- the 20 Azure advisories whose fix (`linux-azure-7.0 7.0.0-1020.21~24.04.1`) is still `pending` without a released noble USN — notably **CVE-2026-98432** and **CVE-2026-100075**. These remain blocking unless an exact owner-approved retention rule names the same advisory, package identity, version, type and location. Reassess those rules when Canonical publishes the corresponding noble USN;
 - the 103 `not-affected` tracker annotations (vendor convention, requires review — not dispositioned);
 - the 11 unknown/missing/deferred tracker cases;
 - any other package name, type, version, location or namespace, and all non-kernel High/Critical findings outside the exact owner-approved retention rules in `cloud/grype.json`.
@@ -39,4 +41,4 @@ These are supplier-fix dispositions with native binding, not risk acceptances.
 
 ## Mechanical coupling
 
-`cloud/grype.json` kernel rules are derived from `kernel-fixes.json` by [`check-kernel-security.py`](check-kernel-security.py); any drift between data, rules and the preserved Node 20 rules fails the check. Run `python3 cloud/check-kernel-security.py` with Grype installed: the actual scanner must first report every dispositioned advisory for the exact bound kernel artifacts, then move only those identities to `ignoredMatches`, while adjacent names, versions, package types, locations and a newer unbound ABI retain their findings and High/Critical still returns exit 2. The same regression runs in CI, and `cloud/kernel-fixes.json` is part of the cloud build-input fingerprint, so changed disposition data produces a new image identity.
+The canonical `cloud/grype.json` kernel rules are derived from `kernel-fixes.json` by [`check-kernel-security.py`](check-kernel-security.py); owner-approved retention rules are validated separately for exact scope. Any drift between data, rules and the preserved Node 20 rules fails the check. Run `python3 cloud/check-kernel-security.py` with Grype installed: the actual scanner must first report every canonical dispositioned advisory for the exact bound kernel artifacts, then move only those identities and the explicitly matched exact retention rules to `ignoredMatches`, while adjacent names, versions, package types, locations and a newer unbound ABI retain their findings and High/Critical still returns exit 2. The same regression runs in CI, and `cloud/kernel-fixes.json` is part of the cloud build-input fingerprint, so changed disposition data produces a new image identity.
