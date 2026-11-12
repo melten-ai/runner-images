@@ -57,6 +57,10 @@ def installer():
 
 def test_resolve_chooses_official_stable_linux_archives(installer, monkeypatch):
     documents = {
+        "https://proxy.golang.org/golang.org/x/net/@latest": '{"Version":"v0.62.0"}',
+        "https://proxy.golang.org/github.com/klauspost/compress/@latest": json.dumps(
+            {"Version": "v1.20.4"}
+        ),
         "https://nodejs.org/dist/index.json": json.dumps(
             [
                 {"version": "v99.0.0-rc.1", "lts": "Example"},
@@ -161,6 +165,8 @@ def test_resolve_chooses_official_stable_linux_archives(installer, monkeypatch):
     assert result["node"]["version"] == "v24.1.0"
     assert result["go"]["url"].endswith("linux-amd64.tar.gz")
     assert result["git-lfs"]["sha256"] == "d" * 64
+    assert result["git-lfs"]["net_version"] == "v0.62.0"
+    assert result["git-lfs"]["compress_version"] == "v1.20.4"
     assert result["npm"]["sha512"] == (b"n" * 64).hex()
     assert result["buildx"]["sha256"] == "e" * 64
     assert set(result) == {
@@ -441,3 +447,245 @@ def test_runner_npm_installs_the_plan_without_resolving_again(
         prefix = runner / "externals" / runtime
         assert (prefix / "bin/npm").read_text() == "CLI"
         assert (prefix / "bin/node").read_text() == "official node"
+
+
+@pytest.mark.parametrize("name", ["oneup", "grype"])
+@pytest.mark.parametrize("failure", ["", "checksum", "missing", "symlink"])
+def test_host_tool_installs_verified_archive_and_preserves_existing_on_failure(
+    installer, tmp_path, monkeypatch, name, failure
+):
+    data = io.BytesIO()
+    with tarfile.open(fileobj=data, mode="w:gz") as archive:
+        body = b"#!/bin/sh\nprintf 'verified-tool\\n'\n"
+        entry = tarfile.TarInfo(name if failure != "missing" else "other")
+        entry.mode = 0o644  # Installer must restore execute permissions.
+        entry.size = len(body)
+        if failure == "symlink":
+            target = tarfile.TarInfo("target")
+            target.size = len(body)
+            archive.addfile(target, io.BytesIO(body))
+            entry.type = tarfile.SYMTYPE
+            entry.linkname = "target"
+            entry.size = 0
+            archive.addfile(entry)
+        else:
+            archive.addfile(entry, io.BytesIO(body))
+    payload = data.getvalue()
+    repository = "circlesac/oneup" if name == "oneup" else "anchore/grype"
+    filename = (
+        "oneup-x86_64-unknown-linux-gnu.tar.gz"
+        if name == "oneup"
+        else "grype_0.121.2_linux_amd64.tar.gz"
+    )
+    checksum = (
+        "a" * 64 if failure == "checksum" else hashlib.sha256(payload).hexdigest()
+    )
+    metadata = json.dumps(
+        {
+            "tag_name": "v26.10.0" if name == "oneup" else "v0.121.2",
+            "assets": [
+                {
+                    "name": filename,
+                    "digest": "sha256:" + checksum,
+                    "browser_download_url": "https://example.com/verified.tar.gz",
+                }
+            ],
+        }
+    ).encode()
+
+    def read(url):
+        assert url == f"https://api.github.com/repos/{repository}/releases/latest"
+        return metadata
+
+    def download(url, path):
+        assert url == "https://example.com/verified.tar.gz"
+        path.write_bytes(payload)
+
+    globals_ = installer["install_host_tool"].__globals__
+    monkeypatch.setitem(globals_, "read", read)
+    monkeypatch.setitem(globals_, "download", download)
+    prefix = tmp_path / "tools"
+    (prefix / "bin").mkdir(parents=True)
+    binary = prefix / "bin" / name
+    binary.write_bytes(b"preserved executable")
+    receipt = tmp_path / "receipt.json"
+    if failure:
+        with pytest.raises(ValueError):
+            installer["install_host_tool"](name, prefix, receipt)
+        assert binary.read_bytes() == b"preserved executable"
+        assert not receipt.exists()
+    else:
+        installer["install_host_tool"](name, prefix, receipt)
+        assert subprocess.check_output([str(binary)], text=True) == "verified-tool\n"
+        assert json.loads(receipt.read_text())[name]["sha256"] == checksum
+        assert not (prefix / "extracted").exists()
+
+
+def test_host_tool_rejects_unknown_dependency(installer, tmp_path):
+    with pytest.raises(ValueError, match="unsupported"):
+        installer["install_host_tool"]("unknown", tmp_path, tmp_path / "receipt")
+    assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("failure", ["", "checksum", "api"])
+def test_authenticated_asset_download_keeps_integrity_gate(
+    installer, tmp_path, monkeypatch, failure
+):
+    monkeypatch.setenv("GH_TOKEN", "synthetic-token")
+    url = "https://api.github.com/repos/example/tool/releases/assets/123"
+    payload = b"official binary archive"
+    spec = {
+        "url": "https://example.com/tool.tgz",
+        "api_url": url,
+        "sha256": hashlib.sha256(payload).hexdigest(),
+    }
+    calls = []
+
+    def run(args, **kwargs):
+        calls.append(args)
+        assert args == ["gh", "api", url, "-H", "Accept: application/octet-stream"]
+        if failure == "api":
+            raise subprocess.CalledProcessError(1, args)
+        kwargs["stdout"].write(b"tampered" if failure == "checksum" else payload)
+
+    monkeypatch.setattr(installer["subprocess"], "run", run)
+    archive = tmp_path / "download.tar"
+    if failure:
+        with pytest.raises(
+            ValueError if failure == "checksum" else subprocess.CalledProcessError
+        ):
+            installer["verified_download"](spec, archive)
+    else:
+        installer["verified_download"](spec, archive)
+        assert archive.read_bytes() == payload
+    assert len(calls) == 1
+
+
+def test_guest_asset_download_uses_public_url_without_host_identity(
+    installer, tmp_path, monkeypatch
+):
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    payload = b"public archive"
+    calls = []
+
+    def download(url, destination):
+        calls.append(url)
+        destination.write_bytes(payload)
+
+    monkeypatch.setitem(
+        installer["verified_download"].__globals__, "download", download
+    )
+    installer["verified_download"](
+        {
+            "url": "https://example.com/public.tgz",
+            "api_url": "https://api.github.com/repos/example/tool/releases/assets/123",
+            "sha256": hashlib.sha256(payload).hexdigest(),
+        },
+        tmp_path / "archive",
+    )
+    assert calls == ["https://example.com/public.tgz"]
+
+
+@pytest.mark.parametrize("failure", ["", "compiler", "source", "tests", "smoke"])
+def test_git_lfs_build_uses_pinned_modules_and_installs_only_after_validation(
+    installer, tmp_path, monkeypatch, failure
+):
+    prefix = tmp_path / "tools"
+    (prefix / "bin").mkdir(parents=True)
+    target = prefix / "bin/git-lfs"
+    target.write_bytes(b"previous executable")
+    work = tmp_path / "build"
+    work.mkdir()
+    spec = {
+        "version": "v3.8.1",
+        "net_version": "v0.62.0",
+        "compress_version": "v1.20.4",
+    }
+    description = []
+    calls = []
+
+    def output(args, **kwargs):
+        if args[1:] == ["version"] and args[0].endswith("go/bin/go"):
+            return "go version go1.27.3 " + (
+                "darwin/arm64" if failure == "compiler" else "linux/amd64"
+            )
+        if args[1:4] == ["mod", "download", "-json"]:
+            assert args[-1] == "github.com/git-lfs/git-lfs/v3@v3.8.1"
+            origin = work / "modules/source"
+            origin.mkdir(parents=True)
+            (origin / "go.mod").write_text("module github.com/git-lfs/git-lfs/v3\n")
+            (origin / "go.sum").write_text("synthetic checksums\n")
+            return json.dumps(
+                {
+                    "Dir": str(origin),
+                    "Path": "wrong"
+                    if failure == "source"
+                    else "github.com/git-lfs/git-lfs/v3",
+                    "Version": "v3.8.1",
+                    "Sum": "h1:example",
+                    "GoModSum": "h1:example-mod",
+                }
+            )
+        assert args == [str(work / "git-lfs"), "version"]
+        return description[0]
+
+    def run(args, **kwargs):
+        calls.append(args)
+        assert kwargs["env"]["GOSUMDB"] == "sum.golang.org"
+        assert kwargs["env"]["CGO_ENABLED"] == "0"
+        assert "GH_TOKEN" not in kwargs["env"]
+        if args[1] == "get":
+            assert args[2:] == [
+                "golang.org/x/net@v0.62.0",
+                "github.com/klauspost/compress@v1.20.4",
+            ]
+        if args[1] == "test" and failure == "tests":
+            raise subprocess.CalledProcessError(1, args)
+        if args[1] == "build":
+            assert target.read_bytes() == b"previous executable"
+            (work / "git-lfs").write_bytes(b"verified new executable")
+            commit = args[args.index("-ldflags") + 1].split("GitCommit=", 1)[1]
+            description.append(
+                "git-lfs/3.8.1 (Melten; linux amd64; go 1.27.3; git " + commit + ")"
+            )
+
+    def probe(binary, directory, env):
+        assert binary.read_bytes() == b"verified new executable"
+        assert target.read_bytes() == b"previous executable"
+        if failure == "smoke":
+            raise ValueError("injected materialization failure")
+
+    monkeypatch.setenv("GH_TOKEN", "synthetic-host-token")
+    monkeypatch.setattr(installer["subprocess"], "check_output", output)
+    monkeypatch.setattr(installer["subprocess"], "run", run)
+    monkeypatch.setitem(installer["build_git_lfs"].__globals__, "probe_git_lfs", probe)
+    if failure:
+        with pytest.raises((ValueError, subprocess.CalledProcessError)):
+            installer["build_git_lfs"](prefix, spec, "go1.27.3", work)
+        assert target.read_bytes() == b"previous executable"
+        assert not (prefix / "share/runner-images/git-lfs-build.json").exists()
+    else:
+        installer["build_git_lfs"](prefix, spec, "go1.27.3", work)
+        assert target.read_bytes() == b"verified new executable"
+        receipt = json.loads(
+            (prefix / "share/runner-images/git-lfs-build.json").read_text()
+        )
+        assert receipt["inputs"] == spec
+        assert (
+            receipt["binary_sha256"] == hashlib.sha256(target.read_bytes()).hexdigest()
+        )
+        assert receipt["compiler"] == "go1.27.3"
+        assert len(calls) == 4
+
+
+@pytest.mark.parametrize("value", ["v1.2.3-rc1", "latest", "../unsafe"])
+def test_source_module_resolution_rejects_unstable_versions(
+    installer, monkeypatch, value
+):
+    monkeypatch.setitem(
+        installer["resolve_go_module"].__globals__,
+        "read",
+        lambda url: json.dumps({"Version": value}),
+    )
+    with pytest.raises(ValueError, match="stable"):
+        installer["resolve_go_module"]("example.org/module")

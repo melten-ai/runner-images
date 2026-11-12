@@ -46,6 +46,24 @@ for recipe, excluded in (
             "module example.org/test\n\ngo 1.25\n\n"
             "require example.org/declared-only v1.2.3\n"
         )
+        if recipe.startswith("macos/"):
+            for name, folder in (
+                (
+                    "installed-brew-example",
+                    "opt/homebrew/Cellar/installed-brew-example/1.2.3/.brew",
+                ),
+                (
+                    "source-only-brew-example",
+                    "opt/homebrew/Library/Taps/example/homebrew-tools/Formula",
+                ),
+            ):
+                definition = root / folder / (name + ".rb")
+                definition.parent.mkdir(parents=True)
+                definition.write_text(
+                    "class Example < Formula\n"
+                    '  url "https://example.invalid/example-1.2.3.tar.gz"\n'
+                    '  version "1.2.3"\nend\n'
+                )
         native_path = root / "sbom.syft.json"
         spdx_path = root / "sbom.spdx.json"
         command = [
@@ -74,6 +92,9 @@ for recipe, excluded in (
         assert distro["metadata"]["sourceVersion"] == "9.8.7"
         assert distro["locations"]
         assert "kept-example" in packages, packages
+        if recipe.startswith("macos/"):
+            assert "installed-brew-example" in packages, packages
+            assert "source-only-brew-example" not in packages, packages
         assert "blocked-example" not in packages, packages
         assert "declared-only-example" not in packages, packages
         assert "example.org/declared-only" not in packages, packages

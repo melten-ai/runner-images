@@ -3,6 +3,135 @@
 # line build tools, default runtimes and the Python/Node/Go tool cache.
 set -euo pipefail
 
+image_formula_name() {
+	case "$1" in
+	packer) printf '%s\n' hashicorp/tap/packer ;;
+	applesimutils) printf '%s\n' wix-incubator/brew/applesimutils ;;
+	*) printf '%s\n' "$1" ;;
+	esac
+}
+
+install_image_formula() {
+	local formula
+	formula=$(image_formula_name "$1")
+	case "$formula" in
+	azure-cli)
+		brew install --cask --quiet "$formula" </dev/null >&2 || return 1
+		brew upgrade --cask --quiet "$formula" </dev/null >&2 || return 1
+		return
+		;;
+	hashicorp/tap/packer | wix-incubator/brew/applesimutils)
+		# Authorize only the required formula, never an entire inherited tap.
+		brew trust --formula "$formula" </dev/null >&2 || return 1
+		;;
+	*/*)
+		echo "Unreviewed image formula tap: $formula" >&2
+		return 1
+		;;
+	esac
+	brew install --quiet "$formula" </dev/null >&2 || return 1
+	if [[ "$formula" == */* ]]; then
+		brew upgrade --formula --quiet "$formula" </dev/null >&2 || return 1
+	fi
+}
+
+upgrade_core_formulas() {
+	local installed formula
+	local formulas=()
+	installed=$(brew list --formula --full-name </dev/null) || return 1
+	while IFS= read -r formula; do
+		case "$formula" in
+		'') continue ;;
+		homebrew/core/*) formula=${formula#homebrew/core/} ;;
+		*/*) continue ;;
+		esac
+		[[ "$formula" =~ ^[a-z0-9][a-z0-9@+._-]*$ ]] || return 1
+		formulas+=("$formula")
+	done <<<"$installed"
+	if ((${#formulas[@]})); then
+		brew upgrade --formula --quiet "${formulas[@]}" </dev/null >&2 || return 1
+	fi
+}
+
+# go.dev/dl's default response contains the currently supported release lines.
+# Retain that resolved policy in the effective toolset used by verification.
+configure_supported_go() {
+	local toolset=$1 releases=$2
+	jq -e --slurpfile releases "$releases" '
+    ([$releases[0][] | select(.stable == true) | .version |
+      select(test("^go1\\.[0-9]+\\.[0-9]+$")) | ltrimstr("go")] | unique) as $versions |
+    if ($versions | length) == 0 or ([.toolcache[] | select(.name == "Go")] | length) != 1
+    then error("Supported Go releases or hosted Go cache are missing")
+    else .toolcache |= map(if .name == "Go" then .arch.arm64.versions = $versions else . end) |
+      .runner_image_go_policy = {source: "https://go.dev/dl/?mode=json", versions: $versions}
+    end
+  ' "$toolset" >"$toolset.supported" || return 1
+	mv "$toolset.supported" "$toolset" || return 1
+}
+
+retire_unsupported_go() {
+	local toolset=$1 family="$RUNNER_TOOL_CACHE/go" versions version candidate report
+	versions=$(jq -er '.runner_image_go_policy.versions[]' "$toolset") || return 1
+	for candidate in "$RUNNER_TOOL_CACHE" "$family"; do
+		[ ! -L "$candidate" ] || return 1
+	done
+	# No retirement until every replacement is present and actually executes.
+	while IFS= read -r version; do
+		candidate="$family/$version"
+		[ ! -L "$candidate" ] && [ ! -L "$candidate/arm64" ] || return 1
+		test -f "$candidate/arm64.complete" || return 1
+		report=$("$candidate/arm64/bin/go" version) || return 1
+		[ "$report" = "go version go$version darwin/arm64" ] || return 1
+	done <<<"$versions"
+	for candidate in "$family"/*; do
+		version=${candidate##*/}
+		[[ $version =~ ^1\.[0-9]+\.[0-9]+$ ]] || continue
+		if jq -e --arg version "$version" '.runner_image_go_policy.versions | index($version) != null' "$toolset" >/dev/null; then continue; fi
+		# Never follow inherited links or remove another architecture.
+		if [ -L "$candidate" ] || [ -L "$candidate/arm64" ]; then continue; fi
+		[ -d "$candidate" ] || continue
+		rm -rf "$candidate/arm64" "$candidate/arm64.complete" || return 1
+		rmdir "$candidate" 2>/dev/null || true
+		echo "Retired unsupported/superseded Go $version arm64 cache" >&2
+	done
+}
+
+# Image-building tools run on the builder or as verified temporary scanners.
+omit_guest_build_tools() {
+	local toolset=$1
+	jq -e '
+    if (.brew.common_packages | type) != "array" then error("Missing hosted formulas")
+    else .brew.common_packages |= map(select(. != "packer" and . != "hashicorp/tap/packer" and . != "syft")) |
+      .runner_image_omissions = ["packer", "syft"] end
+  ' "$toolset" >"$toolset.without-build-tools" || return 1
+	mv "$toolset.without-build-tools" "$toolset" || return 1
+}
+
+# These extras are not part of this image's job tool contract.
+retire_unused_inherited_tools() {
+	local formula users candidate version
+	for formula in otel-cli gitlab-runner syft hashicorp/tap/packer; do
+		if brew list --versions "$formula" </dev/null >/dev/null 2>&1; then
+			users=$(brew uses --installed "$formula" </dev/null) || return 1
+			if [ -n "$users" ]; then
+				echo "Retaining $formula: installed formula dependents exist" >&2
+				continue
+			fi
+			# Remove every inherited keg; otherwise upgrade reinstalls the tool.
+			brew uninstall --formula --force "$formula" </dev/null >&2 || return 1
+		fi
+	done
+	# Ruby jobs use patched Homebrew Ruby. Preserve links and unrelated versions.
+	for candidate in "$HOME"/.rbenv/versions/2.7.*; do
+		version=${candidate##*/}
+		[[ $version =~ ^2\.7\.[0-9]+$ ]] || continue
+		if [ -L "$HOME/.rbenv" ] || [ -L "$HOME/.rbenv/versions" ] || [ -L "$candidate" ]; then continue; fi
+		[ -d "$candidate" ] || continue
+		rm -rf "$candidate" || return 1
+		echo "Retired unused EOL Ruby $version with its private OpenSSL" >&2
+	done
+}
+
 main() {
 	eval "$(/opt/homebrew/bin/brew shellenv)"
 	export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_ENV_HINTS=1
@@ -18,18 +147,15 @@ main() {
     ([.toolcache[] | select(.url)] | length > 0) and
     all(.toolcache[] | select(.url); (.arch.arm64.versions | type == "array" and length > 0))
   ' "$toolset" >/dev/null
+	mkdir -p "$HOME/.runner-image"
+	cp "$toolset" "$HOME/.runner-image/upstream-github-macos-toolset.json"
+	omit_guest_build_tools "$toolset"
 	ruby_minor=$(jq -er '.ruby.default' "$toolset")
 	python_minor=$(jq -er '.toolcache[] | select(.name == "Python") | .arch.arm64.versions | map(split(".")[0:2] | map(tonumber)) | sort | last | map(tostring) | join(".")' "$toolset")
 	node_major=$(jq -er '.node.default' "$toolset")
 	brew update --quiet >&2
 	while IFS= read -r formula; do
-		# Packer is distributed through HashiCorp's tap, as in the hosted image.
-		if [[ "$formula" == packer ]]; then formula=hashicorp/tap/packer; fi
-		if [[ "$formula" == azure-cli ]]; then
-			brew install --cask --quiet "$formula" </dev/null >&2
-		else
-			brew install --quiet "$formula" </dev/null >&2
-		fi
+		install_image_formula "$formula"
 	done < <(jq -er '.brew.common_packages[]' "$toolset")
 	brew install --quiet "ruby@$ruby_minor" "python@$python_minor" "node@$node_major" rustup pipx jq curl wget >&2
 
@@ -45,7 +171,7 @@ main() {
 		fi
 	done
 	while IFS= read -r formula; do
-		if [[ "$formula" == packer ]]; then formula=hashicorp/tap/packer; fi
+		formula=$(image_formula_name "$formula")
 		if [[ "$formula" == azure-cli ]]; then continue; fi
 		prefix=$(brew --prefix "$formula")
 		if [[ -d "$prefix/bin" ]]; then job_path+=":$prefix/bin"; fi
@@ -66,6 +192,8 @@ main() {
 	export AGENT_TOOLSDIRECTORY="$RUNNER_TOOL_CACHE"
 	mkdir -p "$RUNNER_TOOL_CACHE"
 	mkdir -p "$HOME/.runner-image"
+	curl -fsSL --retry 5 'https://go.dev/dl/?mode=json' -o "$work/supported-go.json"
+	configure_supported_go "$toolset" "$work/supported-go.json"
 	printf 'LANG=en_US.UTF-8\nPIPX_HOME=%s/.local/pipx\nPIPX_BIN_DIR=%s/.local/bin\n' "$HOME" "$HOME" >"$HOME/.runner-image/environment"
 	job_path="$HOME/.local/bin:$job_path"
 	local java_major metadata java_version java_cache java_work java_root java_url java_sha
@@ -100,6 +228,12 @@ main() {
 	job_path="$JAVA_HOME/bin:$job_path"
 	local name cache_name url pattern selected version archive tool_work manifest
 	while IFS='|' read -r name url; do
+		if [[ "$name" == Python ]]; then
+			while IFS= read -r pattern; do
+				refresh_python_cache "$(cut -d. -f1,2 <<<"$pattern")"
+			done < <(jq -er '.toolcache[] | select(.name == "Python") | .arch.arm64.versions[]' "$toolset")
+			continue
+		fi
 		cache_name="$name"
 		case "$name" in Go) cache_name=go ;; Node) cache_name=node ;; esac
 		manifest="$work/$name.json"
@@ -126,6 +260,32 @@ main() {
 			rm -rf "$tool_work"
 		done < <(jq -er --arg name "$name" '.toolcache[] | select(.name == $name) | .arch.arm64.versions[]' "$toolset")
 	done < <(jq -er '.toolcache[] | select(.url) | .name + "|" + .url' "$toolset")
+
+	retire_unsupported_go "$toolset"
+
+	# The inherited base can retain outdated Cellar kegs after installations.
+	retire_unused_inherited_tools
+	upgrade_core_formulas
+	brew cleanup --prune=all </dev/null >&2
+
+	# npm's patched dependencies can advance independently of Node archives.
+	local node_prefix node_version
+	while IFS= read -r formula; do
+		node_prefix=$(brew --prefix "$formula")
+		node_version=$("$node_prefix/bin/node" -p 'process.versions.node.split(".")[0]')
+		refresh_image_npm "$node_prefix" "node$node_version"
+	done < <(brew list --formula | /usr/bin/grep -E '^node(@[0-9]+)?$')
+	while IFS= read -r node_prefix; do
+		node_version=$("$node_prefix/bin/node" -p 'process.versions.node.split(".")[0]')
+		refresh_image_npm "$node_prefix" "node$node_version"
+	done < <(find "$RUNNER_TOOL_CACHE/node" -mindepth 2 -maxdepth 2 -type d -name arm64 | sort)
+	refresh_global_pnpm "$(brew --prefix)"
+
+	# Python 3.13+ removed lib2to3; retain the hosted command on patched 3.12.
+	prefix=$(brew --prefix python@3.12)
+	test -x "$prefix/bin/2to3-3.12"
+	mkdir -p "$HOME/.local/bin"
+	ln -sfn "$prefix/bin/2to3-3.12" "$HOME/.local/bin/2to3"
 
 	# Expose the newest cached Go compiler for scripts that invoke Go directly.
 	local go_version go_variable cache_version

@@ -330,6 +330,12 @@ with tempfile.TemporaryDirectory() as directory:
                 "json",
             ]
         )
+        # Without a DiskControllerTypes feature a gallery definition is
+        # SCSI-only, so NVMe-only VM sizes reject its versions at creation
+        # even though the official Ubuntu 24.04 base supports both. Existing
+        # definitions are not updated here: adding the feature requires the
+        # exact first supporting image version (startsAtVersion), which only
+        # the versioned cloud build knows (runner_images/cloud.py).
         if not any(d["name"] == definition for d in definitions):
             run(
                 [
@@ -357,6 +363,8 @@ with tempfile.TemporaryDirectory() as directory:
                     "V2",
                     "--architecture",
                     "x64",
+                    "--features",
+                    "DiskControllerTypes=SCSI,NVMe",
                     "--subscription",
                     subscription,
                     "-o",

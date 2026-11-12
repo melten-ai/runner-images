@@ -15,7 +15,6 @@ workflows:
         - 'actions/checkout@v7'
         - 'actions/setup-python@v7'
         - 'actions/upload-artifact@v7'
-        - 'anchore/scan-action@v7'
         - 'azure/login@v3'
         - 'google-github-actions/auth@v3'
         - 'google-github-actions/setup-gcloud@v3'
@@ -33,7 +32,6 @@ workflows:
         - 'actions/checkout@v7'
         - 'actions/setup-python@v7'
         - 'actions/upload-artifact@v7'
-        - 'anchore/scan-action@v7'
 dependencies:
     'actions/attest-sbom@v4':
         ref: 'v4'
@@ -77,11 +75,6 @@ dependencies:
         commit: 'sha1-e22c389904149dbc22b58101806040fa8d37a610'
         owner_id: 16208487
         repo_id: 399925381
-    'anchore/scan-action@v7':
-        ref: 'v7'
-        commit: 'sha1-e1165082ffb1fe366ebaf02d8526e7c4989ea9d2'
-        owner_id: 16208487
-        repo_id: 212692077
     'astral-sh/setup-uv@v10.3.3':
         ref: 'v10.3.3'
         commit: 'sha1-68559e99cc807c1eb7e9238fd43a15bba460eec2'

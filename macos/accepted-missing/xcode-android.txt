@@ -21,7 +21,6 @@ cmd aarch64-apple-darwin25-gcc-ranlib-15
 cmd aarch64-apple-darwin25-gfortran-13
 cmd aarch64-apple-darwin25-gfortran-14
 cmd aarch64-apple-darwin25-gfortran-15
-cmd android
 cmd azcopy
 cmd bicep
 cmd c++-13
@@ -76,8 +75,14 @@ cmd msedgedriver
 cmd mvn
 cmd mvnDebug
 cmd mvnyjp
+cmd packer
 cmd powershell
 cmd pwsh
+cmd python3-intel64
+cmd python3.11-intel64
+cmd python3.12-intel64
+cmd python3.13-intel64
+cmd python3.14-intel64
 cmd python314
 cmd sam
 cmd scalar
@@ -101,6 +106,8 @@ env DOTNET_SKIP_FIRST_TIME_EXPERIENCE
 env EDGEWEBDRIVER
 env ENABLE_RUNNER_TRACING
 env GECKOWEBDRIVER
+env GOROOT_1_24_ARM64
+env GOROOT_1_25_ARM64
 env HOMEBREW_CASK_OPTS
 env INFOPATH
 env NUNIT3_PATH
