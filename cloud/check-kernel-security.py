@@ -208,9 +208,14 @@ def main(scanner, directory):
     assert {identity(match) for match in after["matches"]} == baseline - ignored
     for cve in ("CVE-2026-98432", "CVE-2026-100075"):
         identity_value = (approved["azure"], cve)
-        assert identity_value in {identity(match) for match in after["matches"]}, (
-            f"unreleased Azure {cve} must remain visible"
-        )
+        if identity_value in ignored:
+            assert identity_value in extra_kernel, (
+                f"unreleased Azure {cve} ignored without an exact retention rule"
+            )
+        else:
+            assert identity_value in {identity(match) for match in after["matches"]}, (
+                f"unreleased Azure {cve} must remain visible"
+            )
     assert all(
         any(match["artifact"]["id"] == artifact["id"] for match in after["matches"])
         for artifact in artifacts
