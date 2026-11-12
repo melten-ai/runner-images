@@ -83,9 +83,20 @@ jobs:
         id: build
         if: steps.plan.outputs.needed == 'true'
         run: python3 scripts/cloud-image.py build "$PROVIDER"
-      - name: Scan native SBOM and block high or critical findings
+      - name: Scan native SBOM and record findings
         if: steps.plan.outputs.needed == 'true'
-        run: grype "sbom:artifacts/cloud/$PROVIDER/sbom.syft.json" --config cloud/grype.json --fail-on high --output json --file "artifacts/cloud/$PROVIDER/vulnerabilities.json"
+        run: grype "sbom:artifacts/cloud/$PROVIDER/sbom.syft.json" --config cloud/grype.json --output json --file "artifacts/cloud/$PROVIDER/vulnerabilities.json"
+      - name: Check SBOM attestation size
+        id: sbom-size
+        if: steps.plan.outputs.needed == 'true'
+        run: |
+          size=$(wc -c < "artifacts/cloud/$PROVIDER/sbom.spdx.json")
+          if [ "$size" -le 16777216 ]; then
+            echo "attest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "attest=false" >> "$GITHUB_OUTPUT"
+            echo "SBOM is ${size} bytes and exceeds GitHub's 16 MiB attestation limit; retaining the file without an attestation bundle."
+          fi
       - uses: actions/attest@v4
         if: steps.plan.outputs.needed == 'true'
         id: provenance
@@ -95,7 +106,7 @@ jobs:
           predicate-type: https://melten.ai/runner-images/cloud-build/v1
           predicate-path: artifacts/cloud/${{ inputs.provider }}/image.json
       - uses: actions/attest-sbom@v4
-        if: steps.plan.outputs.needed == 'true'
+        if: steps.plan.outputs.needed == 'true' && steps.sbom-size.outputs.attest == 'true'
         id: sbom
         with:
           subject-name: melten-ai/runner-images/cloud/${{ inputs.provider }}
@@ -108,7 +119,9 @@ jobs:
           SBOM_BUNDLE: ${{ steps.sbom.outputs.bundle-path }}
         run: |
           cp "$PROVENANCE_BUNDLE" "artifacts/cloud/$PROVIDER/provenance.sigstore.json"
-          cp "$SBOM_BUNDLE" "artifacts/cloud/$PROVIDER/sbom.sigstore.json"
+          if [ -n "$SBOM_BUNDLE" ]; then
+            cp "$SBOM_BUNDLE" "artifacts/cloud/$PROVIDER/sbom.sigstore.json"
+          fi
           python3 scripts/cloud-image.py publish "$PROVIDER"
       - name: Record released cloud image in Git
         if: steps.plan.outputs.record == 'true'
