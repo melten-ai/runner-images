@@ -206,7 +206,7 @@ with tempfile.TemporaryDirectory() as d:
             "cpes": [
                 {
                     "cpe": (
-                        "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49_1:*:*:*:*:*:*:*"
+                        "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49:*:*:*:*:*:*:*"
                     )
                 }
             ],
@@ -228,7 +228,11 @@ with tempfile.TemporaryDirectory() as d:
                 }
             ],
             "cpes": [
-                {"cpe": "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49:*:*:*:*:*:*:*"}
+                {
+                    "cpe": (
+                        "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49_1:*:*:*:*:*:*:*"
+                    )
+                }
             ],
         }
     )

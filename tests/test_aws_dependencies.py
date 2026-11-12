@@ -282,10 +282,21 @@ def test_graphicsmagick_policy_tracks_exact_scope():
     advisories = {"CVE-2007-0770", "CVE-2025-32460"}
     versions = {"1.3.49", "1.3.49_1"}
     assert len(rules) == 4
-    assert {rule["vulnerability"] for rule in rules} == advisories
-    assert {rule["package"]["version"] for rule in rules} == versions
-    assert {rule["package"]["type"] for rule in rules} == {"homebrew"}
-    assert {rule["package"]["location"] for rule in rules} == {
-        f"opt/homebrew/Cellar/graphicsmagick/{version}/.brew/graphicsmagick.rb"
+    assert {
+        (
+            rule["vulnerability"],
+            rule["package"]["version"],
+            rule["package"]["type"],
+            rule["package"]["location"],
+        )
+        for rule in rules
+    } == {
+        (
+            advisory,
+            version,
+            "homebrew",
+            f"opt/homebrew/Cellar/graphicsmagick/{version}/.brew/graphicsmagick.rb",
+        )
+        for advisory in advisories
         for version in versions
     }
