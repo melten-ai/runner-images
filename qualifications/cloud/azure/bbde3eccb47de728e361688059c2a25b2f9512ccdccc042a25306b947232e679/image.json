@@ -1,0 +1,23 @@
+{
+  "provider": "azure",
+  "input_id": "bbde3eccb47de728e361688059c2a25b2f9512ccdccc042a25306b947232e679",
+  "source_commit": "7af53e7dba57136ef2b0d85584d0f0d556949ece",
+  "base_image": "Canonical:ubuntu-24_04-lts:server:24.04.202610250",
+  "base_version": "24.04.202610250",
+  "version": "26.11.3",
+  "build_id": "ri-azure-43169636015-1",
+  "image_id": "/subscriptions/a7cdb107-2be2-4b5b-9ce4-25cd29174788/resourceGroups/github-runners-images/providers/Microsoft.Compute/galleries/github_runner_images/images/runner-images-ubuntu-2404/versions/26.11.3",
+  "qualification_level": "provisioning-smoke",
+  "run_id": "43169636015",
+  "observed_image_id": "/subscriptions/a7cdb107-2be2-4b5b-9ce4-25cd29174788/resourceGroups/github-runners-images/providers/Microsoft.Compute/galleries/github_runner_images/images/runner-images-ubuntu-2404/versions/26.11.3",
+  "evidence_sha256": {
+    "inventory.json": "7af442777294d0deb8f091e6015f26bc577637c77c9775e889abad47bbc3a882",
+    "toolchain-check.txt": "4e991bf4afec521d5678799078d1e7d12dcf91b76d8fee382edcacb017aabc17",
+    "sbom.spdx.json": "28d625d20d6ab52324512e4424c54ab6875c719cf7a8a31d34da20a19eeab89e",
+    "sbom.syft.json": "e202d718c3ab6d64e28e4b8362a27248d359343d13bb57d5e4a5a28fa6f5aeb4",
+    "toolchains.json": "6bab7712bad719318e68ffa6b99f49758438e1d406d81a90f1ab49fc8a32f13b",
+    "git-lfs-build.json": "658789a5312ae0a9dff1798723d87bd1a1011720f6f01cf5bd488b1ccb571f24",
+    "comparison.json": "b21abcd37a1daf90efd546e5bd33ccaba77006ae9c442b85afe64c8ef0226cb3",
+    "packer-manifest.json": "8d601312df2ee355da41791491cf5908d2a6f79690779d2286a17c8876b37ca7"
+  }
+}
