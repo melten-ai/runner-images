@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import cast
 from urllib.parse import quote
@@ -811,9 +812,40 @@ def cleanup(root: Path, provider: str) -> None:
                 if not ids:
                     break
                 if ids == previous:
-                    raise ValueError(
-                        "temporary Azure resource deletion made no progress"
+                    # Azure resource-list reads can lag the delete operation.
+                    # Re-read after the provider has had time to converge before
+                    # declaring cleanup stuck.
+                    time.sleep(10)
+                    resources = cast(
+                        list[dict[str, object]],
+                        json.loads(
+                            command(
+                                [
+                                    "az",
+                                    "resource",
+                                    "list",
+                                    "--subscription",
+                                    settings["azure_subscription_id"],
+                                    "--resource-group",
+                                    settings["azure_build_resource_group"],
+                                    "--query",
+                                    "[?tags.owner=='runner-images' && "
+                                    f"tags.build=='{build_id}']",
+                                    "-o",
+                                    "json",
+                                ],
+                                root,
+                                output=True,
+                            )
+                        ),
                     )
+                    if not resources:
+                        break
+                    ids = {str(resource["id"]) for resource in resources}
+                    if ids == previous:
+                        raise ValueError(
+                            "temporary Azure resource deletion made no progress"
+                        )
                 previous = ids
                 order = {
                     "microsoft.compute/virtualmachines": 0,
