@@ -128,6 +128,41 @@ def state_path(root: Path, provider: str) -> Path:
     return root / f"artifacts/cloud/{provider}/state.json"
 
 
+def next_azure_version(root: Path, settings: dict[str, str], version: str) -> str:
+    """Avoid mutating an existing Azure Gallery version's source image."""
+    try:
+        versions = api(
+            [
+                "az",
+                "sig",
+                "image-version",
+                "list",
+                "--subscription",
+                settings["azure_subscription_id"],
+                "--resource-group",
+                settings["azure_resource_group"],
+                "--gallery-name",
+                settings["azure_gallery"],
+                "--gallery-image-definition",
+                settings["azure_image_definition"],
+                "--output",
+                "json",
+            ],
+            root,
+        )
+    except (subprocess.CalledProcessError, json.JSONDecodeError):
+        return version
+    if not isinstance(versions, list):
+        return version
+    entries = cast(list[dict[str, object]], versions)
+    used = {str(item.get("name")) for item in entries if item.get("name")}
+    major, minor, patch = (int(part) for part in version.split("."))
+    while version in used:
+        patch += 1
+        version = f"{major}.{minor}.{patch}"
+    return version
+
+
 def plan(root: Path, provider: str) -> dict[str, str]:
     settings = config(provider)
     if provider == "gcp":
@@ -261,6 +296,8 @@ def plan(root: Path, provider: str) -> dict[str, str]:
     # Failed drafts reserve their version; remove/repair only through this pipeline.
     if existing:
         version = str(existing["tag_name"]).split("@")[-1]
+    if provider == "azure":
+        version = next_azure_version(root, settings, version)
     if provider == "gcp":
         image_id = f"projects/{settings['gcp_project']}/global/images/{build_id}"
     else:
@@ -599,9 +636,11 @@ def publish(root: Path, provider: str) -> None:
             *hashes,
             "vulnerabilities.json",
             "provenance.sigstore.json",
-            "sbom.sigstore.json",
         )
     ]
+    sbom_attestation = path.parent / "sbom.sigstore.json"
+    if sbom_attestation.is_file():
+        assets.append(sbom_attestation)
     if any(not asset.is_file() or not asset.stat().st_size for asset in assets):
         raise ValueError("cloud release checks/attestations are incomplete")
     tag = f"cloud-{provider}@{evidence['version']}"
