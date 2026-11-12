@@ -13,6 +13,7 @@ SYFT_BODY = """#!/usr/bin/env python3
 import json, os, sys
 from pathlib import Path
 assert os.environ["SYFT_GOLANG_CAPTURE_SYMBOLS"] == "all"
+assert os.environ.get("TEST_SCAN_ELEVATED") == "1"
 with Path(os.environ["TEST_SCAN_CALLS"]).open("a") as stream:
     stream.write(json.dumps(sys.argv[1:]) + "\\n")
 for index, arg in enumerate(sys.argv[1:], 1):
@@ -73,7 +74,7 @@ def install_curl(
     log_path = "None" if download_log is None else repr(str(download_log))
     (tools / "curl").write_text(
         f"""#!/usr/bin/env python3
-import sys
+import sys,os
 from pathlib import Path
 api = {API_URL!r}
 download = {download_url!r}
@@ -82,6 +83,7 @@ meta = {metadata!r}
 log = {log_path}
 args = sys.argv[1:]
 if api in args:
+    if os.environ.get("TEST_RELEASE_API_DENIED") == "1": raise SystemExit(22)
     sys.stdout.write(meta)
     raise SystemExit(0)
 if download in args:
@@ -111,6 +113,14 @@ def collector_layout(tmp_path):
     brew_log = tmp_path / "brew.log"
     (tools / "brew").write_text(f"#!/bin/sh\necho brew-invoked >>{brew_log}\nexit 1\n")
     (tools / "brew").chmod(0o755)
+    (tools / "sudo").write_text("""#!/usr/bin/env python3
+import os,sys
+assert sys.argv[1:4] == ["-n", "/usr/bin/env", "SYFT_GOLANG_CAPTURE_SYMBOLS=all"]
+if os.environ.get("TEST_SUDO_DENIED") == "1": raise SystemExit(1)
+os.environ["TEST_SCAN_ELEVATED"] = "1"
+os.execv(sys.argv[2], sys.argv[2:])
+""")
+    (tools / "sudo").chmod(0o755)
     install_curl(tools, archive_path, metadata, download)
     untouched = tmp_path / "untouched.marker"
     untouched.write_text("leave-me-alone")
@@ -217,3 +227,73 @@ def test_invalid_release_digest_rejects_before_download(collector_layout, digest
     scratch = list(layout["tmp_path"].glob("runner-image-sbom-scanner.*"))
     assert not scratch
     assert layout["untouched"].read_text() == "leave-me-alone"
+
+
+def test_missing_scan_privilege_fails_without_emitting_sbom(collector_layout):
+    layout = collector_layout
+    script = patched_script(layout["root"], layout["tmp_path"])
+    result = subprocess.run(
+        ["bash", str(script)],
+        env={
+            **os.environ,
+            "PATH": str(layout["tools"]) + os.pathsep + os.environ["PATH"],
+            "TEST_SCAN_CALLS": str(layout["calls"]),
+            "TEST_SUDO_DENIED": "1",
+        },
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode != 0
+    assert not layout["calls"].exists()
+    assert not list(layout["evidence"].glob("*.json"))
+    assert not list(layout["tmp_path"].glob("runner-image-sbom-scanner.*"))
+
+
+def test_host_metadata_works_when_anonymous_release_api_is_denied(collector_layout):
+    layout = collector_layout
+    script = patched_script(layout["root"], layout["tmp_path"])
+    asset = json.loads(layout["metadata"])["assets"][0]
+    result = subprocess.run(
+        ["bash", str(script), json.dumps(asset)],
+        env={
+            **os.environ,
+            "PATH": str(layout["tools"]) + os.pathsep + os.environ["PATH"],
+            "TEST_SCAN_CALLS": str(layout["calls"]),
+            "TEST_RELEASE_API_DENIED": "1",
+        },
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert len(layout["calls"].read_text().splitlines()) == 1
+    assert (layout["evidence"] / "sbom.syft.json").is_file()
+    assert (layout["evidence"] / "sbom.spdx.json").is_file()
+    assert not list(layout["tmp_path"].glob("runner-image-sbom-scanner.*"))
+
+
+@pytest.mark.parametrize("failure", ["platform", "checksum"])
+def test_host_metadata_cannot_skip_platform_or_digest_checks(collector_layout, failure):
+    layout = collector_layout
+    script = patched_script(layout["root"], layout["tmp_path"])
+    asset = json.loads(layout["metadata"])["assets"][0]
+    if failure == "platform":
+        asset["name"] = "syft_1.99.0_linux_amd64.tar.gz"
+    else:
+        asset["digest"] = "sha256:" + "c" * 64
+    result = subprocess.run(
+        ["bash", str(script), json.dumps(asset)],
+        env={
+            **os.environ,
+            "PATH": str(layout["tools"]) + os.pathsep + os.environ["PATH"],
+            "TEST_SCAN_CALLS": str(layout["calls"]),
+        },
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode != 0
+    assert not layout["calls"].exists()
+    assert not layout["evidence"].exists()
+    assert not list(layout["tmp_path"].glob("runner-image-sbom-scanner.*"))

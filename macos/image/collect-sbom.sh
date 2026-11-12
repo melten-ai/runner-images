@@ -5,12 +5,21 @@ set -euo pipefail
 work=$(mktemp -d /private/tmp/runner-image-sbom-scanner.XXXXXX)
 trap 'rm -rf "$work"' EXIT
 
-release=$(curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 \
-	https://api.github.com/repos/anchore/syft/releases/latest)
-asset=$(jq -er '
-	.assets[]
-	| select(.name | test("^syft_.*_darwin_arm64\\.tar\\.gz$"))
+# The factory passes public asset metadata resolved with host gh authentication.
+# Standalone use retains the public API path; credentials never enter the guest.
+if (($# == 1)); then
+	asset=$1
+elif (($# == 0)); then
+	release=$(curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 \
+		https://api.github.com/repos/anchore/syft/releases/latest)
+	asset=$(jq -er '
+  .assets[] | select(.name | test("^syft_.*_darwin_arm64\\.tar\\.gz$"))
 ' <<<"$release")
+else
+	echo 'Expected at most one public Syft asset JSON argument.' >&2
+	exit 1
+fi
+jq -e '.name | test("^syft_.*_darwin_arm64\\.tar\\.gz$")' <<<"$asset" >/dev/null
 url=$(jq -er '.browser_download_url' <<<"$asset")
 digest=$(jq -er '.digest' <<<"$asset")
 if [[ ! "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]; then
@@ -27,9 +36,11 @@ scanner="$work/syft"
 test -x "$scanner"
 
 mkdir -p /private/tmp/runner-image-sbom
-export SYFT_GOLANG_CAPTURE_SYMBOLS=all
-"$scanner" scan dir:/ --override-default-catalogers image --scope all-layers \
+# Installed system tools include root-readable directories such as authserver.
+# Elevate only the verified scanner inside this disposable build guest.
+sudo -n /usr/bin/env SYFT_GOLANG_CAPTURE_SYMBOLS=all "$scanner" scan dir:/ --override-default-catalogers image --scope all-layers \
 	--exclude './dev/**' --exclude './System/**' --exclude './private/**' \
 	--exclude './Volumes/**' --exclude './Users/admin/Library/**' \
+	--exclude './opt/homebrew/Library/Taps/*/*/Formula/**' \
 	-o syft-json=/private/tmp/runner-image-sbom/sbom.syft.json \
 	-o spdx-json=/private/tmp/runner-image-sbom/sbom.spdx.json

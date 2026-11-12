@@ -2,6 +2,7 @@
 # Usage: bash macos/build-image.sh IMAGE [BASE] [xcode|xcode-android] [RUNNER_DIR] [REFERENCE_JSON] [ALLOWLIST]
 # Builds an unregistered local Tart image; does not change any running fleet.
 set -euo pipefail
+export TART_NO_AUTO_PRUNE=1
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 # shellcheck source=macos/network.sh
@@ -40,7 +41,7 @@ reference_revision=$(git -C "$(dirname "$reference")" rev-parse HEAD)
 	echo 'Apple Silicon macOS is required.' >&2
 	exit 1
 }
-for command in tart curl jq python3; do command -v "$command" >/dev/null; done
+for command in tart curl jq python3 gh; do command -v "$command" >/dev/null; done
 image_exists() { tart list --quiet | grep -Fxq -- "$1"; }
 active=$(tart list --format json | python3 -c 'import json,sys; print(sum(v["State"] == "running" for v in json.load(sys.stdin)))')
 if ((active >= 2)); then
@@ -76,6 +77,20 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
+# Resolve public releases before downloading a base or starting a build VM.
+release=$(gh api repos/actions/runner/releases/latest)
+version=$(jq -er '.tag_name | ltrimstr("v")' <<<"$release")
+checksum=$(jq -er --arg version "$version" '.assets[] | select(.name == "actions-runner-osx-arm64-" + $version + ".tar.gz") | .digest | ltrimstr("sha256:")' <<<"$release")
+syft_asset=$(gh api repos/anchore/syft/releases/latest --jq '
+  .assets[] | select(.name | test("^syft_.*_darwin_arm64\\.tar\\.gz$"))
+')
+
+android_manifest=''
+android_maintained=false
+if [[ "$profile" == xcode-android ]]; then
+	android_manifest=$(python3 "$root/scripts/resolve-android-tools.py")
+fi
+
 # OCI tags are mutable. Refresh them even when Tart has a cached image;
 # local names and immutable digest references retain their normal cache.
 if [[ "$base" == */* && "$base" != *@sha256:* ]] || ! image_exists "$base"; then
@@ -88,44 +103,102 @@ tart clone "$base" "$temporary"
 python3 "$root/scripts/image-fingerprint.py" "$tart_home/vms/$temporary" >"$bundle/base-fingerprint.json"
 tart set "$temporary" --cpu 4 --memory 8192
 bridge=$(select_tart_bridge_interface)
-tart run "$temporary" --no-graphics --net-bridged "$bridge" >"$build_log" 2>&1 &
-build_pid=$!
-running=true
-for _ in $(seq 1 120); do
-	if ! kill -0 "$build_pid" 2>/dev/null; then
-		echo 'Tart exited before the guest agent became ready.' >&2
-		exit 1
-	fi
-	if tart exec "$temporary" /usr/bin/true >/dev/null 2>&1; then break; fi
-	sleep 2
-done
-tart exec "$temporary" /usr/bin/true
+start_build_vm() {
+	tart run "$temporary" --no-graphics --net-bridged "$bridge" >>"$build_log" 2>&1 &
+	build_pid=$!
+	running=true
+	for _ in $(seq 1 120); do
+		if ! kill -0 "$build_pid" 2>/dev/null; then
+			echo 'Tart exited before the guest agent became ready.' >&2
+			exit 1
+		fi
+		if tart exec "$temporary" /usr/bin/true >/dev/null 2>&1; then break; fi
+		sleep 2
+	done
+	tart exec "$temporary" /usr/bin/true
+}
+start_build_vm
+
+echo '==> Installing same-major macOS security updates'
+python3 "$root/scripts/update-macos.py" "$temporary" "$bridge" "$build_log" | tee "$bundle/os-update.txt"
+
+python3 "$root/scripts/prepare-macos-cask.py" "$temporary"
 
 echo '==> Installing the official macOS toolset and runtime caches'
-job_path=$(tart exec -i "$temporary" /bin/bash -s <"$root/macos/image/toolchain.sh")
+job_path=$(
+	{
+		cat "$root/macos/image/refresh-npm.sh"
+		printf '\n'
+		cat "$root/macos/image/refresh-python-cache.sh"
+		printf '\n'
+		cat "$root/macos/image/toolchain.sh"
+	} | tart exec -i "$temporary" /bin/bash -s
+)
 [[ "$job_path" == */usr/bin* ]] || {
 	echo 'Guest toolchain did not return a usable job PATH.' >&2
 	exit 1
 }
+echo '==> Rebuilding the guest agent with maintained Go dependencies'
+tart exec -i "$temporary" /bin/bash -s -- refresh <"$root/macos/image/refresh-guest-agent.sh" | tee "$bundle/guest-agent-build.txt"
+tart exec "$temporary" /bin/sync
+tart stop "$temporary" --timeout 120
+wait "$build_pid" || true
+running=false
+start_build_vm
+tart exec -i "$temporary" /bin/bash -s -- verify <"$root/macos/image/refresh-guest-agent.sh" | tee "$bundle/guest-agent-reboot.txt"
+echo '==> Rebuilding Git LFS with maintained Go dependencies'
+tart exec -i "$temporary" /bin/bash -s -- refresh <"$root/macos/image/refresh-git-lfs.sh" | tee "$bundle/git-lfs-build.txt"
+echo '==> Refreshing Azure CLI dependencies within official package constraints'
+tart exec -i "$temporary" /opt/homebrew/bin/python3 - <"$root/macos/image/refresh-azure-cli.py"
+echo '==> Backporting AWS CLI dependency security fixes within supported constraints'
+tart exec -i "$temporary" /opt/homebrew/bin/python3 - <"$root/macos/image/refresh-aws-cli.py"
+inherited_android_sdk_state=$(
+	tart exec -i "$temporary" /bin/bash -s detect <"$root/macos/image/android-sdk-state.sh"
+)
 if [[ "$profile" == xcode-android ]]; then
 	# shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
 	android_config=$( # shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
 		tart exec "$temporary" /bin/bash -c '
-    jq -r "[.java.arm64.default, (.android[\"cmdline-tools\"] | capture(\"mac-(?<version>[0-9]+)_\").version), .android.platform_min_version, .android.build_tools_min_version] | join(\" \")" "$HOME/.runner-image/github-macos-toolset.json"
+    jq -r "[.java.arm64.default, .android.platform_min_version, .android.build_tools_min_version] | join(\" \")" "$HOME/.runner-image/github-macos-toolset.json"
   '
 	)
-	read -r java sdk platform_version build_tools <<<"$android_config"
-	tart exec -i "$temporary" /bin/bash -s -- "$java" "$sdk" \
-		platform-tools "platforms;android-$platform_version" "build-tools;$build_tools" \
-		<"$root/macos/image/install-android.sh"
+	read -r java platform_version build_tools <<<"$android_config"
+	{
+		cat "$root/macos/image/android-sdk-state.sh"
+		printf '\n'
+		cat "$root/macos/image/install-android.sh"
+	} | tart exec -i "$temporary" /bin/bash -s -- "$java" "$android_manifest" \
+		platform-tools "platforms;android-$platform_version" "build-tools;$build_tools"
 	job_path+=":/Users/admin/android-sdk/platform-tools:/Users/admin/android-sdk/cmdline-tools/latest/bin"
+	android_maintained=true
+elif [[ "$inherited_android_sdk_state" == present ]]; then
+	android_manifest=$(python3 "$root/scripts/resolve-android-tools.py")
+	java=$(
+		# shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
+		tart exec "$temporary" /bin/bash -c '
+    jq -er ".java.arm64.default" "$HOME/.runner-image/github-macos-toolset.json"
+  '
+	)
+	{
+		cat "$root/macos/image/android-sdk-state.sh"
+		printf '\n'
+		cat "$root/macos/image/install-android.sh"
+	} | tart exec -i "$temporary" /bin/bash -s -- "$java" "$android_manifest"
+	android_maintained=true
+elif [[ "$inherited_android_sdk_state" == unsafe ]]; then
+	echo 'Inherited Android SDK layout is unsafe; refusing to refresh command-line tools.' >&2
+	exit 1
+fi
+if [[ "$android_maintained" == true ]]; then
+	tart exec -i "$temporary" /usr/bin/env "PATH=$job_path" /opt/homebrew/bin/python3 - refresh \
+		<"$root/macos/image/refresh-android-bc.py"
 fi
 
-release=$(curl -fsSL --retry 5 https://api.github.com/repos/actions/runner/releases/latest)
-version=$(jq -er '.tag_name | ltrimstr("v")' <<<"$release")
-checksum=$(jq -er --arg version "$version" '.assets[] | select(.name == "actions-runner-osx-arm64-" + $version + ".tar.gz") | .digest | ltrimstr("sha256:")' <<<"$release")
-tart exec -i "$temporary" /bin/bash -s -- "$version" "$runner_dir" "$checksum" \
-	<"$root/macos/image/install-runner.sh"
+{
+	cat "$root/macos/image/refresh-npm.sh"
+	printf '\n'
+	cat "$root/macos/image/install-runner.sh"
+} | tart exec -i "$temporary" /bin/bash -s -- "$version" "$runner_dir" "$checksum"
 # shellcheck disable=SC2016 # The quoted variables are evaluated inside the guest.
 printf 'PATH=%s\n' "$job_path" | tart exec -i "$temporary" /bin/bash -c 'cat >"$1/.env"' -- "$runner_dir"
 # No registration token, organization, or host identity is baked into the image.
@@ -146,12 +219,12 @@ guest_job() {
     exec "$@"
   ' -- "$runner_dir" "$@"
 }
-guest_job /bin/bash -s <"$root/macos/image/collect-sbom.sh"
-# Both formats come from the same guest scan; no host-side conversion is needed.
-guest_job /bin/cat /private/tmp/runner-image-sbom/sbom.syft.json </dev/null >"$bundle/sbom.syft.json"
-guest_job /bin/cat /private/tmp/runner-image-sbom/sbom.spdx.json </dev/null >"$bundle/sbom.spdx.json"
-guest_job /bin/rm /private/tmp/runner-image-sbom/sbom.syft.json /private/tmp/runner-image-sbom/sbom.spdx.json </dev/null
 guest_job /bin/bash -s <"$root/macos/image/verify-toolchain.sh" 2>&1 | tee "$bundle/toolchain-check.txt"
+guest_job /opt/homebrew/bin/python3 - verify <"$root/macos/image/refresh-aws-cli.py" 2>&1 | tee -a "$bundle/toolchain-check.txt"
+if [[ "$android_maintained" == true ]]; then
+	guest_job /opt/homebrew/bin/python3 - verify <"$root/macos/image/refresh-android-bc.py" \
+		2>&1 | tee -a "$bundle/toolchain-check.txt"
+fi
 if [[ "$profile" == xcode-android ]]; then
 	# shellcheck disable=SC2016 # The quoted paths are evaluated inside the guest.
 	guest_job /bin/bash -c '
@@ -160,6 +233,13 @@ if [[ "$profile" == xcode-android ]]; then
   ' </dev/null 2>&1 | tee -a "$bundle/toolchain-check.txt"
 fi
 
+# Resolve public metadata with host authentication; no host token enters the VM.
+guest_job /bin/bash -s -- "$syft_asset" <"$root/macos/image/collect-sbom.sh"
+# Both formats come from the same guest scan; no host-side conversion is needed.
+guest_job /bin/cat /private/tmp/runner-image-sbom/sbom.syft.json </dev/null >"$bundle/sbom.syft.json"
+guest_job /bin/cat /private/tmp/runner-image-sbom/sbom.spdx.json </dev/null >"$bundle/sbom.spdx.json"
+guest_job /bin/rm /private/tmp/runner-image-sbom/sbom.syft.json /private/tmp/runner-image-sbom/sbom.spdx.json </dev/null
+
 {
 	cat "$root/runner_images/inventory.py"
 	printf '\nimport json\nprint(json.dumps(collect(), indent=2))\n'
@@ -167,7 +247,7 @@ fi
 # Preserve the exact upstream toolset used by this build with the comparison inputs.
 # shellcheck disable=SC2016 # HOME is evaluated inside the guest.
 guest_job /bin/bash -c 'cat "$HOME/.runner-image/github-macos-toolset.json"' </dev/null >"$bundle/toolset.json"
-tart exec "$temporary" /usr/bin/sync
+tart exec "$temporary" /bin/sync
 tart stop "$temporary" --timeout 120
 wait "$build_pid" || true
 running=false

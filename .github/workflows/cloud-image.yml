@@ -85,7 +85,7 @@ jobs:
         run: python3 scripts/cloud-image.py build "$PROVIDER"
       - name: Scan native SBOM and block high or critical findings
         if: steps.plan.outputs.needed == 'true'
-        run: grype "sbom:artifacts/cloud/$PROVIDER/sbom.syft.json" --fail-on high --output json --file "artifacts/cloud/$PROVIDER/vulnerabilities.json"
+        run: grype "sbom:artifacts/cloud/$PROVIDER/sbom.syft.json" --config cloud/grype.json --fail-on high --output json --file "artifacts/cloud/$PROVIDER/vulnerabilities.json"
       - uses: actions/attest@v4
         if: steps.plan.outputs.needed == 'true'
         id: provenance

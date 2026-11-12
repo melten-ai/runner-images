@@ -1,0 +1,1786 @@
+{
+  "ignore": [
+    {
+      "vulnerability": "CVE-2007-0770",
+      "namespace": "nvd:cpe",
+      "reason": "The PALM RLE decoder reads the run length once before Min bounds checking, retaining the documented 2007-02-10 fix. Verified in the SHA256-checked official 1.3.49 source archive. https://graphicsmagick.org/ChangeLog-2007.html https://security-tracker.debian.org/tracker/CVE-2007-0770",
+      "package": {
+        "name": "^graphicsmagick$",
+        "version": "1.3.49",
+        "type": "homebrew",
+        "location": "opt/homebrew/Cellar/graphicsmagick/1.3.49/.brew/graphicsmagick.rb"
+      }
+    },
+    {
+      "vulnerability": "CVE-2014-9826",
+      "namespace": "nvd:cpe",
+      "reason": "The SUN reader uses CorruptImageError for both header cases changed in upstream patch 69490f5, present in the exact installed source acaf7e4. https://sources.debian.org/src/imagemagick/8%3A6.8.9.9-5/debian/patches/0025-Fix-handling-of-corrupted-of-psd-sun-and-xpm-file.patch/ https://github.com/ImageMagick/ImageMagick/blob/acaf7e418d4ab0386e165251b7ef014a7959a205/coders/sun.c",
+      "package": {
+        "name": "^imagemagick$",
+        "version": "7.1.2-35",
+        "type": "homebrew",
+        "location": "opt/homebrew/Cellar/imagemagick/7.1.2-35/.brew/imagemagick.rb"
+      }
+    },
+    {
+      "vulnerability": "CVE-2017-5506",
+      "namespace": "nvd:cpe",
+      "reason": "The negative EXIF-offset guard from upstream fix 9a069e0 is present in ImageMagick 7.1.2-35 MagickCore/profile.c. Exact verified Homebrew release only. https://github.com/ImageMagick/ImageMagick/commit/9a069e0f2e027ec5138f998023cf9cb62c04889f https://github.com/ImageMagick/ImageMagick/blob/7.1.2-35/MagickCore/profile.c",
+      "package": {
+        "name": "^imagemagick$",
+        "version": "7.1.2-35",
+        "type": "homebrew",
+        "location": "opt/homebrew/Cellar/imagemagick/7.1.2-35/.brew/imagemagick.rb"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-32460",
+      "namespace": "nvd:cpe",
+      "reason": "The grayscale-matte channel fix from upstream changeset 8e56520 is present in checksum-verified GraphicsMagick 1.3.49 coders/jxl.c. Exact verified Homebrew release only. https://foss.heptapod.net/graphicsmagick/graphicsmagick/-/commit/8e56520435df50f618a03f2721a39a70a515f1cb https://security-tracker.debian.org/tracker/CVE-2025-32460",
+      "package": {
+        "name": "^graphicsmagick$",
+        "version": "1.3.49",
+        "type": "homebrew",
+        "location": "opt/homebrew/Cellar/graphicsmagick/1.3.49/.brew/graphicsmagick.rb"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-26488",
+      "namespace": "nvd:cpe",
+      "reason": "Windows installer PATH repair privilege escalation; this is a macOS Apple app bundle. https://github.com/advisories/GHSA-3f7p-x3g9-9grh",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-26488",
+      "namespace": "nvd:cpe",
+      "reason": "Windows installer PATH repair privilege escalation; this is a macOS Apple app bundle. https://github.com/advisories/GHSA-3f7p-x3g9-9grh",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-42919",
+      "namespace": "nvd:cpe",
+      "reason": "Linux abstract-namespace forkserver sockets; this is a macOS Apple app bundle. https://github.com/python/cpython/issues/97514",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-42919",
+      "namespace": "nvd:cpe",
+      "reason": "Linux abstract-namespace forkserver sockets; this is a macOS Apple app bundle. https://github.com/python/cpython/issues/97514",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-3087",
+      "namespace": "nvd:cpe",
+      "reason": "Windows drive-letter ZIP extraction paths; the advisory explicitly limits impact to Windows. https://www.cve.org/CVERecord?id=CVE-2026-3087",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-3087",
+      "namespace": "nvd:cpe",
+      "reason": "Windows drive-letter ZIP extraction paths; the advisory explicitly limits impact to Windows. https://www.cve.org/CVERecord?id=CVE-2026-3087",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-3298",
+      "namespace": "nvd:cpe",
+      "reason": "Windows ProactorEventLoop buffer handling; non-Windows platforms are explicitly unaffected. https://www.cve.org/CVERecord?id=CVE-2026-3298",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-3298",
+      "namespace": "nvd:cpe",
+      "reason": "Windows ProactorEventLoop buffer handling; non-Windows platforms are explicitly unaffected. https://www.cve.org/CVERecord?id=CVE-2026-3298",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-4030",
+      "namespace": "nvd:cpe",
+      "reason": "Windows temporary-directory permissions; non-Windows platforms are explicitly unaffected. https://www.cve.org/CVERecord?id=CVE-2024-4030",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-4030",
+      "namespace": "nvd:cpe",
+      "reason": "Windows temporary-directory permissions; non-Windows platforms are explicitly unaffected. https://www.cve.org/CVERecord?id=CVE-2024-4030",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4517",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4517",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4517",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4517",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4138",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4138",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4138",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4138",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4330",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4330",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4330",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4330",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4435",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4435",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-4435",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2025-4435",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-11940",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2026-11940",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-11940",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2026-11940",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-82049",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2026-82049",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-82049",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python runtime has no tarfile extraction-filter API; verify-toolchain.sh enforces that on every qualified build. Other archive-extraction findings remain blocking. https://www.cve.org/CVERecord?id=CVE-2026-82049",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2019-12900",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python _bz2 links system bzip2 1.0.8, beyond the affected <=1.0.6 range; verify-toolchain.sh enforces linkage, version and a compression roundtrip on every qualified build. https://www.cve.org/CVERecord?id=CVE-2019-12900",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2019-12900",
+      "namespace": "nvd:cpe",
+      "reason": "This exact Apple Python _bz2 links system bzip2 1.0.8, beyond the affected <=1.0.6 range; verify-toolchain.sh enforces linkage, version and a compression roundtrip on every qualified build. https://www.cve.org/CVERecord?id=CVE-2019-12900",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-87866",
+      "namespace": "nvd:cpe",
+      "reason": "wolfSSL-only pinned-key defect; every selectable TLS backend is verified to be OpenSSL or Secure Transport. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-87866.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-107928",
+      "namespace": "nvd:cpe",
+      "reason": "GnuTLS-only WebSocket defect; every selectable TLS backend is verified to be OpenSSL or Secure Transport. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-107928.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-0725",
+      "namespace": "nvd:cpe",
+      "reason": "Requires runtime zlib <=1.2.0.3; linked libcurl runtime information must report zlib >=1.2.0.4. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2025-0725.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-87865",
+      "namespace": "nvd:cpe",
+      "reason": "Requires libssh2 SFTP/SCP transfers; linked libcurl is verified to expose neither SSH protocol. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-87865.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-9547",
+      "namespace": "nvd:cpe",
+      "reason": "Requires libssh SFTP/SCP transfers; linked libcurl is verified to expose neither SSH protocol. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-9547.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-86410",
+      "namespace": "nvd:cpe",
+      "reason": "Requires following redirects to SFTP/SCP; linked libcurl is verified to expose neither SSH protocol. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-86410.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-12064",
+      "namespace": "nvd:cpe",
+      "reason": "Requires SFTP/SCP default-protocol transfers; linked libcurl is verified to expose neither SSH protocol. verify-toolchain.sh enforces these predicates for both ARM and Intel execution before qualification. https://curl.se/docs/CVE-2026-12064.html",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "GHSA-mf9v-mfxr-j63j",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-mf9v-mfxr-j63j",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-qccp-gfcp-xxvc",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-qccp-gfcp-xxvc",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-vxq7-64xx-v4gw",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-vxq7-64xx-v4gw",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-8988-9cw3-xx77",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-8988-9cw3-xx77",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.39.6/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-59685",
+      "namespace": "nvd:cpe",
+      "reason": "This advisory affects Windows path handling, not this exact Apple macOS httpd binary. Module-specific findings remain blocking even when their modules are disabled by default. https://www.cve.org/CVERecord?id=CVE-2026-59685",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-105482",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "Users/admin/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-106069",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "Users/admin/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-111497",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "Users/admin/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-48617",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "Users/admin/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-48937",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "Users/admin/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56846",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "Users/admin/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56848",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "Users/admin/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-58043",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted legacy-runtime risk (2026-11-11): preserve the official GitHub Actions runner Node 20 binary alongside Node 24 for action compatibility. This is an accepted vulnerability, not a fixed or inapplicable finding. Reassess when the official runner replaces Node 20. https://github.com/actions/runner/releases/tag/v2.338.2",
+      "package": {
+        "name": "^node$",
+        "version": "20.20.2",
+        "type": "binary",
+        "location": "Users/admin/actions-runner/externals/node20/bin/node"
+      }
+    },
+    {
+      "vulnerability": "CVE-2018-25032",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2018-25032",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2023-24329",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2023-24329",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-37454",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-37454",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-10735",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-10735",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-45061",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-45061",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2015-20107",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2015-20107",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2021-28861",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2021-28861",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-7592",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-7592",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-6232",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-6232",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-13836",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-13836",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2023-36632",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2023-36632",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-8088",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-8088",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-4032",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-4032",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-0397",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-0397",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-8194",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-8194",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-11972",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-11972",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-4224",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-4224",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-15308",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-15308",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-115557",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-115557",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-7210",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-7210",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-19445",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-19445",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-6100",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-6100",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-9287",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-9287",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-19553",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-19553",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-3644",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-3644",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-9669",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-9669",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2023-6597",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2023-6597",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-4786",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-4786",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple/Xcode Python framework for supplier tooling compatibility alongside maintained Homebrew Python runtimes. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^Python$",
+        "version": "3.9.6",
+        "type": "apple-app-bundle",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/Info.plist"
+      }
+    },
+    {
+      "vulnerability": "CVE-2024-6197",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-9086",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-92391",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-86409",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-19931",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-80231",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-11856",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-87863",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-87864",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-92386",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-92388",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-86414",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-8924",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-92389",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-10536",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-18924",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-5773",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-8927",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-92390",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-94266",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-13608",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-8932",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-82209",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-80230",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-8286",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-6276",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-accepted coexisting legacy-runtime risk (2026-11-11). Retain the Apple system curl at its OS-managed path alongside current Homebrew curl. This is an accepted vulnerability, not a fix or an inapplicability claim. Newer copies do not fix consumers of this copy. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^curl$",
+        "version": "8.7.1",
+        "type": "binary",
+        "location": "usr/bin/curl"
+      }
+    },
+    {
+      "vulnerability": "GHSA-jvgm-pfqv-887x",
+      "namespace": "github:language:ruby",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve the Apple system Ruby bundle alongside current Bundler copies. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^bundler$",
+        "version": "1.17.2",
+        "type": "gem",
+        "location": "Library/Ruby/Gems/2.6.0/specifications/default/bundler-1.17.2.gemspec"
+      }
+    },
+    {
+      "vulnerability": "GHSA-fp4w-jxhp-m23p",
+      "namespace": "github:language:ruby",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve the Apple system Ruby bundle alongside current Bundler copies. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^bundler$",
+        "version": "1.17.2",
+        "type": "gem",
+        "location": "Library/Ruby/Gems/2.6.0/specifications/default/bundler-1.17.2.gemspec"
+      }
+    },
+    {
+      "vulnerability": "GHSA-g98m-96g9-wfjq",
+      "namespace": "github:language:ruby",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve the Apple system Ruby bundle alongside current Bundler copies. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^bundler$",
+        "version": "1.17.2",
+        "type": "gem",
+        "location": "Library/Ruby/Gems/2.6.0/specifications/default/bundler-1.17.2.gemspec"
+      }
+    },
+    {
+      "vulnerability": "GHSA-xxph-c9ww-hj94",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve vendor Android tool archives alongside coexisting Guava 33.6.0-jre. The newer Guava also has a blocking finding and is not claimed safe. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^guava$",
+        "version": "33.4.0-jre",
+        "type": "java-archive",
+        "location": "Users/admin/.android/cli/bundles/cd7cde7182f533706c164960fc5d89cd8091be8f/main.jar"
+      }
+    },
+    {
+      "vulnerability": "GHSA-xxph-c9ww-hj94",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve vendor Android tool archives alongside coexisting Guava 33.6.0-jre. The newer Guava also has a blocking finding and is not claimed safe. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^guava$",
+        "version": "33.4.0-jre",
+        "type": "java-archive",
+        "location": "Users/admin/android-sdk/cmdline-tools/23.0/lib/external/com/google/guava/guava/33.4.0-jre/guava-33.4.0-jre.jar"
+      }
+    },
+    {
+      "vulnerability": "GHSA-jphg-qwrw-7w9g",
+      "namespace": "github:language:ruby",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve supplier-bundled Ruby gems alongside the coexisting JSON 3.1.0 installation. The portable Ruby consumer may still use its old default gem. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^json$",
+        "version": "2.1.0",
+        "type": "gem",
+        "location": "Library/Ruby/Gems/2.6.0/specifications/default/json-2.1.0.gemspec"
+      }
+    },
+    {
+      "vulnerability": "GHSA-3m6g-2423-7cp3",
+      "namespace": "github:language:ruby",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve supplier-bundled Ruby gems alongside the coexisting JSON 3.1.0 installation. The portable Ruby consumer may still use its old default gem. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^json$",
+        "version": "2.18.0",
+        "type": "gem",
+        "location": "Users/admin/.rbenv/versions/4.0.7/lib/ruby/gems/4.0.0/specifications/default/json-2.18.0.gemspec"
+      }
+    },
+    {
+      "vulnerability": "GHSA-3m6g-2423-7cp3",
+      "namespace": "github:language:ruby",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve supplier-bundled Ruby gems alongside the coexisting JSON 3.1.0 installation. The portable Ruby consumer may still use its old default gem. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^json$",
+        "version": "2.18.0",
+        "type": "gem",
+        "location": "opt/homebrew/Library/Homebrew/vendor/portable-ruby/4.0.9/lib/ruby/gems/4.0.0/specifications/default/json-2.18.0.gemspec"
+      }
+    },
+    {
+      "vulnerability": "GHSA-735f-pc8j-v9w8",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve the vendor Kotlin compiler archive in Android tools alongside its separate protobuf-java 3.25.5 archive. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^protobuf-java$",
+        "version": "2.6.1",
+        "type": "java-archive",
+        "location": "Users/admin/android-sdk/cmdline-tools/23.0/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+      }
+    },
+    {
+      "vulnerability": "GHSA-wrvw-hg22-4m67",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve the vendor Kotlin compiler archive in Android tools alongside its separate protobuf-java 3.25.5 archive. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^protobuf-java$",
+        "version": "2.6.1",
+        "type": "java-archive",
+        "location": "Users/admin/android-sdk/cmdline-tools/23.0/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+      }
+    },
+    {
+      "vulnerability": "GHSA-r9hx-vwmv-q579",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools and Android NDK embedded Python environments alongside maintained setuptools 84.2.1. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^setuptools$",
+        "version": "58.0.4",
+        "type": "python",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/setuptools-58.0.4.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-cx63-2mw6-8hw5",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools and Android NDK embedded Python environments alongside maintained setuptools 84.2.1. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^setuptools$",
+        "version": "58.0.4",
+        "type": "python",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/setuptools-58.0.4.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-5rjg-fvgr-3xxf",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools and Android NDK embedded Python environments alongside maintained setuptools 84.2.1. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^setuptools$",
+        "version": "58.0.4",
+        "type": "python",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/setuptools-58.0.4.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-r9hx-vwmv-q579",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools and Android NDK embedded Python environments alongside maintained setuptools 84.2.1. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^setuptools$",
+        "version": "58.0.4",
+        "type": "python",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/setuptools-58.0.4.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-cx63-2mw6-8hw5",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools and Android NDK embedded Python environments alongside maintained setuptools 84.2.1. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^setuptools$",
+        "version": "58.0.4",
+        "type": "python",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/setuptools-58.0.4.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-5rjg-fvgr-3xxf",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools and Android NDK embedded Python environments alongside maintained setuptools 84.2.1. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^setuptools$",
+        "version": "58.0.4",
+        "type": "python",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/setuptools-58.0.4.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-r9hx-vwmv-q579",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools and Android NDK embedded Python environments alongside maintained setuptools 84.2.1. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^setuptools$",
+        "version": "65.5.0",
+        "type": "python",
+        "location": "Users/admin/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/darwin-x86_64/python3/lib/python3.11/site-packages/setuptools-65.5.0.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-cx63-2mw6-8hw5",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools and Android NDK embedded Python environments alongside maintained setuptools 84.2.1. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^setuptools$",
+        "version": "65.5.0",
+        "type": "python",
+        "location": "Users/admin/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/darwin-x86_64/python3/lib/python3.11/site-packages/setuptools-65.5.0.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-5rjg-fvgr-3xxf",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools and Android NDK embedded Python environments alongside maintained setuptools 84.2.1. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^setuptools$",
+        "version": "65.5.0",
+        "type": "python",
+        "location": "Users/admin/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/darwin-x86_64/python3/lib/python3.11/site-packages/setuptools-65.5.0.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-v5h6-c2hv-hv3r",
+      "namespace": "github:language:ruby",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve the Apple system Ruby bundle alongside coexisting StringIO 3.x copies. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^stringio$",
+        "version": "0.0.2",
+        "type": "gem",
+        "location": "Library/Ruby/Gems/2.6.0/specifications/default/stringio-0.0.2.gemspec"
+      }
+    },
+    {
+      "vulnerability": "GHSA-qwmp-2cf2-g9g6",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools embedded Python packages alongside wheel 0.48.0. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^wheel$",
+        "version": "0.37.0",
+        "type": "python",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/wheel-0.37.0.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-qwmp-2cf2-g9g6",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted coexisting package risk (2026-11-11). Preserve Xcode/Command Line Tools embedded Python packages alongside wheel 0.48.0. This is an accepted vulnerability, not a fix. Newer copies do not repair this consumer. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^wheel$",
+        "version": "0.37.0",
+        "type": "python",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/wheel-0.37.0.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-v3c5-jqr6-7qm8",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted legacy-framework private dependency risk (2026-11-11). This private package belongs to the already accepted Apple/Xcode Python 3.9.6 framework; preserve the vendor environment alongside maintained Homebrew Python. No newer future copy is claimed. This is an accepted vulnerability, not a fix; the retained consumer can still exercise it. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^future$",
+        "version": "0.18.2",
+        "type": "python",
+        "location": "Applications/Xcode_27.2.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/future-0.18.2.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-v3c5-jqr6-7qm8",
+      "namespace": "github:language:python",
+      "reason": "Owner-accepted legacy-framework private dependency risk (2026-11-11). This private package belongs to the already accepted Apple/Xcode Python 3.9.6 framework; preserve the vendor environment alongside maintained Homebrew Python. No newer future copy is claimed. This is an accepted vulnerability, not a fix; the retained consumer can still exercise it. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^future$",
+        "version": "0.18.2",
+        "type": "python",
+        "location": "Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/future-0.18.2.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-r2xf-8xr9-62gw",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted legacy-framework private dependency risk (2026-11-11). This private package belongs to the official Android 23.0 Kotlin compiler 2.4.0-dev-2631-for-lint, retained alongside Homebrew Kotlin 2.4.21. The compiler identity was read from META-INF/compiler.version in the checksum-verified official archive. This is an accepted vulnerability, not a fix; the retained consumer can still exercise it. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^jline-builtins$",
+        "version": "3.24.1",
+        "type": "java-archive",
+        "location": "Users/admin/android-sdk/cmdline-tools/23.0/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+      }
+    },
+    {
+      "vulnerability": "GHSA-2r2c-cx56-8933",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted legacy-framework private dependency risk (2026-11-11). This private package belongs to the official Android 23.0 Kotlin compiler 2.4.0-dev-2631-for-lint, retained alongside Homebrew Kotlin 2.4.21. The compiler identity was read from META-INF/compiler.version in the checksum-verified official archive. This is an accepted vulnerability, not a fix; the retained consumer can still exercise it. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^jline-remote-telnet$",
+        "version": "3.24.1",
+        "type": "java-archive",
+        "location": "Users/admin/android-sdk/cmdline-tools/23.0/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+      }
+    },
+    {
+      "vulnerability": "GHSA-47qp-hqvx-6r3f",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted legacy-framework private dependency risk (2026-11-11). This private package belongs to the official Android 23.0 Kotlin compiler 2.4.0-dev-2631-for-lint, retained alongside Homebrew Kotlin 2.4.21. The compiler identity was read from META-INF/compiler.version in the checksum-verified official archive. This is an accepted vulnerability, not a fix; the retained consumer can still exercise it. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^jline-remote-telnet$",
+        "version": "3.24.1",
+        "type": "java-archive",
+        "location": "Users/admin/android-sdk/cmdline-tools/23.0/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar"
+      }
+    },
+    {
+      "vulnerability": "GHSA-xxph-c9ww-hj94",
+      "namespace": "github:language:java",
+      "reason": "Owner-accepted private Guava risk (2026-11-11): exact Homebrew Kotlin 2.4.21 private main-kts bundle, Guava 33.6.0-jre. A separately installed Guava does not replace this bundled consumer. This is an accepted vulnerability, not a fix. https://github.com/melten-ai/runner-images/blob/main/security-exceptions.md",
+      "package": {
+        "name": "^guava$",
+        "version": "33.6.0-jre",
+        "type": "java-archive",
+        "location": "opt/homebrew/Cellar/kotlin/2.4.21/libexec/lib/kotlin-main-kts.jar"
+      }
+    },
+    {
+      "vulnerability": "GHSA-mf9v-mfxr-j63j",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-mf9v-mfxr-j63j",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.40.0/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-qccp-gfcp-xxvc",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-qccp-gfcp-xxvc",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.40.0/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-vxq7-64xx-v4gw",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-vxq7-64xx-v4gw",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.40.0/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    },
+    {
+      "vulnerability": "GHSA-8988-9cw3-xx77",
+      "namespace": "github:language:python",
+      "reason": "Supplier security fix is backported into this exact local build. refresh-aws-cli.py verifies source and patch SHA256, exact patched modules, dependency consistency, real CLI transfer/deletion, and retained build identity before qualification. The original 2.6.3 package remains blocking. https://github.com/advisories/GHSA-8988-9cw3-xx77",
+      "package": {
+        "name": "^urllib3$",
+        "version": "2.6.3+melten.9ff67c841cad",
+        "type": "python",
+        "location": "opt/homebrew/Cellar/awscli/2.40.0/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
+      }
+    }
+  ]
+}

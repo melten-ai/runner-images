@@ -1,11 +1,34 @@
 import copy
 import json
+import re
 import subprocess
 from pathlib import Path
 
 import pytest
 
 from runner_images import cloud
+
+
+def test_cloud_security_policy_changes_build_identity(fixture):
+    root, provider, _ = fixture
+    cloud.plan(root, provider)
+    before = json.loads(cloud.state_path(root, provider).read_text())["input_id"]
+    (root / "cloud/grype.json").write_text("changed scanner policy")
+    cloud.plan(root, provider)
+    assert (
+        json.loads(cloud.state_path(root, provider).read_text())["input_id"] != before
+    )
+
+
+def test_kernel_disposition_data_changes_build_identity(fixture):
+    root, provider, _ = fixture
+    cloud.plan(root, provider)
+    before = json.loads(cloud.state_path(root, provider).read_text())["input_id"]
+    (root / "cloud/kernel-fixes.json").write_text("changed kernel dispositions")
+    cloud.plan(root, provider)
+    assert (
+        json.loads(cloud.state_path(root, provider).read_text())["input_id"] != before
+    )
 
 
 @pytest.fixture(params=["gcp", "azure"])
@@ -20,6 +43,8 @@ def fixture(tmp_path, monkeypatch, request):
         "runner_images/inventory.py",
         "scripts/cloud-image.py",
         "cloud/runner.pkr.hcl",
+        "cloud/grype.json",
+        "cloud/kernel-fixes.json",
     ):
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -59,7 +84,18 @@ def fixture(tmp_path, monkeypatch, request):
         "fail": "",
         "version": "26.11.0",
         "base": "ubuntu-example-20261108",
-        "toolchains": {"node": {"version": "v24.0.0", "sha256": "a" * 64}},
+        "definition_features": [
+            {"name": "SecurityType", "value": "TrustedLaunchSupported"},
+            {"name": "DiskControllerTypes", "value": "SCSI, NVMe"},
+        ],
+        "toolchains": {
+            "node": {"version": "v24.0.0", "sha256": "a" * 64},
+            "git-lfs": {
+                "version": "v3.8.1",
+                "net_version": "v0.62.0",
+                "compress_version": "v1.20.4",
+            },
+        },
     }
 
     def current():
@@ -84,6 +120,22 @@ def fixture(tmp_path, monkeypatch, request):
             )
         if args[:4] == ["az", "vm", "image", "show"]:
             return json.dumps({"name": external["base"]})
+        if args[:4] == ["az", "sig", "image-definition", "show"]:
+            return json.dumps(
+                {"features": copy.deepcopy(external["definition_features"])}
+            )
+        if args[:4] == ["az", "sig", "image-definition", "update"]:
+            features = external["definition_features"]
+            if "--add" in args:
+                features.append(json.loads(args[args.index("--add") + 2]))
+            if "--set" in args:
+                position = args.index("--set") + 1
+                while position < len(args) and not args[position].startswith("--"):
+                    target, value = args[position].split("=", 1)
+                    selected = re.fullmatch(r"features\[(\d+)\]\.(\w+)", target)
+                    features[int(selected.group(1))][selected.group(2)] = value
+                    position += 1
+            return ""
         state = current()
         tags = {
             "owner": "runner-images",
@@ -140,6 +192,15 @@ def fixture(tmp_path, monkeypatch, request):
                     {}
                     if external["fail"] == "receipts"
                     else json.loads((folder / "toolchains-plan.json").read_text())
+                )
+            )
+            (folder / "git-lfs-build.json").write_text(
+                json.dumps(
+                    {
+                        "inputs": {}
+                        if external["fail"] == "lfs-receipt"
+                        else external["toolchains"]["git-lfs"]
+                    }
                 )
             )
             artifact = state["build_id"] if provider == "gcp" else state["image_id"]
@@ -258,6 +319,99 @@ def test_plan_build_publish_noop_and_new_inputs(fixture):
     assert cloud.plan(root, provider)["needed"] == "true"
 
 
+def test_build_declares_nvme_support_starting_at_exact_built_version(fixture):
+    root, provider, state = fixture
+    state["definition_features"] = [
+        {"name": "SecurityType", "value": "TrustedLaunchSupported"},
+        {"name": "IsAcceleratedNetworkSupported", "value": "true"},
+    ]
+    cloud.plan(root, provider)
+    cloud.build(root, provider)
+    if provider == "gcp":
+        assert not any("image-definition" in c for c in state["commands"])
+        return
+    updates = [
+        c
+        for c in state["commands"]
+        if c[:4] == ["az", "sig", "image-definition", "update"]
+    ]
+    assert len(updates) == 1
+    update = updates[0]
+    assert update[update.index("--allow-update-image") + 1] == "true"
+    # The feature must carry the exact first supporting image version; older
+    # versions never retroactively claim NVMe support.
+    assert json.loads(update[update.index("--add") + 2]) == {
+        "name": "DiskControllerTypes",
+        "value": "SCSI,NVMe",
+        "startsAtVersion": "26.11.0",
+    }
+    assert "--set" not in update
+    assert "--remove" not in update
+    assert not any("SecurityType" in argument for argument in update)
+    assert state["definition_features"] == [
+        {"name": "SecurityType", "value": "TrustedLaunchSupported"},
+        {"name": "IsAcceleratedNetworkSupported", "value": "true"},
+        {
+            "name": "DiskControllerTypes",
+            "value": "SCSI,NVMe",
+            "startsAtVersion": "26.11.0",
+        },
+    ]
+    # The definition supports NVMe before Packer publishes the version.
+    assert state["commands"].index(update) < next(
+        i for i, c in enumerate(state["commands"]) if c[:2] == ["packer", "build"]
+    )
+    # A rebuild sees the reconciled definition and stays read-only.
+    cloud.build(root, provider)
+    assert (
+        sum(
+            c[:4] == ["az", "sig", "image-definition", "update"]
+            for c in state["commands"]
+        )
+        == 1
+    )
+
+
+def test_partial_controller_declaration_widens_only_from_built_version(fixture):
+    root, provider, state = fixture
+    state["definition_features"] = [{"name": "DiskControllerTypes", "value": "SCSI"}]
+    cloud.plan(root, provider)
+    cloud.build(root, provider)
+    if provider == "gcp":
+        assert not any("image-definition" in c for c in state["commands"])
+        return
+    updates = [
+        c
+        for c in state["commands"]
+        if c[:4] == ["az", "sig", "image-definition", "update"]
+    ]
+    assert len(updates) == 1
+    position = updates[0].index("--set")
+    assert updates[0][position + 1 : position + 3] == [
+        "features[0].value=SCSI,NVMe",
+        "features[0].startsAtVersion=26.11.0",
+    ]
+    assert "--add" not in updates[0]
+    assert state["definition_features"] == [
+        {
+            "name": "DiskControllerTypes",
+            "value": "SCSI,NVMe",
+            "startsAtVersion": "26.11.0",
+        }
+    ]
+
+
+def test_build_leaves_already_correct_definition_untouched(fixture):
+    root, provider, state = fixture
+    before = copy.deepcopy(state["definition_features"])
+    cloud.plan(root, provider)
+    cloud.build(root, provider)
+    assert not any(
+        c[:4] == ["az", "sig", "image-definition", "update"] for c in state["commands"]
+    )
+    assert state["definition_features"] == before
+
+
 @pytest.mark.parametrize(
     "failure",
     [
@@ -268,6 +422,7 @@ def test_plan_build_publish_noop_and_new_inputs(fixture):
         "sbom",
         "native-sbom",
         "receipts",
+        "lfs-receipt",
         "manifest",
     ],
 )
@@ -297,14 +452,15 @@ def test_partial_release_replay_never_duplicates_or_records_early(fixture, failu
     assert (root / f"qualifications/cloud/{provider}").exists()
 
 
-def test_missing_attestations_and_tampered_evidence_cannot_release(fixture):
+@pytest.mark.parametrize("artifact", ["inventory.json", "git-lfs-build.json"])
+def test_missing_attestations_and_tampered_evidence_cannot_release(fixture, artifact):
     root, provider, state = fixture
     cloud.plan(root, provider)
     cloud.build(root, provider)
     with pytest.raises(ValueError, match="incomplete"):
         cloud.publish(root, provider)
     signed(root, provider)
-    (cloud.state_path(root, provider).parent / "inventory.json").write_text("tampered")
+    (cloud.state_path(root, provider).parent / artifact).write_text("tampered")
     with pytest.raises(ValueError, match="changed"):
         cloud.publish(root, provider)
     assert not state["releases"]
@@ -487,16 +643,30 @@ def test_cleanup_reports_stalled_deletion_and_attempts_other_resources(fixture):
         assert sum(c[:3] == ["az", "resource", "list"] for c in state["commands"]) == 2
 
 
-def test_new_tool_release_rebuilds_without_a_new_base_or_recipe(fixture):
+@pytest.mark.parametrize(
+    "component,field,version",
+    [
+        ("node", "version", "v24.0.1"),
+        ("git-lfs", "net_version", "v0.63.0"),
+        ("git-lfs", "compress_version", "v1.20.5"),
+    ],
+)
+def test_new_tool_release_rebuilds_without_a_new_base_or_recipe(
+    fixture, component, field, version
+):
     root, provider, state = fixture
+    state["toolchains"]["git-lfs"] = {
+        "version": "v3.8.1",
+        "net_version": "v0.62.0",
+        "compress_version": "v1.20.4",
+    }
     cloud.plan(root, provider)
     cloud.build(root, provider)
     signed(root, provider)
     cloud.publish(root, provider)
     assert cloud.plan(root, provider)["needed"] == "false"
     previous = json.loads(cloud.state_path(root, provider).read_text())["input_id"]
-    state["toolchains"]["node"]["version"] = "v24.0.1"
-    state["toolchains"]["node"]["sha256"] = "b" * 64
+    state["toolchains"][component][field] = version
     assert cloud.plan(root, provider)["needed"] == "true"
     assert (
         json.loads(cloud.state_path(root, provider).read_text())["input_id"] != previous
@@ -573,3 +743,33 @@ def test_failed_captured_command_keeps_diagnostic_output(tmp_path, capsys):
             output=True,
         )
     assert "synthetic version failure" in capsys.readouterr().err
+
+
+def test_controller_update_preserves_prior_nvme_version_boundary():
+    definition = {
+        "features": [
+            {
+                "name": "DiskControllerTypes",
+                "value": "NVMe",
+                "startsAtVersion": "25.1.0",
+            }
+        ]
+    }
+    before = copy.deepcopy(definition)
+    with pytest.raises(ValueError, match="NVMe-only"):
+        cloud.controller_update(definition, "26.11.0")
+    assert definition == before
+
+
+def test_controller_update_rejects_version_before_declared_support():
+    definition = {
+        "features": [
+            {
+                "name": "DiskControllerTypes",
+                "value": "SCSI,NVMe",
+                "startsAtVersion": "26.12.0",
+            }
+        ]
+    }
+    with pytest.raises(ValueError, match="precedes"):
+        cloud.controller_update(definition, "26.11.0")

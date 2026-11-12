@@ -76,6 +76,10 @@ source "azure-arm" "ubuntu" {
     replication_regions  = [var.azure_location]
     storage_account_type = "Standard_LRS"
   }
+  # Consumers deploy exact image IDs from release receipts; a gallery
+  # "latest" alias must never resolve to an unpromoted build.
+  shared_gallery_image_version_exclude_from_latest = true
+  ssh_timeout                                      = "30m"
 }
 build {
   sources = ["source.googlecompute.ubuntu", "source.azure-arm.ubuntu"]
@@ -93,6 +97,14 @@ build {
   provisioner "file" {
     source      = "cloud/linux/install-toolchains.py"
     destination = "/tmp/runner-source/install-toolchains.py"
+  }
+  provisioner "file" {
+    source      = "cloud/linux/verify-kernel.py"
+    destination = "/tmp/runner-source/verify-kernel.py"
+  }
+  provisioner "file" {
+    source      = "cloud/kernel-fixes.json"
+    destination = "/tmp/runner-source/kernel-fixes.json"
   }
   provisioner "file" {
     content     = jsonencode(var.toolchains)
@@ -125,6 +137,11 @@ build {
     direction   = "download"
     source      = "/tmp/runner-evidence/toolchains.json"
     destination = "${var.output_directory}toolchains.json"
+  }
+  provisioner "file" {
+    direction   = "download"
+    source      = "/tmp/runner-evidence/git-lfs-build.json"
+    destination = "${var.output_directory}git-lfs-build.json"
   }
   provisioner "shell" {
     inline = ["sudo rm -rf /tmp/runner-source /tmp/runner-evidence /tmp/runner-tools /tmp/actions-runner.tar.gz /tmp/syft.tar.gz /tmp/runner-release.json /tmp/syft-release.json /tmp/runner-docker.asc", "sudo rm -f /home/runnerbuilder/.ssh/authorized_keys", "sudo apt-get clean", "sudo cloud-init clean --logs --seed", "sudo truncate -s 0 /etc/machine-id"]

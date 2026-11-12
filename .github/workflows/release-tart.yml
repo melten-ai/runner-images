@@ -44,7 +44,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 cloud/linux/install-toolchains.py --host-tool grype "$RUNNER_TEMP/runner-image-tools" "$RUNNER_TEMP/grype.json"
-          "$RUNNER_TEMP/runner-image-tools/bin/grype" "sbom:$BUNDLE/sbom.syft.json" --fail-on high --output json --file artifacts/release/vulnerabilities.json
+          "$RUNNER_TEMP/runner-image-tools/bin/grype" "sbom:$BUNDLE/sbom.syft.json" --config artifacts/release/source/macos/grype.json --fail-on high --output json --file artifacts/release/vulnerabilities.json
       - uses: actions/attest@v4
         id: provenance
         with:

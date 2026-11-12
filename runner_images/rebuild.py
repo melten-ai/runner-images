@@ -20,6 +20,8 @@ def input_id(root: Path, profile: str) -> str:
     ]
     for directory, pattern in (
         ("macos", "*.sh"),
+        ("macos", "*.py"),
+        ("macos", "*.json"),
         ("runner_images", "*.py"),
         ("scripts", "*.py"),
         ("scripts", "*.sh"),
