@@ -1,0 +1,23 @@
+{
+  "provider": "gcp",
+  "input_id": "984b947857bfa6c3612e7a07ce7618377ac6a77a9fcf0e64c487e2589ac8d0f7",
+  "source_commit": "bb9f7a54331a28c0a1b9ccfd2b4dd622ffea12b0",
+  "base_image": "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2404-noble-amd64-v20261105",
+  "base_version": "ubuntu-2404-noble-amd64-v20261105",
+  "version": "26.11.0",
+  "build_id": "ri-gcp-43165729806-1",
+  "image_id": "projects/melten-internal/global/images/ri-gcp-43165729806-1",
+  "qualification_level": "provisioning-smoke",
+  "run_id": "43165729806",
+  "observed_image_id": "4787115837558940916",
+  "evidence_sha256": {
+    "inventory.json": "aaaaf0424a12f0d3b72971250d94f9df7c87f1583c7ca776b82db3a1ae79c3ad",
+    "toolchain-check.txt": "0a2d0a8b537e2ea333b019ea007f6542bc5739fb70edb3f5ac68e6c26260fb9b",
+    "sbom.spdx.json": "31c71585a53e2b063d7e9021144945e427a17d38d82304e0b6dab821269b76af",
+    "sbom.syft.json": "edc725eee1623a269ac34a94d6ac187c8c56672586f1f7e2d838143c4b518241",
+    "toolchains.json": "6bab7712bad719318e68ffa6b99f49758438e1d406d81a90f1ab49fc8a32f13b",
+    "git-lfs-build.json": "658789a5312ae0a9dff1798723d87bd1a1011720f6f01cf5bd488b1ccb571f24",
+    "comparison.json": "e90f6bac0ba9f781b9b520181b8d21ba0147b3c01f6d18809275a94c79e1f5bd",
+    "packer-manifest.json": "fd4398a2910b28b88283e6fd6daf3f5495c26a2b1d1f06857493feda04fddc93"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "status": "released",
+  "input_id": "984b947857bfa6c3612e7a07ce7618377ac6a77a9fcf0e64c487e2589ac8d0f7",
+  "image_id": "projects/melten-internal/global/images/ri-gcp-43165729806-1",
+  "source_commit": "bb9f7a54331a28c0a1b9ccfd2b4dd622ffea12b0",
+  "url": "https://github.com/melten-ai/runner-images/releases/tag/cloud-gcp%4026.11.0",
+  "qualification_level": "provisioning-smoke"
+}
