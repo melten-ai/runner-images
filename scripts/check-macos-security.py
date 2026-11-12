@@ -204,10 +204,38 @@ with tempfile.TemporaryDirectory() as d:
                 }
             ],
             "cpes": [
-                {"cpe": "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49:*:*:*:*:*:*:*"}
+                {
+                    "cpe": (
+                        "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49:*:*:*:*:*:*:*"
+                    )
+                }
             ],
         },
     ]
+    artifacts.append(
+        {
+            "id": "9",
+            "name": "graphicsmagick",
+            "version": "1.3.49_1",
+            "type": "homebrew",
+            "foundBy": "homebrew-cataloger",
+            "locations": [
+                {
+                    "path": (
+                        "opt/homebrew/Cellar/graphicsmagick/1.3.49_1/.brew/"
+                        "graphicsmagick.rb"
+                    )
+                }
+            ],
+            "cpes": [
+                {
+                    "cpe": (
+                        "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49_1:*:*:*:*:*:*:*"
+                    )
+                }
+            ],
+        }
+    )
     artifacts.append(
         {
             "id": "4",
@@ -245,7 +273,11 @@ with tempfile.TemporaryDirectory() as d:
             "purl": "pkg:generic/httpd@2.4.67",
         }
     )
-    for artifact_id, aws_version in (("5", "2.39.6"), ("8", "2.40.0")):
+    for artifact_id, aws_version in (
+        ("5", "2.39.6"),
+        ("8", "2.40.0"),
+        ("10", "2.40.1"),
+    ):
         artifacts.append(
             {
                 "id": artifact_id,
@@ -267,9 +299,11 @@ with tempfile.TemporaryDirectory() as d:
         **{str(index): python_dispositions for index in (0, 1)},
         "2": {"CVE-2017-5506", "CVE-2014-9826"},
         "3": {"CVE-2025-32460", "CVE-2007-0770"},
+        "9": {"CVE-2025-32460", "CVE-2007-0770"},
         "4": curl_dispositions,
         "5": aws_backports,
         "8": aws_backports,
+        "10": aws_backports,
         "6": openldap_server_dispositions,
         "7": httpd_module_dispositions,
     }
@@ -600,8 +634,8 @@ with tempfile.TemporaryDirectory() as d:
     required_matches = {
         **expected_dispositions,
     }
-    # Each adjacent case must still be reported by the real scanner. Keeping
-    # the CPE constant isolates rule scope from version-range feed changes.
+    # Each adjacent case must still be reported by the real scanner. The CPEs
+    # mirror the identities emitted by Syft for the installed Homebrew records.
     for original in tuple(artifacts):
         for field, value in (
             ("name", "OtherPackage"),

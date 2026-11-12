@@ -258,8 +258,8 @@ def test_backport_policy_tracks_source_identity():
         "GHSA-vxq7-64xx-v4gw",
         "GHSA-8988-9cw3-xx77",
     }
-    assert len(rules) == 8
-    for cli in ("2.39.6", "2.40.0"):
+    assert len(rules) == 12
+    for cli in ("2.39.6", "2.40.0", "2.40.1"):
         scoped = [r for r in rules if f"/awscli/{cli}/" in r["package"]["location"]]
         assert len(scoped) == 4
         assert {r["vulnerability"] for r in scoped} == advisories
@@ -270,3 +270,33 @@ def test_backport_policy_tracks_source_identity():
     )
     for path in ("scripts/check-macos-security.py", "macos/security-dispositions.md"):
         assert version in (root / path).read_text()
+
+
+def test_graphicsmagick_policy_tracks_exact_scope():
+    root = Path(__file__).resolve().parents[1]
+    rules = [
+        rule
+        for rule in json.loads((root / "macos/grype.json").read_text())["ignore"]
+        if rule["package"]["name"] == "^graphicsmagick$"
+    ]
+    advisories = {"CVE-2007-0770", "CVE-2025-32460"}
+    versions = {"1.3.49", "1.3.49_1"}
+    assert len(rules) == 4
+    assert {
+        (
+            rule["vulnerability"],
+            rule["package"]["version"],
+            rule["package"]["type"],
+            rule["package"]["location"],
+        )
+        for rule in rules
+    } == {
+        (
+            advisory,
+            version,
+            "homebrew",
+            f"opt/homebrew/Cellar/graphicsmagick/{version}/.brew/graphicsmagick.rb",
+        )
+        for advisory in advisories
+        for version in versions
+    }
