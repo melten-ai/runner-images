@@ -204,7 +204,11 @@ with tempfile.TemporaryDirectory() as d:
                 }
             ],
             "cpes": [
-                {"cpe": "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49:*:*:*:*:*:*:*"}
+                {
+                    "cpe": (
+                        "cpe:2.3:a:graphicsmagick:graphicsmagick:1.3.49_1:*:*:*:*:*:*:*"
+                    )
+                }
             ],
         },
     ]
@@ -626,8 +630,8 @@ with tempfile.TemporaryDirectory() as d:
     required_matches = {
         **expected_dispositions,
     }
-    # Each adjacent case must still be reported by the real scanner. Keeping
-    # the CPE constant isolates rule scope from version-range feed changes.
+    # Each adjacent case must still be reported by the real scanner. The CPEs
+    # mirror the identities emitted by Syft for the installed Homebrew records.
     for original in tuple(artifacts):
         for field, value in (
             ("name", "OtherPackage"),
