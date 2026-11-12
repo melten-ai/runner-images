@@ -1,0 +1,24 @@
+name: Temporary GCP image Actions probe
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  probe:
+    runs-on: [self-hosted, gcp-image-probe]
+    timeout-minutes: 15
+    steps:
+      - name: Verify image runtime
+        shell: bash
+        run: |
+          set -eux
+          test -f /var/tmp/gcp-image-probe-started
+          test ! -e /snap
+          test ! -e /var/snap
+          test ! -e /var/lib/snapd
+          test ! -e /usr/bin/google_osconfig_agent
+          if dpkg-query -W -f='${binary:Package}\n' | grep -Eq '^linux-(tools|cloud-tools)-[0-9].*-(gcp|azure)$|^linux-(gcp|azure)-[0-9].*-tools-'; then exit 1; fi
+          test "$(node --version)" = "v26.13.1"
+          test "$(npm --version)" = "12.2.2"
+          docker --version
+          systemctl is-active docker
+          printf 'gcp image actions probe passed\n'
