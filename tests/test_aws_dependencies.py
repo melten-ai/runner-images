@@ -258,8 +258,8 @@ def test_backport_policy_tracks_source_identity():
         "GHSA-vxq7-64xx-v4gw",
         "GHSA-8988-9cw3-xx77",
     }
-    assert len(rules) == 8
-    for cli in ("2.39.6", "2.40.0"):
+    assert len(rules) == 12
+    for cli in ("2.39.6", "2.40.0", "2.40.1"):
         scoped = [r for r in rules if f"/awscli/{cli}/" in r["package"]["location"]]
         assert len(scoped) == 4
         assert {r["vulnerability"] for r in scoped} == advisories
