@@ -31,7 +31,26 @@ if command -v snap >/dev/null; then
 	while read -r name revision; do
 		sudo snap remove "$name" --revision="$revision"
 	done < <(LC_ALL=C snap list --all | awk 'NR > 1 && $NF ~ /(^|,)disabled(,|$)/ {print $1, $3}')
+	# The runner contract does not consume the GCE base image's optional
+	# Google Cloud CLI Snap or Snap runtime. Remove both before SBOM capture so
+	# their bundled, independently versioned dependencies cannot ship in the
+	# runner image.
+	sudo snap remove google-cloud-cli || true
+	sudo apt-get purge -y snapd
+	sudo rm -rf /snap /var/snap /var/lib/snapd
 fi
+# OS Config is an optional management agent. The runner uses the GCE guest
+# agent for lifecycle and metadata integration, so remove OS Config before
+# collecting the image SBOM.
+if dpkg-query -W -f='${Status}' google-osconfig-agent 2>/dev/null | grep -q 'install ok installed'; then
+	sudo apt-get purge -y google-osconfig-agent
+fi
+# The GCE base image carries versioned kernel diagnostic tools that are not
+# consumed by the runner contract. Keep the running kernel and its modules,
+# but remove only linux-tools packages before SBOM capture.
+dpkg-query -W -f='${binary:Package}\n' 2>/dev/null |
+	grep -E '^linux-(tools-common|tools-[0-9].*-gcp|gcp-[0-9].*-tools-)' |
+	xargs -r sudo apt-get purge -y
 sudo systemctl enable --now docker
 sudo usermod -aG docker runnerbuilder
 sudo mkdir -p /opt/actions-runner

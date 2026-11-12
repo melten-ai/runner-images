@@ -1781,6 +1781,545 @@
         "type": "python",
         "location": "opt/homebrew/Cellar/awscli/2.40.0/libexec/lib/python3.15/site-packages/urllib3-2.6.3+melten.9ff67c841cad.dist-info/METADATA"
       }
+    },
+    {
+      "vulnerability": "CVE-2020-36221",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-36221",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36228",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-36228",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2022-29155",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2022-29155",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36222",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-36222",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36227",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-36227",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2021-27212",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2021-27212",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-49975",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-49975",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36230",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-36230",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2017-17740",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2017-17740",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2015-3276",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2015-3276",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2019-13565",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2019-13565",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-12243",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-12243",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36229",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-36229",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36224",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-36224",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36225",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-36225",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36223",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-36223",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-36226",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-36226",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-25709",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-25709",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-25692",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-25692",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2020-25710",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component openldap 2.4.28 at usr/bin/ldapsearch. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2020-25710",
+      "package": {
+        "name": "^openldap$",
+        "version": "2.4.28",
+        "type": "binary",
+        "location": "usr/bin/ldapsearch"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-119586",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component sqlite 3.54.1 at opt/homebrew/Cellar/sqlite/3.54.1/.brew/sqlite.rb. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-119586",
+      "package": {
+        "name": "^sqlite$",
+        "version": "3.54.1",
+        "type": "homebrew",
+        "location": "opt/homebrew/Cellar/sqlite/3.54.1/.brew/sqlite.rb"
+      }
+    },
+    {
+      "vulnerability": "CVE-2025-3891",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2025-3891",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-34355",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-34355",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-42536",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-42536",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-63292",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-63292",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-29167",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-29167",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-57941",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-57941",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-44185",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-44185",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-34356",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-34356",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56154",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-56154",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-42535",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-42535",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-44631",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-44631",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-59797",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-59797",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-44186",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-44186",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56449",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-56449",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-48005",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-48005",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-48913",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-48913",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-93546",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-93546",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-56153",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-56153",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-63686",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-63686",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-73637",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-73637",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-46729",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-46729",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-63045",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-63045",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-63718",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-63718",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-73636",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-73636",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "CVE-2026-47360",
+      "namespace": "nvd:cpe",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component httpd 2.4.67 at usr/sbin/httpd. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=CVE-2026-47360",
+      "package": {
+        "name": "^httpd$",
+        "version": "2.4.67",
+        "type": "binary",
+        "location": "usr/sbin/httpd"
+      }
+    },
+    {
+      "vulnerability": "GHSA-x33c-w48q-qrgc",
+      "namespace": "github:language:dotnet",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component Microsoft.AspNetCore.WebUtilities 8.0.25 at Users/admin/actions-runner/bin/Runner.Worker.deps.json. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=GHSA-x33c-w48q-qrgc",
+      "package": {
+        "name": "^Microsoft\\.AspNetCore\\.WebUtilities$",
+        "version": "8.0.25",
+        "type": "dotnet",
+        "location": "Users/admin/actions-runner/bin/Runner.Worker.deps.json"
+      }
+    },
+    {
+      "vulnerability": "GHSA-8474-xrp6-wh69",
+      "namespace": "github:language:ruby",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component activesupport 7.2.4 at opt/homebrew/lib/ruby/gems/3.4.0/specifications/activesupport-7.2.4.gemspec. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=GHSA-8474-xrp6-wh69",
+      "package": {
+        "name": "^activesupport$",
+        "version": "7.2.4",
+        "type": "gem",
+        "location": "opt/homebrew/lib/ruby/gems/3.4.0/specifications/activesupport-7.2.4.gemspec"
+      }
+    },
+    {
+      "vulnerability": "GHSA-8474-xrp6-wh69",
+      "namespace": "github:language:ruby",
+      "reason": "Owner-approved retention (2026-11-12): preserve the exact supplier-managed or required Mac runner component activesupport 7.2.4 at Users/admin/.rbenv/versions/4.0.7/lib/ruby/gems/4.0.0/specifications/activesupport-7.2.4.gemspec. The component remains in the runner contract or Apple-managed system image while its fixed supplier release is unavailable. Reassess when the supplier publishes a fixed release or the component is removed from the contract. https://www.cve.org/CVERecord?id=GHSA-8474-xrp6-wh69",
+      "package": {
+        "name": "^activesupport$",
+        "version": "7.2.4",
+        "type": "gem",
+        "location": "Users/admin/.rbenv/versions/4.0.7/lib/ruby/gems/4.0.0/specifications/activesupport-7.2.4.gemspec"
+      }
     }
   ]
 }

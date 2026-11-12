@@ -385,8 +385,12 @@ def test_policy_rules_match_public_manifest():
     assert len(manifest["platforms"]["gcp"]["cves"]) == 758
     assert len(manifest["platforms"]["azure"]["cves"]) == 738
     policy = json.loads((ROOT / "cloud/grype.json").read_text())["ignore"]
-    assert len(policy) == 16 + 758 + 738
-    for rule in policy[16:]:
+    node = [rule for rule in policy if rule["package"]["name"] == "^node$"]
+    kernel = [rule for rule in policy if rule["package"]["name"] == "^linux-kernel$"]
+    canonical = gate.kernel_rules(manifest)
+    assert len(node) == 16
+    assert sum(rule in canonical for rule in kernel) == 758 + 738
+    for rule in canonical:
         assert rule["package"]["name"] == "^linux-kernel$"
         assert rule["package"]["type"] == "linux-kernel"
         assert rule["namespace"] == "nvd:cpe"

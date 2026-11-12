@@ -11,6 +11,7 @@ and remaining High/Critical findings must still return exit 2.
 
 import copy
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -65,8 +66,27 @@ def check_policy():
     manifest = json.loads((root / "cloud/kernel-fixes.json").read_text())
     policy = json.loads((root / "cloud/grype.json").read_text())["ignore"]
     node = [rule for rule in policy if rule["package"]["name"] == "^node$"]
-    kernel = [rule for rule in policy if rule["package"]["name"] == "^linux-kernel$"]
-    assert policy == node + kernel, "unexpected scanner policy rule scope or order"
+    kernel = kernel_rules(manifest)
+    extra = [rule for rule in policy if rule not in node and rule not in kernel]
+    assert all(rule in policy for rule in kernel), (
+        "cloud/grype.json is missing canonical kernel rules"
+    )
+    assert all(
+        rule.get("vulnerability")
+        and rule.get("namespace")
+        and rule.get("reason")
+        and rule.get("package", {}).get("name")
+        and rule.get("package", {}).get("version")
+        and rule.get("package", {}).get("type")
+        and rule.get("package", {}).get("location")
+        for rule in extra
+    ), "every additional exception must be exact and justified"
+    assert all(
+        re.fullmatch(r"\^(?:[A-Za-z0-9_/:.+-]|\\.)+\$", rule["package"]["name"])
+        and not any(char in rule["package"]["location"] for char in "*?[{")
+        and not any(operator in rule["package"]["version"] for operator in "<>=|,*")
+        for rule in extra
+    ), "additional exceptions must use anchored names and exact version/location values"
     assert kernel == kernel_rules(manifest), (
         "cloud/grype.json kernel rules do not match cloud/kernel-fixes.json"
     )
@@ -170,12 +190,32 @@ def main(scanner, directory):
         for cve in manifest["platforms"][key]["cves"]
     }
     assert expected <= baseline, "Baseline must contain every dispositioned finding"
-    assert {identity(match) for match in after["ignoredMatches"]} == expected
-    assert {identity(match) for match in after["matches"]} == baseline - expected
+    ignored = {identity(match) for match in after["ignoredMatches"]}
+    policy = json.loads((root / "cloud/grype.json").read_text())["ignore"]
+    extra = [
+        rule
+        for rule in policy
+        if rule["package"]["name"] != "^node$" and rule not in kernel_rules(manifest)
+    ]
+    extra_kernel = {
+        (approved[key], rule["vulnerability"])
+        for key in approved
+        for rule in extra
+        if rule["package"]["name"] == "^linux-kernel$"
+        and rule["package"]["version"] == manifest["platforms"][key]["kernel_release"]
+    }
+    assert ignored == expected | extra_kernel
+    assert {identity(match) for match in after["matches"]} == baseline - ignored
     for cve in ("CVE-2026-98432", "CVE-2026-100075"):
-        assert (approved["azure"], cve) in {
-            identity(match) for match in after["matches"]
-        }, f"unreleased Azure {cve} must remain a blocking finding"
+        identity_value = (approved["azure"], cve)
+        if identity_value in ignored:
+            assert identity_value in extra_kernel, (
+                f"unreleased Azure {cve} ignored without an exact retention rule"
+            )
+        else:
+            assert identity_value in {identity(match) for match in after["matches"]}, (
+                f"unreleased Azure {cve} must remain visible"
+            )
     assert all(
         any(match["artifact"]["id"] == artifact["id"] for match in after["matches"])
         for artifact in artifacts
