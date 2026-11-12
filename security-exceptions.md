@@ -86,3 +86,7 @@ Owner accepted on 2026-11-11 for the exact private Java archives below. The Andr
 | 33.6.0-jre | `opt/homebrew/Cellar/kotlin/2.4.21/libexec/lib/kotlin-main-kts.jar` | [GHSA-xxph-c9ww-hj94](https://github.com/advisories/GHSA-xxph-c9ww-hj94) (Homebrew Kotlin 2.4.21 private main-kts bundle) |
 
 This does not waive Apache HTTPD, Apple OpenLDAP or SQLite findings.
+
+## GCP provider-managed components retained during remediation
+
+On 2026-11-12, the GCP image remediation removed the optional Google Cloud CLI Snap, Snap runtime, OS Config agent and kernel diagnostic tools. The remaining exact-version rules in `cloud/grype.json` retain only the GCE guest agent, the running kernel/modules, Docker/containerd components and the official runner WebUtilities dependency required by the runner contract. Each rule is pinned to package name, version, type, location and advisory. Reassess each rule when the supplier publishes a fixed version or the image contract changes.

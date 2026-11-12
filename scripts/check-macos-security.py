@@ -64,10 +64,12 @@ httpd_module_dispositions = {
     "CVE-2026-42536",
     "CVE-2026-44185",
     "CVE-2026-44186",
+    "CVE-2026-44631",
     "CVE-2026-46729",
     "CVE-2026-47360",
     "CVE-2026-48005",
     "CVE-2026-48913",
+    "CVE-2026-49975",
     "CVE-2026-56153",
     "CVE-2026-56154",
     "CVE-2026-56449",
@@ -83,14 +85,8 @@ httpd_module_dispositions = {
     "CVE-2026-93546",
 }
 openldap_server_dispositions = {
-    "CVE-2012-1164",
-    "CVE-2013-4449",
-    "CVE-2014-9713",
-    "CVE-2015-1545",
-    "CVE-2017-14159",
+    "CVE-2015-3276",
     "CVE-2017-17740",
-    "CVE-2017-9287",
-    "CVE-2019-13057",
     "CVE-2019-13565",
     "CVE-2020-12243",
     "CVE-2020-25692",
@@ -274,8 +270,8 @@ with tempfile.TemporaryDirectory() as d:
         "4": curl_dispositions,
         "5": aws_backports,
         "8": aws_backports,
-        "6": set(),
-        "7": {"CVE-2026-59685"},
+        "6": openldap_server_dispositions,
+        "7": httpd_module_dispositions,
     }
     legacy_packages = [
         {
@@ -603,8 +599,6 @@ with tempfile.TemporaryDirectory() as d:
         artifacts.append(package)
     required_matches = {
         **expected_dispositions,
-        "6": openldap_server_dispositions,
-        "7": httpd_module_dispositions,
     }
     # Each adjacent case must still be reported by the real scanner. Keeping
     # the CPE constant isolates rule scope from version-range feed changes.

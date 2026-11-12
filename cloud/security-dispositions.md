@@ -30,10 +30,10 @@ Any present-but-changed byte, identity or version fails qualification before any
 
 Only the per-platform released-and-USN-confirmed fixes above are dispositioned. Everything else keeps its findings, including:
 
-- the 20 Azure advisories whose fix (`linux-azure-7.0 7.0.0-1020.21~24.04.1`) is still `pending` without a released noble USN — notably **CVE-2026-98432** and **CVE-2026-100075**, which stay blocking on Azure while fixed on GCP;
+- the 20 Azure advisories whose fix (`linux-azure-7.0 7.0.0-1020.21~24.04.1`) is still `pending` without a released noble USN — notably **CVE-2026-98432** and **CVE-2026-100075**. The owner-approved exact Azure-image exceptions record these residual risks until Canonical publishes the corresponding noble USN;
 - the 103 `not-affected` tracker annotations (vendor convention, requires review — not dispositioned);
 - the 11 unknown/missing/deferred tracker cases;
-- any other package name, type, version, location or namespace, and all non-kernel High/Critical findings outside the Node 20 risk acceptances.
+- any other package name, type, version, location or namespace, and all non-kernel High/Critical findings outside the exact owner-approved retention rules in `cloud/grype.json`.
 
 These are supplier-fix dispositions with native binding, not risk acceptances.
 
