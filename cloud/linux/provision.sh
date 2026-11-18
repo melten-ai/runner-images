@@ -61,7 +61,7 @@ sudo python3 /tmp/runner-source/install-toolchains.py /opt/actions-runner /tmp/r
 # They are not part of the runner contract, so remove them after all dependency installation is complete;
 # otherwise the installer can reintroduce them after the earlier cleanup and verification will fail.
 dpkg-query -W -f='${binary:Package}\n' 2>/dev/null |
-	grep -E '^linux-tools-common$|^linux-(tools|cloud-tools)-[0-9].*-(gcp|azure)$|^linux-(gcp|azure)-[0-9].*-tools-' |
+	grep -E '^linux-tools-common(:[^[:space:]]+)?$|^linux-(tools|cloud-tools)-[0-9].*-(gcp|azure)(:[^[:space:]]+)?$|^linux-(gcp|azure)-[0-9].*-(tools|cloud-tools)(-[0-9].*)?(:[^[:space:]]+)?$|^linux-(tools|cloud-tools)-(gcp|azure)(:[^[:space:]]+)?$' |
 	xargs -r sudo apt-get purge -y
 # No repository/organization registration, tokens, or cloud identity in the VM.
 # The scanner is a temporary build dependency, not a shipped runner tool.
