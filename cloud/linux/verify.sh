@@ -23,7 +23,7 @@ for package in snapd google-osconfig-agent linux-tools-common; do
 		exit 1
 	fi
 done
-if dpkg-query -W -f='${binary:Package}\n' 2>/dev/null | grep -Eq '^linux-(tools|cloud-tools)-[0-9].*-(gcp|azure)$|^linux-(gcp|azure)-[0-9].*-tools-'; then
+if dpkg-query -W -f='${binary:Package}\n' 2>/dev/null | grep -Eq '^linux-tools-common(:[^[:space:]]+)?$|^linux-(tools|cloud-tools)-[0-9].*-(gcp|azure)(:[^[:space:]]+)?$|^linux-(gcp|azure)-[0-9].*-(tools|cloud-tools)(-[0-9].*)?(:[^[:space:]]+)?$|^linux-(tools|cloud-tools)-(gcp|azure)(:[^[:space:]]+)?$'; then
 	echo "versioned provider kernel tools are still installed" >&2
 	exit 1
 fi
