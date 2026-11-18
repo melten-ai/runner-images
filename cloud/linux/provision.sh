@@ -45,13 +45,6 @@ fi
 if dpkg-query -W -f='${Status}' google-osconfig-agent 2>/dev/null | grep -q 'install ok installed'; then
 	sudo apt-get purge -y google-osconfig-agent
 fi
-# The GCE base image carries versioned kernel diagnostic tools that are not
-# consumed by the runner contract. Keep the running kernel and its modules,
-# but remove versioned linux-tools and linux-cloud-tools packages before SBOM
-# capture. The provider's common cloud-tools package remains available.
-dpkg-query -W -f='${binary:Package}\n' 2>/dev/null |
-	grep -E '^linux-tools-common$|^linux-(tools|cloud-tools)-[0-9].*-(gcp|azure)$|^linux-(gcp|azure)-[0-9].*-tools-' |
-	xargs -r sudo apt-get purge -y
 sudo systemctl enable --now docker
 sudo usermod -aG docker runnerbuilder
 sudo mkdir -p /opt/actions-runner
@@ -64,6 +57,12 @@ printf '%s  %s\n' "$checksum" /tmp/actions-runner.tar.gz | sha256sum --check
 tar xzf /tmp/actions-runner.tar.gz
 sudo ./bin/installdependencies.sh
 sudo python3 /tmp/runner-source/install-toolchains.py /opt/actions-runner /tmp/runner-evidence/toolchains.json --runner-npm
+# The base image and runner dependency installer can both add provider-specific kernel diagnostic tools.
+# They are not part of the runner contract, so remove them after all dependency installation is complete;
+# otherwise the installer can reintroduce them after the earlier cleanup and verification will fail.
+dpkg-query -W -f='${binary:Package}\n' 2>/dev/null |
+	grep -E '^linux-tools-common$|^linux-(tools|cloud-tools)-[0-9].*-(gcp|azure)$|^linux-(gcp|azure)-[0-9].*-tools-' |
+	xargs -r sudo apt-get purge -y
 # No repository/organization registration, tokens, or cloud identity in the VM.
 # The scanner is a temporary build dependency, not a shipped runner tool.
 url=$(jq -er '.syft.url' /tmp/runner-source/toolchains-plan.json)
