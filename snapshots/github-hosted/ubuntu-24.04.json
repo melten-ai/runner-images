@@ -3,7 +3,7 @@
   "os": "linux",
   "arch": "x86_64",
   "image_os": "ubuntu24",
-  "image_version": "20261116.376.1",
+  "image_version": "20261122.23.1",
   "records": [
     "cache CodeQL",
     "cache Java_Temurin-Hotspot_jdk",
