@@ -1,0 +1,8 @@
+{
+  "status": "released",
+  "input_id": "3e19f435f4af68f81f7d1df2f64bef9485cb45b0ff82c6e8da6842b9e5cf5789",
+  "image_id": "/subscriptions/a7cdb107-2be2-4b5b-9ce4-25cd29174788/resourceGroups/github-runners-images/providers/Microsoft.Compute/galleries/github_runner_images/images/runner-images-ubuntu-2404/versions/26.11.11",
+  "source_commit": "3ea53faa5e10a012fcb5f4a3c205be7df1389d2d",
+  "url": "https://github.com/melten-ai/runner-images/releases/tag/cloud-azure%4026.11.11",
+  "qualification_level": "provisioning-smoke"
+}
