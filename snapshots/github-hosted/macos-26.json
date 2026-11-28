@@ -3,7 +3,7 @@
   "os": "darwin",
   "arch": "arm64",
   "image_os": "macos26",
-  "image_version": "20261117.0516.1",
+  "image_version": "20261123.0526.1",
   "records": [
     "cache CodeQL",
     "cache Java_Temurin-Hotspot_jdk",
@@ -1538,7 +1538,6 @@
     "cmd unzstd",
     "cmd update_dyld_shared_cache",
     "cmd update_mcdp29xx",
-    "cmd update_rubygems",
     "cmd uptime",
     "cmd usbcfwflasher",
     "cmd usbdiagnose",
